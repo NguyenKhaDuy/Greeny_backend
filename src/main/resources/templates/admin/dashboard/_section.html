@@ -1,0 +1,192 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="dashboard(orders, inventoryItems, reviews, revenueDashboard, dashboardDays, productStats)">
+    <section class="admin-section is-active dashboard-section" id="dashboard"
+             th:with="pendingOrders=${orders.?[status() == 0]},
+                      lowStockItems=${inventoryItems.?[quantity() == null || quantity() <= 5]},
+                      pendingReviews=${reviews.?[isApproved() == null]}">
+
+        <div class="dashboard-hero surface">
+            <div class="dashboard-hero__content">
+                <span class="dashboard-hero__icon" aria-hidden="true">🌿</span>
+                <div>
+                    <p class="eyebrow">Vận hành hôm nay</p>
+                    <h2>Tổng quan cửa hàng cây Greeny</h2>
+                    <p>Theo dõi nhanh đơn hàng, doanh thu, người dùng và tồn kho cần chú ý để xử lý đúng việc, đúng lúc.</p>
+                </div>
+            </div>
+
+            <form class="dashboard-range" method="get" action="/admin" aria-label="Chọn khoảng thời gian dashboard">
+                <span>Khoảng thời gian</span>
+                <div class="range-options" role="group" aria-label="Chọn số ngày thống kê">
+                    <button type="submit" name="dashboardDays" value="7"
+                            th:classappend="${dashboardDays == 7 ? ' active' : ''}">7 ngày</button>
+                    <button type="submit" name="dashboardDays" value="14"
+                            th:classappend="${dashboardDays == 14 ? ' active' : ''}">14 ngày</button>
+                    <button type="submit" name="dashboardDays" value="30"
+                            th:classappend="${dashboardDays == 30 ? ' active' : ''}">30 ngày</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="dashboard-stat-grid" aria-label="Chỉ số tổng quan">
+            <article class="stat-card stat-orders">
+                <div class="stat-card__top">
+                    <span class="stat-card__icon" aria-hidden="true">📦</span>
+                    <span>Đơn hàng</span>
+                </div>
+
+                <div class="stat-card__body">
+                    <strong th:text="${revenueDashboard.periodOrders() != null ? revenueDashboard.periodOrders() : 0}">0</strong>
+                    <p th:text="${'Trong ' + revenueDashboard.dashboardDays() + ' ngày gần nhất'}">Trong 14 ngày gần nhất</p>
+                    <small class="stat-trend"
+                           th:classappend="${revenueDashboard.orderTrend().tone()}"
+                           th:text="${revenueDashboard.orderTrend().label()}">0% so với 14 ngày trước</small>
+                </div>
+
+                <a class="stat-card__link" href="#orders">Chi tiết</a>
+            </article>
+
+            <article class="stat-card stat-revenue">
+                <div class="stat-card__top">
+                    <span class="stat-card__icon" aria-hidden="true">💰</span>
+                    <span>Doanh thu</span>
+                </div>
+
+                <div class="stat-card__body">
+                    <strong th:text="${#numbers.formatDecimal(revenueDashboard.periodRevenue() != null ? revenueDashboard.periodRevenue() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</strong>
+                    <p th:text="${revenueDashboard.periodPaidOrders() + ' đơn đã thanh toán trong kỳ'}">0 đơn đã thanh toán trong kỳ</p>
+                    <small class="stat-trend"
+                           th:classappend="${revenueDashboard.revenueTrend().tone()}"
+                           th:text="${revenueDashboard.revenueTrend().label()}">0% so với 14 ngày trước</small>
+                </div>
+
+                <a class="stat-card__link" href="#revenue">Chi tiết</a>
+            </article>
+
+            <article class="stat-card stat-users">
+                <div class="stat-card__top">
+                    <span class="stat-card__icon" aria-hidden="true">👥</span>
+                    <span>Người dùng</span>
+                </div>
+
+                <div class="stat-card__body">
+                    <strong th:text="${revenueDashboard.periodUsers() != null ? revenueDashboard.periodUsers() : 0}">0</strong>
+                    <p>Tài khoản mới trong kỳ.</p>
+                    <small class="stat-trend"
+                           th:classappend="${revenueDashboard.userTrend().tone()}"
+                           th:text="${revenueDashboard.userTrend().label()}">0% so với 14 ngày trước</small>
+                </div>
+
+                <a class="stat-card__link" href="#users">Chi tiết</a>
+            </article>
+
+            <article class="stat-card stat-stock">
+                <div class="stat-card__top">
+                    <span class="stat-card__icon" aria-hidden="true">🪴</span>
+                    <span>Tồn kho cần chú ý</span>
+                </div>
+
+                <div class="stat-card__body">
+                    <strong th:text="${#lists.size(lowStockItems)}">0</strong>
+                    <p>Mặt hàng sắp hết hoặc đã hết hàng.</p>
+                    <small class="stat-trend"
+                           th:classappend="${revenueDashboard.inventoryTrend().tone()}"
+                           th:text="${revenueDashboard.inventoryTrend().label()}">0% mặt hàng cần chú ý</small>
+                </div>
+
+                <a class="stat-card__link" href="#inventory">Chi tiết</a>
+            </article>
+        </div>
+
+        <div class="dashboard-focus-grid">
+            <section class="surface dashboard-panel">
+                <div class="section-heading compact">
+                    <p class="eyebrow">Cần xử lý</p>
+                    <h2>Hàng đợi vận hành</h2>
+                    <p>Những mục có dữ liệu thực tế trong hệ thống và nên được kiểm tra trước.</p>
+                </div>
+
+                <div class="work-queue">
+                    <a class="work-queue__item" href="#orders">
+                        <span class="status-pill warning" th:text="${#lists.size(pendingOrders)}">0</span>
+                        <div>
+                            <strong>Đơn chờ xác nhận</strong>
+                            <small>Cần kiểm tra thanh toán, địa chỉ và khả năng đáp ứng tồn kho.</small>
+                        </div>
+                    </a>
+
+                    <a class="work-queue__item" href="#inventory">
+                        <span class="status-pill danger" th:text="${#lists.size(lowStockItems)}">0</span>
+                        <div>
+                            <strong>Sản phẩm tồn kho thấp</strong>
+                            <small>Cần nhập thêm, tạm ẩn bán hoặc điều chỉnh số lượng thực tế.</small>
+                        </div>
+                    </a>
+
+                    <a class="work-queue__item" href="#reviews">
+                        <span class="status-pill neutral" th:text="${#lists.size(pendingReviews)}">0</span>
+                        <div>
+                            <strong>Đánh giá chờ duyệt</strong>
+                            <small>Duyệt nội dung, ẩn đánh giá không phù hợp hoặc phản hồi khi cần.</small>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <section class="surface dashboard-panel dashboard-revenue-panel">
+                <div class="section-heading compact">
+                    <p class="eyebrow">Doanh thu gần đây</p>
+                    <h2 th:text="${'Dòng tiền ' + revenueDashboard.dashboardDays() + ' ngày'}">Dòng tiền 14 ngày</h2>
+                    <p>Hiển thị doanh thu từ các đơn đã thanh toán theo từng ngày.</p>
+                </div>
+
+                <div class="mini-revenue-list" th:if="${!#lists.isEmpty(revenueDashboard.dailyRevenue())}">
+                    <article th:each="day : ${revenueDashboard.dailyRevenue()}"
+                             th:with="revenue=${day.revenue() != null ? day.revenue() : T(java.math.BigDecimal).ZERO},
+                                      percent=${day.percentOfPeak()}">
+                        <span th:text="${#temporals.format(day.date(), 'dd/MM')}">01/06</span>
+
+                        <div class="mini-revenue-list__bar">
+                            <i th:style="${'width:' + (percent < 8 && revenue.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? 8 : percent) + '%'}"></i>
+                        </div>
+
+                        <strong th:text="${#numbers.formatDecimal(revenue, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</strong>
+                    </article>
+                </div>
+
+                <p th:if="${#lists.isEmpty(revenueDashboard.dailyRevenue())}" class="empty-state">
+                    Chưa có doanh thu trong khoảng thời gian này.
+                </p>
+            </section>
+        </div>
+
+        <div class="dashboard-product-row">
+            <section class="surface dashboard-panel">
+                <div class="section-heading compact">
+                    <p class="eyebrow">Sản phẩm bán chạy</p>
+                    <h2>Top sản phẩm bán chạy</h2>
+                    <p>Ưu tiên sản phẩm có doanh thu và số lượng bán nổi bật.</p>
+                </div>
+
+                <div class="rank-list dashboard-rank">
+                    <article th:each="product, iter : ${revenueDashboard.topProducts()}"
+                             th:if="${iter.index < 5}"
+                             class="rank-row">
+                        <span class="rank-row__index" th:text="${iter.index + 1}">1</span>
+
+                        <div class="rank-row__content">
+                            <h3 th:text="${product.plantTitle()}">Plant</h3>
+                            <p th:text="${(product.soldQuantity() != null ? product.soldQuantity() : 0) + ' bán ra / Tồn ' + (product.stockQuantity() != null ? product.stockQuantity() : 0)}">0 bán ra / Tồn 0</p>
+                        </div>
+
+                        <strong th:text="${#numbers.formatDecimal(product.revenue() != null ? product.revenue() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</strong>
+                    </article>
+
+                    <p th:if="${#lists.isEmpty(revenueDashboard.topProducts())}" class="empty-state">
+                        Chưa có doanh thu từ sản phẩm.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </section>
+</th:block>

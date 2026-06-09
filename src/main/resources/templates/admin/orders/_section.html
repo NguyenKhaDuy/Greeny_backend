@@ -1,0 +1,227 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="orders(orders)">
+            <section class="admin-section" id="orders"
+                     th:with="totalOrders=${#lists.size(orders)},
+                              pendingOrders=${orders.?[status() == 0]},
+                              confirmedOrders=${orders.?[status() == 1]},
+                              preparingOrders=${orders.?[status() == 2]},
+                              shippingOrders=${orders.?[status() == 3]},
+                              deliveredOrders=${orders.?[status() == 4]},
+                              canceledOrders=${orders.?[status() == 5]},
+                              returnedOrders=${orders.?[status() == 6]}">
+                <div class="section-heading">
+                    <p class="eyebrow"><span class="mini-icon icon-orders" aria-hidden="true"></span> Vận hành đơn hàng</p>
+                    <h2>Quản lý đơn hàng và thanh toán</h2>
+                    <p>Lọc, kiểm tra thanh toán, cập nhật giao hàng và mở phần chỉnh sửa ngay bên dưới từng đơn.</p>
+                </div>
+
+                <div class="quick-stat-grid order-stat-grid">
+                    <article class="quick-stat"><span class="mini-icon icon-orders" aria-hidden="true"></span><small>Tổng đơn</small><strong th:text="${totalOrders}">0</strong></article>
+                    <article class="quick-stat warning"><span class="mini-icon icon-clock" aria-hidden="true"></span><small>Chờ xác nhận</small><strong th:text="${#lists.size(pendingOrders)}">0</strong></article>
+                    <article class="quick-stat info"><span class="mini-icon icon-check" aria-hidden="true"></span><small>Đã xác nhận</small><strong th:text="${#lists.size(confirmedOrders)}">0</strong></article>
+                    <article class="quick-stat accent"><span class="mini-icon icon-package" aria-hidden="true"></span><small>Đang chuẩn bị</small><strong th:text="${#lists.size(preparingOrders)}">0</strong></article>
+                    <article class="quick-stat purple"><span class="mini-icon icon-truck" aria-hidden="true"></span><small>Đang giao</small><strong th:text="${#lists.size(shippingOrders)}">0</strong></article>
+                    <article class="quick-stat success"><span class="mini-icon icon-check-circle" aria-hidden="true"></span><small>Đã giao</small><strong th:text="${#lists.size(deliveredOrders)}">0</strong></article>
+                    <article class="quick-stat danger"><span class="mini-icon icon-x-circle" aria-hidden="true"></span><small>Đã hủy</small><strong th:text="${#lists.size(canceledOrders)}">0</strong></article>
+                    <article class="quick-stat neutral"><span class="mini-icon icon-rotate" aria-hidden="true"></span><small>Hoàn trả</small><strong th:text="${#lists.size(returnedOrders)}">0</strong></article>
+                    <article class="quick-stat success"><span class="mini-icon icon-check-circle" aria-hidden="true"></span><small>Tỉ lệ hoàn thành</small><strong th:text="${#numbers.formatDecimal(totalOrders > 0 ? (#lists.size(deliveredOrders) * 100.0 / totalOrders) : 0, 0, 'POINT', 0, 'COMMA') + '%'}">0%</strong></article>
+                    <article class="quick-stat danger"><span class="mini-icon icon-x-circle" aria-hidden="true"></span><small>Tỉ lệ hủy</small><strong th:text="${#numbers.formatDecimal(totalOrders > 0 ? (#lists.size(canceledOrders) * 100.0 / totalOrders) : 0, 0, 'POINT', 0, 'COMMA') + '%'}">0%</strong></article>
+                </div>
+
+                <div class="order-workbench surface">
+                    <form class="admin-filter-panel" data-order-filter-form>
+                        <label>Mã đơn<input name="orderId" type="search" placeholder="Nhập mã đơn"></label>
+                        <label>Email khách hàng<input name="email" type="search" placeholder="email@example.com"></label>
+                        <label>Số điện thoại<input name="phone" type="search" placeholder="SĐT khách hàng hoặc người nhận"></label>
+                        <label>Từ ngày<input name="dateFrom" type="date"></label>
+                        <label>Đến ngày<input name="dateTo" type="date"></label>
+                        <label>Từ số tiền<input name="minTotal" type="number" min="0" step="1000" placeholder="0"></label>
+                        <label>Đến số tiền<input name="maxTotal" type="number" min="0" step="1000" placeholder="500000"></label>
+                        <div class="filter-actions">
+                            <button class="primary-button" type="button" data-apply-order-filters><span class="mini-icon icon-filter" aria-hidden="true"></span>Lọc</button>
+                            <button class="ghost-button" type="reset" data-reset-order-filters><span class="mini-icon icon-x-circle" aria-hidden="true"></span>Xóa lọc</button>
+                        </div>
+                    </form>
+
+                    <div class="order-filter-tabs" aria-label="Lọc nhanh theo trạng thái đơn">
+                        <button class="active" type="button" data-order-filter="all">Tất cả <span>0</span></button>
+                        <button type="button" data-order-filter="0">Chờ xác nhận <span>0</span></button>
+                        <button type="button" data-order-filter="1">Đã xác nhận <span>0</span></button>
+                        <button type="button" data-order-filter="2">Đang chuẩn bị <span>0</span></button>
+                        <button type="button" data-order-filter="3">Đang giao <span>0</span></button>
+                        <button type="button" data-order-filter="4">Đã giao <span>0</span></button>
+                        <button type="button" data-order-filter="5">Đã hủy <span>0</span></button>
+                        <button type="button" data-order-filter="6">Hoàn trả <span>0</span></button>
+                    </div>
+
+                    <div class="table-scroll order-table-wrap">
+                        <table class="data-table order-table">
+                            <thead>
+                            <tr>
+                                <th>Mã đơn / Ngày đặt</th>
+                                <th>Khách hàng</th>
+                                <th>Tổng tiền</th>
+                                <th>Số lượng</th>
+                                <th>Trạng thái đơn</th>
+                                <th>Thanh toán</th>
+                                <th>Người nhận / Mã giao hàng</th>
+                                <th>Thao tác</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:each="order : ${orders}">
+                            <tr class="order-summary-row"
+                                th:data-order-status="${order.status() != null ? order.status() : 'unknown'}"
+                                th:data-payment-status="${order.paymentStatus() != null ? order.paymentStatus() : 'unknown'}"
+                                th:data-order-id="${order.orderId() != null ? order.orderId() : ''}"
+                                th:data-customer="${(order.customerName() != null ? order.customerName() : '') + ' ' + (order.customerEmail() != null ? order.customerEmail() : '')}"
+                                th:data-email="${order.customerEmail() != null ? order.customerEmail() : ''}"
+                                th:data-phone="${(order.customerPhone() != null ? order.customerPhone() : '') + ' ' + (order.receiverPhone() != null ? order.receiverPhone() : '')}"
+                                th:data-total="${order.totalPrice() != null ? order.totalPrice() : 0}"
+                                th:data-created="${order.createdAt() != null ? #temporals.format(order.createdAt(), 'yyyy-MM-dd') : ''}"
+                                th:data-method="${order.payment() != null && order.payment().method() != null ? order.payment().method() : ''}">
+                                <td>
+                                    <strong th:text="${order.orderId() != null ? 'Đơn #' + (#strings.length(order.orderId()) > 8 ? #strings.substring(order.orderId(), 0, 8) : order.orderId()) : 'Chưa có dữ liệu'}">Đơn #12345678</strong>
+                                    <small th:text="${order.createdAt() != null ? #temporals.format(order.createdAt(), 'dd/MM/yyyy HH:mm') : 'Chưa có dữ liệu'}">01/06/2026 09:00</small>
+                                </td>
+                                <td>
+                                    <strong th:text="${order.customerName() != null ? order.customerName() : 'Chưa có dữ liệu'}">Khách hàng</strong>
+                                    <small th:text="${order.customerEmail() != null ? order.customerEmail() : (order.receiverPhone() != null ? order.receiverPhone() : 'Chưa có dữ liệu')}">email@example.com</small>
+                                </td>
+                                <td><strong th:text="${#numbers.formatDecimal(order.totalPrice() != null ? order.totalPrice() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</strong></td>
+                                <td><span class="count-chip" th:text="${order.items() != null ? #lists.size(order.items()) + ' sản phẩm' : '0 sản phẩm'}">0 sản phẩm</span></td>
+                                <td>
+                                    <span class="status-pill status-with-icon"
+                                          th:classappend="${' order-status-' + (order.status() != null ? order.status() : 'unknown')}"
+                                          th:text="${order.statusLabel() != null ? order.statusLabel() : 'Chưa rõ'}">Chờ xác nhận</span>
+                                </td>
+                                <td>
+                                    <span class="status-pill status-with-icon"
+                                          th:classappend="${' payment-status-' + (order.paymentStatus() != null ? order.paymentStatus() : 'unknown')}"
+                                          th:text="${order.paymentStatusLabel() != null ? order.paymentStatusLabel() : 'Chưa rõ'}">Chờ thanh toán</span>
+                                    <small th:text="${order.payment() != null && order.payment().transactionId() != null ? order.payment().transactionId() : 'Chưa có mã giao dịch'}">Chưa có mã giao dịch</small>
+                                </td>
+                                <td>
+                                    <strong th:text="${order.receiverName() != null ? order.receiverName() : 'Chưa có dữ liệu'}">Người nhận</strong>
+                                    <small th:text="${order.trackingCode() != null ? order.trackingCode() : 'Chưa có mã giao hàng'}">Mã giao hàng</small>
+                                </td>
+                                <td>
+                                    <button class="small-button icon-button-text js-edit-order" type="button"><span class="mini-icon icon-edit" aria-hidden="true"></span>Chỉnh sửa</button>
+                                </td>
+                            </tr>
+                            <tr class="order-detail-row" th:data-order-status="${order.status() != null ? order.status() : 'unknown'}">
+                                <td colspan="8">
+                                    <details class="order-detail">
+                                        <summary><span class="mini-icon icon-edit" aria-hidden="true"></span>Chỉnh sửa đơn hàng</summary>
+                                        <div class="order-detail-body">
+                                            <div class="order-grid">
+                                                <section class="order-panel">
+                                                    <h4><span class="mini-icon icon-map" aria-hidden="true"></span>Thông tin giao hàng</h4>
+                                                    <p><strong th:text="${order.receiverName() != null ? order.receiverName() : 'Chưa có dữ liệu'}">Người nhận</strong></p>
+                                                    <p th:text="${order.receiverPhone() != null ? order.receiverPhone() : 'Chưa có dữ liệu'}">Số điện thoại</p>
+                                                    <p th:text="${order.shippingAddress() != null ? order.shippingAddress() : 'Chưa có dữ liệu'}">Địa chỉ</p>
+                                                    <p th:text="${(order.shippingMethod() != null ? order.shippingMethod() : 'Chưa có dữ liệu') + ' - ' + (order.trackingCode() != null ? order.trackingCode() : 'Chưa có mã giao hàng')}">Giao hàng</p>
+                                                </section>
+
+                                                <section class="order-panel">
+                                                    <h4><span class="mini-icon icon-wallet" aria-hidden="true"></span>Tài chính</h4>
+                                                    <dl class="money-list">
+                                                        <div><dt>Tạm tính</dt><dd th:text="${#numbers.formatDecimal(order.subtotal() != null ? order.subtotal() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</dd></div>
+                                                        <div><dt>Giảm giá</dt><dd th:text="${#numbers.formatDecimal(order.discountAmount() != null ? order.discountAmount() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</dd></div>
+                                                        <div><dt>Phí ship</dt><dd th:text="${#numbers.formatDecimal(order.shippingFee() != null ? order.shippingFee() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</dd></div>
+                                                        <div><dt>Tổng</dt><dd th:text="${#numbers.formatDecimal(order.totalPrice() != null ? order.totalPrice() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</dd></div>
+                                                    </dl>
+                                                    <p th:text="${order.couponCode() != null ? 'Coupon: ' + order.couponCode() : 'Chưa có dữ liệu'}">Coupon</p>
+                                                </section>
+
+                                                <section class="order-panel order-items-panel">
+                                                    <h4><span class="mini-icon icon-package" aria-hidden="true"></span>Sản phẩm</h4>
+                                                    <div class="mini-item" th:each="item : ${order.items()}">
+                                                        <span th:text="${item.quantity() != null ? item.quantity() : 0}">1</span>
+                                                        <div>
+                                                            <strong th:text="${(item.plantTitle() != null ? item.plantTitle() : 'Chưa có dữ liệu') + ' - ' + (item.variantName() != null ? item.variantName() : 'Chưa có dữ liệu')}">Sản phẩm</strong>
+                                                            <small th:text="${(item.sku() != null ? item.sku() : 'Chưa có SKU') + ' / ' + #numbers.formatDecimal(item.totalPrice() != null ? item.totalPrice() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">SKU</small>
+                                                        </div>
+                                                    </div>
+                                                    <p th:if="${#lists.isEmpty(order.items())}" class="empty-state">Chưa có dữ liệu</p>
+                                                </section>
+                                            </div>
+
+                                            <div class="quick-action-strip">
+                                                <button type="button" class="ghost-button" th:disabled="${order.status() != 0}"><span class="mini-icon icon-check" aria-hidden="true"></span>Xác nhận đơn</button>
+                                                <button type="button" class="ghost-button danger-ghost" th:disabled="${order.status() != 0}"><span class="mini-icon icon-x-circle" aria-hidden="true"></span>Hủy đơn</button>
+                                                <button type="button" class="ghost-button" th:disabled="${order.status() != 1}"><span class="mini-icon icon-package" aria-hidden="true"></span>Chuẩn bị hàng</button>
+                                                <button type="button" class="ghost-button" th:disabled="${order.status() != 2}"><span class="mini-icon icon-truck" aria-hidden="true"></span>Bàn giao vận chuyển</button>
+                                                <button type="button" class="ghost-button" th:disabled="${order.status() != 3}"><span class="mini-icon icon-check-circle" aria-hidden="true"></span>Đánh dấu đã giao</button>
+                                            </div>
+
+                                            <div class="order-actions-grid">
+                                                <form th:action="@{/admin/orders/{id}/status(id=${order.orderId()})}" method="post" class="form-grid compact-form panel-form js-loading-form">
+                                                    <div class="form-title"><span class="mini-icon icon-refresh" aria-hidden="true"></span>Cập nhật trạng thái đơn</div>
+                                                    <label>Trạng thái đơn
+                                                        <select name="status">
+                                                            <option value="0" th:selected="${order.status() == 0}">Chờ xác nhận</option>
+                                                            <option value="1" th:selected="${order.status() == 1}">Đã xác nhận</option>
+                                                            <option value="2" th:selected="${order.status() == 2}">Đang chuẩn bị</option>
+                                                            <option value="3" th:selected="${order.status() == 3}">Đang giao</option>
+                                                            <option value="4" th:selected="${order.status() == 4}">Đã giao</option>
+                                                            <option value="5" th:selected="${order.status() == 5}">Đã hủy</option>
+                                                            <option value="6" th:selected="${order.status() == 6}">Hoàn trả</option>
+                                                        </select>
+                                                    </label>
+                                                    <label>Thanh toán
+                                                        <select name="paymentStatus">
+                                                            <option value="0" th:selected="${order.paymentStatus() == 0}">Chờ thanh toán</option>
+                                                            <option value="1" th:selected="${order.paymentStatus() == 1}">Đã thanh toán</option>
+                                                            <option value="2" th:selected="${order.paymentStatus() == 2}">Thanh toán thất bại</option>
+                                                            <option value="3" th:selected="${order.paymentStatus() == 3}">Hoàn tiền</option>
+                                                            <option value="4" th:selected="${order.paymentStatus() == 4}">Đã hủy</option>
+                                                        </select>
+                                                    </label>
+                                                    <label>Hẹn giao<input name="estimatedDelivery" th:value="${order.estimatedDelivery()}" placeholder="Ví dụ: 2-3 ngày"></label>
+                                                    <label>Ghi chú lịch sử<input name="note" placeholder="Lý do hoặc cập nhật nội bộ"></label>
+                                                    <button class="primary-button" type="submit" data-loading-text="Đang cập nhật..."><span class="mini-icon icon-save" aria-hidden="true"></span>Cập nhật trạng thái</button>
+                                                </form>
+
+                                                <form th:action="@{/admin/orders/{id}/payment(id=${order.orderId()})}" method="post" class="form-grid compact-form panel-form js-loading-form">
+                                                    <div class="form-title"><span class="mini-icon icon-card" aria-hidden="true"></span>Cập nhật thanh toán</div>
+                                                    <label>Mã giao dịch<input name="transactionId" th:value="${order.payment() != null ? order.payment().transactionId() : ''}" placeholder="TXN..."></label>
+                                                    <label>Số tiền<input name="amount" type="number" step="1000" min="0" th:value="${order.payment() != null ? order.payment().amount() : order.totalPrice()}"></label>
+                                                    <label>Phương thức<input name="method" th:value="${order.payment() != null ? order.payment().method() : ''}" placeholder="COD, VNPAY..."></label>
+                                                    <label>Trạng thái payment
+                                                        <select name="status">
+                                                            <option value="0" th:selected="${order.payment() != null && order.payment().status() == 0}">Chờ thanh toán</option>
+                                                            <option value="1" th:selected="${order.payment() != null && order.payment().status() == 1}">Đã thanh toán</option>
+                                                            <option value="2" th:selected="${order.payment() != null && order.payment().status() == 2}">Thanh toán thất bại</option>
+                                                            <option value="3" th:selected="${order.payment() != null && order.payment().status() == 3}">Hoàn tiền</option>
+                                                            <option value="4" th:selected="${order.payment() != null && order.payment().status() == 4}">Đã hủy</option>
+                                                        </select>
+                                                    </label>
+                                                    <label class="wide">Gateway response<input name="gatewayResponse" th:value="${order.payment() != null ? order.payment().gatewayResponse() : ''}" placeholder="Nội dung callback hoặc ghi chú"></label>
+                                                    <button class="small-button" type="submit" data-loading-text="Đang lưu..."><span class="mini-icon icon-card" aria-hidden="true"></span>Lưu thanh toán</button>
+                                                </form>
+                                            </div>
+
+                                            <details class="history-box" th:if="${!#lists.isEmpty(order.histories())}" open>
+                                                <summary><span class="mini-icon icon-clock" aria-hidden="true"></span>Lịch sử trạng thái</summary>
+                                                <div class="history-line" th:each="history : ${order.histories()}">
+                                                    <strong th:text="${history.oldStatusLabel() + ' -> ' + history.newStatusLabel()}">Trạng thái</strong>
+                                                    <span th:text="${history.createdAt() != null ? #temporals.format(history.createdAt(), 'dd/MM/yyyy HH:mm') : 'Chưa có dữ liệu'}">01/06/2026 09:00</span>
+                                                    <p th:text="${history.note() != null ? history.note() : 'Không có ghi chú'}">Ghi chú</p>
+                                                </div>
+                                            </details>
+                                            <p th:if="${#lists.isEmpty(order.histories())}" class="empty-state">Chưa có dữ liệu</p>
+                                        </div>
+                                    </details>
+                                </td>
+                            </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p th:if="${#lists.isEmpty(orders)}" class="empty-state">Chưa có đơn hàng nào.</p>
+                    <p class="empty-state order-filter-empty" hidden>Không có đơn hàng phù hợp bộ lọc.</p>
+                </div>
+            </section>
+
+</th:block>

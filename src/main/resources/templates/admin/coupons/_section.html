@@ -1,0 +1,471 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="coupons(regularCoupons, systemCoupons, couponTotalUsage, couponActiveCount, couponExpiringCount, couponExpiredCount, couponUsedOutCount, couponStatusKeys, couponStatusLabels, couponUsedOutFlags, couponSystemCodeFlags, couponDeactivateDisabledFlags, now, soon)">
+
+    <section class="admin-section coupon-admin" id="coupons"
+             th:with="totalCoupons=${#lists.size(regularCoupons)}">
+
+        <div class="section-heading coupon-hero">
+            <p class="eyebrow">
+                <span class="mini-icon icon-coupon" aria-hidden="true"></span>
+                Khuyến mãi
+            </p>
+            <h2>Quản lý mã giảm giá</h2>
+            <p>
+                Tạo mã, kiểm soát điều kiện áp dụng, theo dõi lượt sử dụng, xử lý mã sắp hết hạn
+                và chỉnh sửa coupon ngay trong danh sách.
+            </p>
+        </div>
+
+        <div class="quick-stat-grid coupon-stat-grid">
+            <article class="quick-stat">
+                <span class="mini-icon icon-coupon" aria-hidden="true"></span>
+                <small>Tổng mã</small>
+                <strong th:text="${totalCoupons}">0</strong>
+            </article>
+
+            <article class="quick-stat success">
+                <span class="mini-icon icon-check-circle" aria-hidden="true"></span>
+                <small>Đang hoạt động</small>
+                <strong th:text="${couponActiveCount != null ? couponActiveCount : 0}">0</strong>
+            </article>
+
+            <article class="quick-stat warning">
+                <span class="mini-icon icon-clock" aria-hidden="true"></span>
+                <small>Sắp hết hạn</small>
+                <strong th:text="${couponExpiringCount != null ? couponExpiringCount : 0}">0</strong>
+            </article>
+
+            <article class="quick-stat danger">
+                <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                <small>Đã hết hạn</small>
+                <strong th:text="${couponExpiredCount != null ? couponExpiredCount : 0}">0</strong>
+            </article>
+
+            <article class="quick-stat accent">
+                <span class="mini-icon icon-alert" aria-hidden="true"></span>
+                <small>Đã dùng hết lượt</small>
+                <strong th:text="${couponUsedOutCount != null ? couponUsedOutCount : 0}">0</strong>
+            </article>
+
+            <article class="quick-stat info">
+                <span class="mini-icon icon-check" aria-hidden="true"></span>
+                <small>Tổng lượt sử dụng</small>
+                <strong th:text="${couponTotalUsage != null ? couponTotalUsage : 0}">0</strong>
+            </article>
+        </div>
+
+        <div class="coupon-create-system-grid">
+            <section class="surface coupon-form-card">
+                <div class="section-heading compact">
+                    <p class="eyebrow">
+                        <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                        Thêm mới
+                    </p>
+                    <h2>Thêm mã giảm giá</h2>
+                    <p>Thiết lập code, loại giảm, điều kiện đơn hàng, giới hạn lượt dùng và thời gian hiệu lực.</p>
+                </div>
+
+                <form method="post" action="/admin/coupons" class="form-grid coupon-create-form js-loading-form">
+                    <label>
+                        Mã coupon
+                        <input name="code" required placeholder="GREENY10">
+                    </label>
+
+                    <label>
+                        Loại giảm
+                        <select name="type" required>
+                            <option value="1">Theo phần trăm</option>
+                            <option value="2">Theo số tiền</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Giá trị giảm
+                        <input name="value" type="number" step="0.01" min="0" required placeholder="10">
+                    </label>
+
+                    <label>
+                        Đơn tối thiểu
+                        <input name="minOrderAmount" type="number" step="1000" min="0" placeholder="200000">
+                    </label>
+
+                    <label>
+                        Giảm tối đa
+                        <input name="maxDiscountAmount" type="number" step="1000" min="0" placeholder="50000">
+                    </label>
+
+                    <label>
+                        Lượt dùng tối đa
+                        <input name="maxUses" type="number" min="0" placeholder="100">
+                    </label>
+
+                    <label>
+                        Mỗi khách tối đa
+                        <input name="perUserLimit" type="number" min="0" placeholder="1">
+                    </label>
+
+                    <label>
+                        Ngày bắt đầu
+                        <input name="startsAt" type="datetime-local">
+                    </label>
+
+                    <label>
+                        Ngày hết hạn
+                        <input name="expiresAt" type="datetime-local">
+                    </label>
+
+                    <label class="toggle">
+                        <input name="isActive" type="checkbox" value="true" checked>
+                        <span>Đang hoạt động</span>
+                    </label>
+
+                    <button class="primary-button wide" type="submit" data-loading-text="Đang lưu...">
+                        <span class="mini-icon icon-save" aria-hidden="true"></span>
+                        Lưu mã giảm giá
+                    </button>
+                </form>
+            </section>
+
+            <section class="surface coupon-system-card">
+                <div class="section-heading compact">
+                    <p class="eyebrow">
+                        <span class="mini-icon icon-alert" aria-hidden="true"></span>
+                        Mã hệ thống
+                    </p>
+                    <h2>NO_COUPON</h2>
+                    <p>Mã dùng nội bộ để giữ liên kết đơn hàng khi coupon bị xóa hoặc không còn áp dụng.</p>
+                </div>
+
+                <div class="system-coupon-list">
+                    <article class="system-coupon-item"
+                             th:each="coupon : ${systemCoupons}"
+                             th:with="usedOut=${couponUsedOutFlags.get(coupon.couponsId())},
+                                      statusKey=${couponStatusKeys.get(coupon.couponsId())},
+                                      statusLabel=${couponStatusLabels.get(coupon.couponsId())}">
+                        <header>
+                            <strong th:text="${coupon.code() != null ? coupon.code() : 'NO_COUPON'}">NO_COUPON</strong>
+                            <span class="status-pill status-with-icon"
+                                  th:classappend="${' coupon-status-' + statusKey}"
+                                  th:text="${statusLabel != null ? statusLabel : 'Mã hệ thống'}">
+                                Mã hệ thống
+                            </span>
+                        </header>
+
+                        <dl>
+                            <div>
+                                <dt>Lượt liên kết</dt>
+                                <dd th:text="${coupon.usedCount() != null ? coupon.usedCount() : 0}">0</dd>
+                            </div>
+
+                            <div>
+                                <dt>Giới hạn</dt>
+                                <dd th:text="${coupon.maxUses() != null ? coupon.maxUses() : 'Không giới hạn'}">
+                                    Không giới hạn
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt>Cập nhật</dt>
+                                <dd th:text="${coupon.updatedAt() != null ? #temporals.format(coupon.updatedAt(), 'dd/MM/yyyy HH:mm') : 'Chưa có dữ liệu'}">
+                                    Chưa có dữ liệu
+                                </dd>
+                            </div>
+                        </dl>
+                    </article>
+                </div>
+
+                <p th:if="${#lists.isEmpty(systemCoupons)}" class="empty-state">
+                    Chưa có mã hệ thống.
+                </p>
+            </section>
+        </div>
+
+        <section class="surface coupon-list-card">
+            <div class="coupon-list-head">
+                <div class="section-heading compact">
+                    <p class="eyebrow">
+                        <span class="mini-icon icon-coupon" aria-hidden="true"></span>
+                        Danh sách
+                    </p>
+                    <h2>Mã giảm giá hiện có</h2>
+                    <p>Danh sách dạng thẻ giúp đọc điều kiện và thao tác nhanh hơn bảng nhiều cột.</p>
+                </div>
+            </div>
+
+            <form class="admin-filter-panel coupon-filter-panel" data-coupon-filter-form>
+                <label>
+                    Mã coupon
+                    <input name="code" type="search" placeholder="Nhập mã coupon">
+                </label>
+
+                <label>
+                    Trạng thái
+                    <select name="status">
+                        <option value="all">Tất cả</option>
+                        <option value="active">Đang hoạt động</option>
+                        <option value="inactive">Tạm ẩn</option>
+                        <option value="expiring">Sắp hết hạn</option>
+                        <option value="expired">Đã hết hạn</option>
+                        <option value="used-out">Đã dùng hết lượt</option>
+                        <option value="upcoming">Chưa bắt đầu</option>
+                    </select>
+                </label>
+
+                <label>
+                    Loại giảm
+                    <select name="type">
+                        <option value="all">Tất cả</option>
+                        <option value="1">Phần trăm</option>
+                        <option value="2">Số tiền</option>
+                    </select>
+                </label>
+
+                <label>
+                    Ngày bắt đầu
+                    <input name="startsFrom" type="date">
+                </label>
+
+                <label>
+                    Ngày hết hạn
+                    <input name="expiresTo" type="date">
+                </label>
+
+                <label>
+                    Còn lượt dùng
+                    <select name="usage">
+                        <option value="all">Tất cả</option>
+                        <option value="available">Còn lượt dùng</option>
+                        <option value="used-out">Đã dùng hết lượt</option>
+                    </select>
+                </label>
+
+                <div class="filter-actions">
+                    <button class="primary-button" type="button" data-apply-coupon-filters>
+                        <span class="mini-icon icon-filter" aria-hidden="true"></span>
+                        Lọc
+                    </button>
+
+                    <button class="ghost-button" type="reset" data-reset-coupon-filters>
+                        <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                        Xóa lọc
+                    </button>
+                </div>
+            </form>
+
+            <div class="coupon-card-list" th:if="${!#lists.isEmpty(regularCoupons)}">
+                <th:block th:each="coupon : ${regularCoupons}"
+                          th:with="usedOut=${couponUsedOutFlags.get(coupon.couponsId())},
+                                   statusKey=${couponStatusKeys.get(coupon.couponsId())},
+                                   statusLabel=${couponStatusLabels.get(coupon.couponsId())},
+                                   deactivateDisabled=${couponDeactivateDisabledFlags.get(coupon.couponsId())}">
+
+                    <article class="coupon-summary-row coupon-card"
+                             th:attr="data-coupon-code=${coupon.code()},
+                                      data-coupon-status=${statusKey},
+                                      data-coupon-type=${coupon.type()},
+                                      data-starts=${coupon.startsAt() != null ? #temporals.format(coupon.startsAt(), 'yyyy-MM-dd') : ''},
+                                      data-expires=${coupon.expiresAt() != null ? #temporals.format(coupon.expiresAt(), 'yyyy-MM-dd') : ''},
+                                      data-used-out=${usedOut}">
+
+                        <header class="coupon-card-header">
+                            <div class="coupon-code-block">
+                                <span class="coupon-code-label">Mã coupon</span>
+                                <strong th:text="${coupon.code() != null ? coupon.code() : 'Chưa có dữ liệu'}">GREENY10</strong>
+                            </div>
+
+                            <div class="coupon-card-status">
+                                <span class="status-pill status-with-icon"
+                                      th:classappend="${' coupon-status-' + statusKey}"
+                                      th:text="${statusLabel != null ? statusLabel : 'Đang hoạt động'}">
+                                    Đang hoạt động
+                                </span>
+                            </div>
+                        </header>
+
+                        <div class="coupon-card-body">
+                            <div class="coupon-info-box coupon-discount-box">
+                                <dt>Loại / Giá trị</dt>
+                                <dd>
+                                    <strong th:text="${coupon.type() == 1 ? #numbers.formatDecimal(coupon.value() != null ? coupon.value() : 0, 0, 'POINT', 0, 'COMMA') + '%' : #numbers.formatDecimal(coupon.value() != null ? coupon.value() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">
+                                        10%
+                                    </strong>
+                                    <small th:text="${coupon.type() == 1 ? 'Giảm theo phần trăm' : 'Giảm theo số tiền'}">
+                                        Giảm theo phần trăm
+                                    </small>
+                                </dd>
+                            </div>
+
+                            <div class="coupon-info-box">
+                                <dt>Điều kiện đơn hàng</dt>
+                                <dd>
+                                    <strong th:text="${coupon.minOrderAmount() != null ? 'Đơn từ ' + #numbers.formatDecimal(coupon.minOrderAmount(), 0, 'POINT', 0, 'COMMA') + ' ₫' : 'Không yêu cầu tối thiểu'}">
+                                        Đơn từ 0 ₫
+                                    </strong>
+                                    <small th:text="${coupon.maxDiscountAmount() != null ? 'Giảm tối đa ' + #numbers.formatDecimal(coupon.maxDiscountAmount(), 0, 'POINT', 0, 'COMMA') + ' ₫' : 'Không giới hạn giảm tối đa'}">
+                                        Không giới hạn giảm tối đa
+                                    </small>
+                                </dd>
+                            </div>
+
+                            <div class="coupon-info-box">
+                                <dt>Thời gian hiệu lực</dt>
+                                <dd>
+                                    <strong th:text="${coupon.startsAt() != null ? #temporals.format(coupon.startsAt(), 'dd/MM/yyyy HH:mm') : 'Chưa có ngày bắt đầu'}">
+                                        01/06/2026 09:00
+                                    </strong>
+                                    <small th:text="${coupon.expiresAt() != null ? 'Đến ' + #temporals.format(coupon.expiresAt(), 'dd/MM/yyyy HH:mm') : 'Không giới hạn hạn dùng'}">
+                                        Đến 30/06/2026 23:59
+                                    </small>
+                                </dd>
+                            </div>
+
+                            <div class="coupon-info-box">
+                                <dt>Lượt dùng</dt>
+                                <dd>
+                                    <span class="usage-pill"
+                                          th:classappend="${usedOut ? ' danger' : ''}"
+                                          th:text="${(coupon.usedCount() != null ? coupon.usedCount() : 0) + '/' + (coupon.maxUses() != null ? coupon.maxUses() : 'không giới hạn')}">
+                                        0/100
+                                    </span>
+                                    <small th:text="${coupon.perUserLimit() != null ? 'Mỗi khách tối đa ' + coupon.perUserLimit() + ' lượt' : 'Không giới hạn theo khách'}">
+                                        Mỗi khách tối đa 1 lượt
+                                    </small>
+                                </dd>
+                            </div>
+                        </div>
+
+                        <footer class="coupon-card-footer">
+                            <div class="coupon-business-note">
+                                <span th:if="${statusKey == 'active'}">Có thể áp dụng cho đơn hàng đủ điều kiện.</span>
+                                <span th:if="${statusKey == 'expiring'}">Nên theo dõi chiến dịch vì mã sắp hết hạn.</span>
+                                <span th:if="${statusKey == 'expired'}">Mã đã hết hạn, nên ẩn hoặc xóa nếu không còn dùng.</span>
+                                <span th:if="${statusKey == 'used-out'}">Mã đã dùng hết lượt, cần tăng giới hạn hoặc kết thúc chiến dịch.</span>
+                                <span th:if="${statusKey == 'upcoming'}">Mã chưa bắt đầu, kiểm tra thời gian hiệu lực trước khi truyền thông.</span>
+                                <span th:if="${statusKey == 'inactive'}">Mã đang tạm ẩn và không nên hiển thị cho khách.</span>
+                            </div>
+
+                            <div class="coupon-actions coupon-card-actions">
+                                <button class="small-button icon-button-text js-edit-coupon" type="button">
+                                    <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                    Sửa mã
+                                </button>
+
+                                <form th:action="@{/admin/coupons/{id}/deactivate(id=${coupon.couponsId()})}"
+                                      method="post"
+                                      class="js-loading-form">
+                                    <button class="text-button danger-text"
+                                            type="submit"
+                                            th:disabled="${deactivateDisabled}"
+                                            data-loading-text="Đang ẩn">
+                                        <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                                        Ẩn mã
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/admin/coupons/{id}/delete(id=${coupon.couponsId()})}"
+                                      method="post"
+                                      class="js-loading-form">
+                                    <button class="text-button danger-text"
+                                            type="submit"
+                                            data-loading-text="Đang xóa">
+                                        <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                                        Xóa mã
+                                    </button>
+                                </form>
+                            </div>
+                        </footer>
+                    </article>
+
+                    <article class="coupon-detail-row coupon-edit-panel"
+                             th:attr="data-coupon-status=${statusKey}">
+                        <details class="coupon-detail">
+                            <summary>
+                                <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                Chỉnh sửa mã giảm giá
+                            </summary>
+
+                            <form th:action="@{/admin/coupons/{id}(id=${coupon.couponsId()})}"
+                                  method="post"
+                                  class="form-grid coupon-edit-form js-loading-form">
+
+                                <label>
+                                    Mã coupon
+                                    <input name="code" th:value="${coupon.code()}" required>
+                                </label>
+
+                                <label>
+                                    Loại giảm
+                                    <select name="type">
+                                        <option value="1" th:selected="${coupon.type() == 1}">Theo phần trăm</option>
+                                        <option value="2" th:selected="${coupon.type() == 2}">Theo số tiền</option>
+                                    </select>
+                                </label>
+
+                                <label>
+                                    Giá trị giảm
+                                    <input name="value" type="number" step="0.01" min="0" th:value="${coupon.value()}" required>
+                                </label>
+
+                                <label>
+                                    Lượt dùng tối đa
+                                    <input name="maxUses" type="number" min="0" th:value="${coupon.maxUses()}" placeholder="Không giới hạn">
+                                </label>
+
+                                <label>
+                                    Đơn tối thiểu
+                                    <input name="minOrderAmount" type="number" step="1000" min="0" th:value="${coupon.minOrderAmount()}">
+                                </label>
+
+                                <label>
+                                    Giảm tối đa
+                                    <input name="maxDiscountAmount" type="number" step="1000" min="0" th:value="${coupon.maxDiscountAmount()}">
+                                </label>
+
+                                <label class="toggle">
+                                    <input name="isActive" type="checkbox" value="true" th:checked="${coupon.isActive()}">
+                                    <span>Trạng thái hoạt động</span>
+                                </label>
+
+                                <label>
+                                    Ngày bắt đầu
+                                    <input name="startsAt"
+                                           type="datetime-local"
+                                           th:value="${coupon.startsAt() != null ? #temporals.format(coupon.startsAt(), 'yyyy-MM-dd''T''HH:mm') : ''}">
+                                </label>
+
+                                <label>
+                                    Ngày hết hạn
+                                    <input name="expiresAt"
+                                           type="datetime-local"
+                                           th:value="${coupon.expiresAt() != null ? #temporals.format(coupon.expiresAt(), 'yyyy-MM-dd''T''HH:mm') : ''}">
+                                </label>
+
+                                <input name="perUserLimit" type="hidden" th:value="${coupon.perUserLimit()}">
+
+                                <div class="form-actions wide">
+                                    <button class="primary-button" type="submit" data-loading-text="Đang lưu...">
+                                        <span class="mini-icon icon-save" aria-hidden="true"></span>
+                                        Lưu thay đổi
+                                    </button>
+
+                                    <button class="ghost-button js-cancel-coupon" type="button">
+                                        <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                                        Hủy
+                                    </button>
+                                </div>
+                            </form>
+                        </details>
+                    </article>
+                </th:block>
+            </div>
+
+            <p th:if="${#lists.isEmpty(regularCoupons)}" class="empty-state">
+                Chưa có mã giảm giá nào.
+            </p>
+
+            <p class="empty-state coupon-filter-empty" hidden>
+                Không có mã giảm giá phù hợp bộ lọc.
+            </p>
+        </section>
+    </section>
+</th:block>

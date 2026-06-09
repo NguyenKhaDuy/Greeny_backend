@@ -1,0 +1,44 @@
+﻿.status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #eef2ef;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.status-pill.success {
+    background: var(--green-100);
+    color: var(--green-700);
+    border-color: rgba(34, 113, 80, 0.14);
+}
+
+.status-pill.warning {
+    background: var(--amber-100);
+    color: var(--amber-700);
+    border-color: rgba(153, 101, 21, 0.16);
+}
+
+.status-pill.info {
+    background: var(--blue-100);
+    color: var(--blue-700);
+    border-color: rgba(49, 95, 141, 0.16);
+}
+
+.status-pill.danger {
+    background: var(--red-100);
+    color: var(--red-700);
+    border-color: rgba(169, 67, 63, 0.16);
+}
+
+.status-pill.neutral {
+    background: #eef2ef;
+    color: var(--muted);
+}
+

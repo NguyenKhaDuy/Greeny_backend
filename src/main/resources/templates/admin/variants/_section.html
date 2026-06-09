@@ -1,0 +1,511 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="variants(variants, catalogPlants, categories, variantCategoryTitles, variantTotalCount, variantActiveCount, variantHiddenCount, variantOutOfStockCount, variantLowStockCount, variantTotalStock)">
+
+    <section class="admin-section catalog-section variant-admin" id="variants">
+        <div class="catalog-page-head variant-hero surface">
+            <div>
+                <p class="eyebrow">
+                    <span class="mini-icon icon-package" aria-hidden="true"></span>
+                    Biến thể sản phẩm
+                </p>
+                <h2>Quản lý biến thể sản phẩm</h2>
+                <p>
+                    Quản lý SKU bán hàng, giá bán, giá khuyến mãi, tồn kho, trạng thái bán
+                    và liên kết với cây cha. Đây là lớp dữ liệu quyết định sản phẩm có bán được thật hay không.
+                </p>
+            </div>
+
+            <a class="ghost-button icon-button-text" href="/admin#variants">
+                <span class="mini-icon icon-refresh" aria-hidden="true"></span>
+                Làm mới
+            </a>
+        </div>
+
+        <div class="quick-stat-grid catalog-stat-grid variant-stat-grid">
+            <article class="quick-stat">
+                <span class="mini-icon icon-package" aria-hidden="true"></span>
+                <small>Tổng biến thể</small>
+                <strong th:text="${variantTotalCount}">0</strong>
+            </article>
+
+            <article class="quick-stat success">
+                <span class="mini-icon icon-eye" aria-hidden="true"></span>
+                <small>Đang bán</small>
+                <strong th:text="${variantActiveCount}">0</strong>
+            </article>
+
+            <article class="quick-stat neutral">
+                <span class="mini-icon icon-eye-off" aria-hidden="true"></span>
+                <small>Đang ẩn</small>
+                <strong th:text="${variantHiddenCount}">0</strong>
+            </article>
+
+            <article class="quick-stat danger">
+                <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                <small>Hết hàng</small>
+                <strong th:text="${variantOutOfStockCount}">0</strong>
+            </article>
+
+            <article class="quick-stat warning">
+                <span class="mini-icon icon-alert" aria-hidden="true"></span>
+                <small>Sắp hết hàng</small>
+                <strong th:text="${variantLowStockCount}">0</strong>
+            </article>
+
+            <article class="quick-stat info">
+                <span class="mini-icon icon-inventory" aria-hidden="true"></span>
+                <small>Tổng tồn kho</small>
+                <strong th:text="${variantTotalStock}">0</strong>
+            </article>
+        </div>
+
+        <form class="admin-filter-panel catalog-filter-panel variant-filter-panel surface" data-variant-filter-form>
+            <label>
+                Tên biến thể
+                <input name="name" type="search" placeholder="Chậu gốm size M">
+            </label>
+
+            <label>
+                SKU biến thể
+                <input name="sku" type="search" placeholder="SKU-MON-M">
+            </label>
+
+            <label>
+                Cây cha
+                <select name="plantId">
+                    <option value="all">Tất cả cây</option>
+                    <option th:each="plant : ${catalogPlants}"
+                            th:value="${plant.plantId()}"
+                            th:text="${plant.title() != null ? plant.title() : 'Chưa có dữ liệu'}">
+                        Cây
+                    </option>
+                </select>
+            </label>
+
+            <label>
+                Danh mục
+                <select name="categoryTitle">
+                    <option value="all">Tất cả danh mục</option>
+                    <option value="none">Chưa chọn danh mục</option>
+                    <option th:each="category : ${categories}"
+                            th:value="${category.title()}"
+                            th:text="${category.title()}">
+                        Danh mục
+                    </option>
+                </select>
+            </label>
+
+            <label>
+                Tồn kho
+                <select name="stock">
+                    <option value="all">Tất cả tồn kho</option>
+                    <option value="ok">Còn hàng</option>
+                    <option value="low">Sắp hết hàng</option>
+                    <option value="out">Hết hàng</option>
+                    <option value="hidden">Đang ẩn</option>
+                </select>
+            </label>
+
+            <label>
+                Trạng thái
+                <select name="status">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="active">Đang bán</option>
+                    <option value="hidden">Đang ẩn</option>
+                </select>
+            </label>
+
+            <label>
+                Giá từ
+                <input name="minPrice" type="number" min="0" step="1000" placeholder="0">
+            </label>
+
+            <label>
+                Giá đến
+                <input name="maxPrice" type="number" min="0" step="1000" placeholder="500000">
+            </label>
+
+            <div class="filter-actions">
+                <button class="primary-button icon-button-text" type="submit" data-apply-variant-filters>
+                    <span class="mini-icon icon-filter" aria-hidden="true"></span>
+                    Lọc
+                </button>
+
+                <button class="ghost-button icon-button-text" type="reset" data-reset-variant-filters>
+                    <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                    Xóa lọc
+                </button>
+            </div>
+        </form>
+
+        <section class="surface variant-create-card">
+            <div class="section-heading compact">
+                <p class="eyebrow">
+                    <span class="mini-icon icon-package" aria-hidden="true"></span>
+                    Thêm biến thể
+                </p>
+                <h2>Thêm biến thể bán hàng</h2>
+                <p>
+                    Biến thể phải thuộc về một sản phẩm cây. Đây là nơi quản lý giá, SKU,
+                    tồn kho và thuộc tính cụ thể để khách có thể mua đúng phiên bản sản phẩm.
+                </p>
+            </div>
+
+            <p th:if="${#lists.isEmpty(catalogPlants)}" class="empty-state">
+                Chưa có sản phẩm cây, vui lòng tạo cây trước.
+            </p>
+
+            <form method="post" action="/admin/variants" class="form-grid variant-create-form js-loading-form">
+                <label class="wide">
+                    Sản phẩm cây
+                    <select name="plantId" required th:disabled="${#lists.isEmpty(catalogPlants)}">
+                        <option value="">Chưa có dữ liệu</option>
+                        <option th:each="plant : ${catalogPlants}"
+                                th:value="${plant.plantId()}"
+                                th:text="${plant.title() != null ? plant.title() : 'Chưa có dữ liệu'}">
+                            Cây
+                        </option>
+                    </select>
+                </label>
+
+                <label>
+                    Tên biến thể
+                    <input name="name" required placeholder="Chậu gốm size M" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label>
+                    SKU biến thể
+                    <input name="sku" placeholder="SKU-MON-M" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label>
+                    Kích thước / chiều cao
+                    <input name="heightCm" type="number" placeholder="45" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label>
+                    Loại chậu
+                    <input name="potSize" type="number" placeholder="18" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label>
+                    Giá bán
+                    <input name="price" type="number" step="1000" min="0" required placeholder="250000" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label>
+                    Giá khuyến mãi
+                    <input name="salePrice" type="number" step="1000" min="0" placeholder="220000" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label>
+                    Tồn kho
+                    <input name="quantity" type="number" min="0" placeholder="12" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label class="wide">
+                    Thuộc tính
+                    <input name="attribute" placeholder="Lá lớn, chậu trắng, cao 40-50cm" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label class="wide">
+                    SEO title
+                    <input name="seoTitle" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label class="wide">
+                    SEO description
+                    <textarea name="seoDescription" rows="3" th:disabled="${#lists.isEmpty(catalogPlants)}"></textarea>
+                </label>
+
+                <label class="toggle">
+                    <input name="isActive" type="checkbox" value="true" checked th:disabled="${#lists.isEmpty(catalogPlants)}">
+                    <span>Đang bán</span>
+                </label>
+
+                <button class="primary-button icon-button-text wide"
+                        type="submit"
+                        th:disabled="${#lists.isEmpty(catalogPlants)}"
+                        data-loading-text="Đang lưu...">
+                    <span class="mini-icon icon-save" aria-hidden="true"></span>
+                    Lưu biến thể
+                </button>
+            </form>
+        </section>
+
+        <section class="surface variant-list-card">
+            <div class="variant-list-head">
+                <div class="section-heading compact">
+                    <p class="eyebrow">
+                        <span class="mini-icon icon-list" aria-hidden="true"></span>
+                        Danh sách
+                    </p>
+                    <h2>Biến thể hiện có</h2>
+                    <p>
+                        Danh sách dạng thẻ giúp thao tác giá, tồn kho, trạng thái và cây cha rõ hơn bảng nhiều cột.
+                    </p>
+                </div>
+            </div>
+
+            <div class="variant-card-list" th:if="${!#lists.isEmpty(variants)}">
+                <th:block th:each="variant : ${variants}"
+                          th:with="categoryTitle=${variant.plantId() != null && variantCategoryTitles.get(variant.plantId()) != null ? variantCategoryTitles.get(variant.plantId()) : 'Chưa chọn danh mục'},
+                                   effectivePrice=${variant.salePrice() != null ? variant.salePrice() : variant.price()},
+                                   stockKey=${variant.isActive() == true ? ((variant.quantity() == null || variant.quantity() <= 0) ? 'out' : (variant.quantity() <= 5 ? 'low' : 'ok')) : 'hidden'}">
+
+                    <article class="catalog-summary-row variant-summary-row variant-card"
+                             th:attr="data-search=${(variant.name() != null ? variant.name() : '') + ' ' + (variant.attribute() != null ? variant.attribute() : '')},
+                                      data-sku=${variant.sku() != null ? variant.sku() : ''},
+                                      data-plant=${variant.plantId() != null ? variant.plantId() : ''},
+                                      data-category=${categoryTitle},
+                                      data-stock=${stockKey},
+                                      data-status=${variant.isActive() == true ? 'active' : 'hidden'},
+                                      data-price=${effectivePrice != null ? effectivePrice : 0}">
+
+                        <header class="variant-card-header">
+                            <div class="variant-title-block">
+                                <span class="variant-avatar">
+                                    <span class="mini-icon icon-package" aria-hidden="true"></span>
+                                </span>
+
+                                <div>
+                                    <span class="variant-code-label"
+                                          th:text="${variant.sku() != null ? 'SKU: ' + variant.sku() : 'Chưa có SKU biến thể'}">
+                                        SKU
+                                    </span>
+                                    <h3 th:text="${variant.name() != null ? variant.name() : 'Chưa có dữ liệu'}">
+                                        Chậu gốm size M
+                                    </h3>
+                                    <p th:text="${variant.attribute() != null ? variant.attribute() : 'Chưa có thuộc tính mô tả biến thể.'}">
+                                        Thuộc tính
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="variant-status-stack">
+                                <span class="status-pill"
+                                      th:classappend="${variant.isActive() == true ? ' success' : ' neutral'}"
+                                      th:text="${variant.isActive() == true ? 'Đang bán' : 'Đang ẩn'}">
+                                    Đang bán
+                                </span>
+
+                                <span class="status-pill"
+                                      th:classappend="${stockKey == 'hidden' ? ' neutral' : (stockKey == 'out' ? ' danger' : (stockKey == 'low' ? ' warning' : ' success'))}"
+                                      th:text="${stockKey == 'hidden' ? 'Đang ẩn' : (stockKey == 'out' ? 'Hết hàng' : (stockKey == 'low' ? 'Sắp hết hàng' : 'Còn hàng'))}">
+                                    Còn hàng
+                                </span>
+                            </div>
+                        </header>
+
+                        <div class="variant-card-body">
+                            <div class="variant-info-box variant-price-box">
+                                <dt>Giá bán</dt>
+                                <dd>
+                                    <strong th:text="${#numbers.formatDecimal(variant.price() != null ? variant.price() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">
+                                        250.000 ₫
+                                    </strong>
+                                    <small th:text="${variant.salePrice() != null ? 'Khuyến mãi ' + #numbers.formatDecimal(variant.salePrice(), 0, 'POINT', 0, 'COMMA') + ' ₫' : 'Chưa có khuyến mãi'}">
+                                        Chưa có khuyến mãi
+                                    </small>
+                                </dd>
+                            </div>
+
+                            <div class="variant-info-box">
+                                <dt>Tồn kho</dt>
+                                <dd>
+                                    <strong th:text="${(variant.quantity() != null ? variant.quantity() : 0) + ' sản phẩm'}">
+                                        0 sản phẩm
+                                    </strong>
+                                    <small th:text="${stockKey == 'out' ? 'Cần nhập hàng hoặc ẩn khỏi bán hàng.' : (stockKey == 'low' ? 'Sắp hết, cần theo dõi nhập hàng.' : 'Tồn kho đang khả dụng.')}">
+                                        Trạng thái tồn kho
+                                    </small>
+                                </dd>
+                            </div>
+
+                            <div class="variant-info-box">
+                                <dt>Cây cha</dt>
+                                <dd>
+                                    <strong th:text="${variant.plantTitle() != null ? variant.plantTitle() : 'Chưa có dữ liệu'}">
+                                        Cây cha
+                                    </strong>
+                                    <small>Liên kết sản phẩm chính.</small>
+                                </dd>
+                            </div>
+
+                            <div class="variant-info-box">
+                                <dt>Danh mục</dt>
+                                <dd>
+                                    <strong th:text="${categoryTitle}">Danh mục</strong>
+                                    <small>Danh mục lấy theo cây cha.</small>
+                                </dd>
+                            </div>
+
+                            <div class="variant-info-box">
+                                <dt>Kích thước / Chậu</dt>
+                                <dd>
+                                    <strong th:text="${(variant.heightCm() != null ? variant.heightCm() + ' cm' : 'Chưa có chiều cao') + ' · ' + (variant.potSize() != null ? 'Chậu ' + variant.potSize() : 'Chưa có loại chậu')}">
+                                        45 cm · Chậu 18
+                                    </strong>
+                                    <small>Thông tin giúp khách phân biệt biến thể.</small>
+                                </dd>
+                            </div>
+                        </div>
+
+                        <div class="variant-seo-box">
+                            <strong>SEO / Hiển thị</strong>
+                            <p th:text="${variant.seoTitle() != null ? variant.seoTitle() : 'Chưa có SEO title.'}">
+                                SEO title
+                            </p>
+                            <small th:text="${variant.seoDescription() != null ? variant.seoDescription() : 'Chưa có SEO description.'}">
+                                SEO description
+                            </small>
+                        </div>
+
+                        <footer class="variant-card-footer">
+                            <div class="variant-business-note">
+                                <span th:if="${stockKey == 'ok'}">Biến thể đang đủ điều kiện bán nếu sản phẩm cha hiển thị.</span>
+                                <span th:if="${stockKey == 'low'}">Tồn kho thấp, nên nhập thêm hoặc theo dõi đơn phát sinh.</span>
+                                <span th:if="${stockKey == 'out'}">Hết hàng, nên nhập thêm hoặc ẩn để tránh khách đặt nhầm.</span>
+                                <span th:if="${stockKey == 'hidden'}">Biến thể đang ẩn, khách sẽ không thấy để mua.</span>
+                            </div>
+
+                            <div class="catalog-actions variant-card-actions">
+                                <button class="small-button icon-button-text js-edit-catalog" type="button">
+                                    <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                    Sửa biến thể
+                                </button>
+
+                                <form th:action="@{/admin/variants/{id}/visibility(id=${variant.variantId()})}"
+                                      method="post"
+                                      class="js-loading-form">
+                                    <input name="isActive" type="hidden" th:value="${variant.isActive() != true}">
+                                    <button class="ghost-button icon-button-text" type="submit" data-loading-text="Đang lưu...">
+                                        <span class="mini-icon"
+                                              th:classappend="${variant.isActive() == true ? ' icon-eye-off' : ' icon-eye'}"
+                                              aria-hidden="true"></span>
+                                        <span th:text="${variant.isActive() == true ? 'Ẩn biến thể' : 'Hiện biến thể'}">
+                                            Ẩn biến thể
+                                        </span>
+                                    </button>
+                                </form>
+
+                                <button class="ghost-button danger-ghost icon-button-text" type="button" disabled>
+                                    <span class="mini-icon icon-trash" aria-hidden="true"></span>
+                                    Xóa
+                                </button>
+                            </div>
+                        </footer>
+
+                        <small class="safe-warning">
+                            Ưu tiên ẩn biến thể để bảo toàn dữ liệu đơn hàng, giỏ hàng và lịch sử tồn kho.
+                        </small>
+                    </article>
+
+                    <article class="catalog-detail-row variant-detail-row variant-edit-panel">
+                        <details class="catalog-detail">
+                            <summary>
+                                <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                Chỉnh sửa biến thể
+                            </summary>
+
+                            <form th:action="@{/admin/variants/{id}(id=${variant.variantId()})}"
+                                  method="post"
+                                  class="form-grid catalog-edit-form variant-edit-form js-loading-form">
+
+                                <label class="wide">
+                                    Sản phẩm cây
+                                    <select name="plantId" required>
+                                        <option value="">Chưa có dữ liệu</option>
+                                        <option th:each="plant : ${catalogPlants}"
+                                                th:value="${plant.plantId()}"
+                                                th:selected="${plant.plantId() == variant.plantId()}"
+                                                th:text="${(plant.title() != null ? plant.title() : 'Chưa có dữ liệu') + (plant.deletedAt() == null ? '' : ' (đang ẩn)')}">
+                                            Cây
+                                        </option>
+                                    </select>
+                                </label>
+
+                                <label>
+                                    Tên biến thể
+                                    <input name="name" th:value="${variant.name()}" required>
+                                </label>
+
+                                <label>
+                                    SKU biến thể
+                                    <input name="sku" th:value="${variant.sku()}">
+                                </label>
+
+                                <label>
+                                    Kích thước / chiều cao
+                                    <input name="heightCm" th:value="${variant.heightCm()}" type="number">
+                                </label>
+
+                                <label>
+                                    Loại chậu
+                                    <input name="potSize" th:value="${variant.potSize()}" type="number">
+                                </label>
+
+                                <label>
+                                    Giá bán
+                                    <input name="price" th:value="${variant.price()}" type="number" step="1000" min="0" required>
+                                </label>
+
+                                <label>
+                                    Giá khuyến mãi
+                                    <input name="salePrice" th:value="${variant.salePrice()}" type="number" step="1000" min="0">
+                                </label>
+
+                                <label>
+                                    Tồn kho
+                                    <input name="quantity" th:value="${variant.quantity()}" type="number" min="0">
+                                </label>
+
+                                <label>
+                                    Trạng thái
+                                    <select name="isActive">
+                                        <option value="true" th:selected="${variant.isActive() == true}">Đang bán</option>
+                                        <option value="false" th:selected="${variant.isActive() != true}">Ẩn</option>
+                                    </select>
+                                </label>
+
+                                <label class="wide">
+                                    Thuộc tính
+                                    <input name="attribute" th:value="${variant.attribute()}">
+                                </label>
+
+                                <label class="wide">
+                                    SEO title
+                                    <input name="seoTitle" th:value="${variant.seoTitle()}">
+                                </label>
+
+                                <label class="wide">
+                                    SEO description
+                                    <textarea name="seoDescription" rows="3" th:text="${variant.seoDescription()}"></textarea>
+                                </label>
+
+                                <div class="form-actions wide">
+                                    <button class="primary-button icon-button-text" type="submit" data-loading-text="Đang lưu...">
+                                        <span class="mini-icon icon-save" aria-hidden="true"></span>
+                                        Lưu thay đổi
+                                    </button>
+
+                                    <button class="ghost-button js-cancel-catalog" type="button">
+                                        Hủy
+                                    </button>
+                                </div>
+                            </form>
+                        </details>
+                    </article>
+                </th:block>
+            </div>
+
+            <p th:if="${#lists.isEmpty(variants)}" class="empty-state">
+                Chưa có biến thể.
+            </p>
+
+            <p class="empty-state variant-filter-empty" hidden>
+                Không có biến thể phù hợp bộ lọc.
+            </p>
+        </section>
+    </section>
+</th:block>

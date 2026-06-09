@@ -1,0 +1,697 @@
+﻿/* =========================================================
+   Orders UI upgrade
+   Chỉ nâng giao diện phần #orders, không đổi logic JS/backend.
+   ========================================================= */
+
+#orders.admin-section:not(.is-active) {
+    display: none !important;
+}
+
+#orders.admin-section.is-active {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+#orders,
+#orders *,
+#orders *::before,
+#orders *::after {
+    box-sizing: border-box;
+}
+
+#orders > *,
+#orders .surface,
+#orders .quick-stat-grid,
+#orders .order-workbench,
+#orders .admin-filter-panel,
+#orders .order-filter-tabs,
+#orders .order-table-wrap,
+#orders .order-detail,
+#orders .order-detail-body,
+#orders .order-grid,
+#orders .order-actions-grid,
+#orders .order-panel,
+#orders .compact-form,
+#orders .table-scroll {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Hero */
+#orders > .section-heading {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 20px;
+    background:
+            radial-gradient(circle at 0 0, rgba(46, 139, 99, 0.18), transparent 38%),
+            radial-gradient(circle at 100% 0, rgba(49, 95, 141, 0.10), transparent 34%),
+            linear-gradient(135deg, rgba(232, 245, 238, 0.96), rgba(255, 255, 255, 0.98));
+    padding: clamp(18px, 2.4vw, 26px);
+    box-shadow: var(--shadow-sm);
+}
+
+#orders > .section-heading::after {
+    content: "";
+    position: absolute;
+    right: -76px;
+    top: -76px;
+    z-index: -1;
+    width: 210px;
+    height: 210px;
+    border-radius: 999px;
+    background: rgba(34, 113, 80, 0.09);
+}
+
+#orders > .section-heading h2 {
+    margin-top: 6px;
+    font-size: clamp(24px, 2.6vw, 34px);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+}
+
+#orders > .section-heading p:not(.eyebrow) {
+    max-width: 820px;
+    line-height: 1.6;
+}
+
+/* KPI */
+#orders .quick-stat-grid.order-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+}
+
+#orders .quick-stat {
+    position: relative;
+    min-height: 126px;
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(34, 113, 80, 0.10);
+    border-radius: 18px;
+    background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+            #fff;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+#orders .quick-stat::before {
+    height: 5px;
+    border-radius: 18px 18px 0 0;
+}
+
+#orders .quick-stat .mini-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 13px;
+    background: var(--green-100);
+    color: var(--green-700);
+}
+
+#orders .quick-stat.warning .mini-icon {
+    background: var(--amber-100);
+    color: var(--amber-700);
+}
+
+#orders .quick-stat.danger .mini-icon {
+    background: var(--red-100);
+    color: var(--red-700);
+}
+
+#orders .quick-stat.info .mini-icon {
+    background: var(--blue-100);
+    color: var(--blue-700);
+}
+
+#orders .quick-stat.purple .mini-icon {
+    background: #eeeafd;
+    color: #5d4ba3;
+}
+
+#orders .quick-stat small {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+#orders .quick-stat strong {
+    color: var(--ink);
+    font-size: clamp(25px, 2.1vw, 32px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    overflow-wrap: anywhere;
+}
+
+/* Workbench */
+#orders .order-workbench {
+    display: grid;
+    gap: 16px;
+    border-radius: 20px;
+    border-color: rgba(34, 113, 80, 0.12);
+    padding: clamp(16px, 2vw, 22px);
+    background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.96)),
+            var(--surface);
+}
+
+#orders .admin-filter-panel {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    gap: 12px;
+    align-items: end;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 18px;
+    background:
+            linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.94)),
+            var(--surface-soft);
+    padding: 15px;
+}
+
+#orders .admin-filter-panel label {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+#orders .admin-filter-panel input {
+    min-height: 40px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+#orders .filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#orders .filter-actions button {
+    min-height: 40px;
+    border-radius: 999px;
+    padding-inline: 14px;
+}
+
+/* Status tabs */
+#orders .order-filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border: 1px solid rgba(34, 113, 80, 0.10);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.74);
+    padding: 10px;
+}
+
+#orders .order-filter-tabs button {
+    min-height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink-soft);
+    padding: 8px 12px;
+    font-weight: 850;
+}
+
+#orders .order-filter-tabs button:hover,
+#orders .order-filter-tabs button.active {
+    transform: translateY(-1px);
+    border-color: rgba(34, 113, 80, 0.24);
+    background: var(--green-100);
+    color: var(--green-700);
+}
+
+#orders .order-filter-tabs button span {
+    display: inline-grid;
+    min-width: 24px;
+    min-height: 22px;
+    place-items: center;
+    margin-left: 6px;
+    border-radius: 999px;
+    background: rgba(34, 113, 80, 0.10);
+    color: currentColor;
+    padding: 2px 7px;
+    font-size: 12px;
+    font-weight: 950;
+}
+
+/* Table */
+#orders .order-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: #fff;
+}
+
+#orders .order-table {
+    min-width: 1120px;
+}
+
+#orders .order-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fbf9;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 950;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+#orders .order-table th,
+#orders .order-table td {
+    vertical-align: middle;
+}
+
+#orders .order-table td strong,
+#orders .order-table td small {
+    display: block;
+}
+
+#orders .order-table td small {
+    margin-top: 4px;
+    color: var(--muted);
+    line-height: 1.35;
+}
+
+#orders .order-summary-row {
+    transition: background-color 160ms ease;
+}
+
+#orders .order-summary-row:hover {
+    background: #fbfdfb;
+}
+
+#orders .order-summary-row td:first-child strong {
+    color: var(--green-700);
+}
+
+#orders .order-summary-row td:nth-child(3) strong {
+    color: var(--ink);
+    font-weight: 950;
+}
+
+#orders .order-summary-row .small-button {
+    min-height: 36px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+#orders .count-chip {
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    background: var(--green-100);
+}
+
+/* Detail row */
+#orders .order-detail-row > td {
+    padding: 0 12px 16px;
+    background:
+            linear-gradient(180deg, rgba(246, 250, 248, 0.9), rgba(251, 253, 252, 0.96));
+}
+
+#orders .order-detail {
+    overflow: hidden;
+    border: 1px solid rgba(34, 113, 80, 0.14);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+}
+
+#orders .order-detail summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--line);
+    background:
+            linear-gradient(135deg, rgba(232, 245, 238, 0.86), rgba(255, 255, 255, 0.96));
+    color: var(--green-700);
+    padding: 12px 16px;
+    font-weight: 950;
+}
+
+#orders .order-detail-body {
+    display: grid;
+    gap: 16px;
+    padding: 16px;
+}
+
+#orders .order-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+#orders .order-panel {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+            #fff;
+    padding: 15px;
+}
+
+#orders .order-panel h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+#orders .order-panel p {
+    margin: 6px 0 0;
+    color: var(--ink-soft);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+#orders .money-list {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+}
+
+#orders .money-list div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+#orders .money-list dt {
+    color: var(--muted);
+    font-weight: 800;
+}
+
+#orders .money-list dd {
+    margin: 0;
+    color: var(--ink-soft);
+    font-weight: 950;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+#orders .money-list div:last-child {
+    border-top: 1px dashed var(--line-strong);
+    padding-top: 8px;
+}
+
+#orders .money-list div:last-child dd {
+    color: var(--green-700);
+    font-size: 17px;
+}
+
+#orders .mini-item {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    border-top: 1px solid var(--line);
+    padding: 10px 0;
+}
+
+#orders .mini-item:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+}
+
+#orders .mini-item span {
+    display: inline-grid;
+    width: 34px;
+    min-height: 34px;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--green-100);
+    color: var(--green-700);
+    font-weight: 950;
+}
+
+#orders .mini-item strong {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+#orders .mini-item small {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+}
+
+/* Workflow strip */
+#orders .quick-action-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 18px;
+    background:
+            linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.94));
+    padding: 12px;
+}
+
+#orders .quick-action-strip::before {
+    content: "Quy trình xử lý";
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    margin-right: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+#orders .quick-action-strip .ghost-button {
+    min-height: 38px;
+    border-radius: 999px;
+}
+
+#orders .quick-action-strip .ghost-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.46;
+    transform: none;
+}
+
+/* Forms */
+#orders .order-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 14px;
+}
+
+#orders .compact-form,
+#orders .panel-form {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background:
+            linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.96));
+    padding: 15px;
+}
+
+#orders .panel-form .form-title {
+    color: var(--green-700);
+    font-weight: 950;
+}
+
+#orders .panel-form label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+#orders .panel-form input,
+#orders .panel-form select {
+    min-height: 40px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+#orders .panel-form button {
+    min-height: 40px;
+    border-radius: 999px;
+}
+
+/* History */
+#orders .history-box {
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+}
+
+#orders .history-box summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--green-700);
+    font-weight: 950;
+}
+
+#orders .history-line {
+    position: relative;
+    margin-top: 12px;
+    border-left: 3px solid rgba(34, 113, 80, 0.22);
+    padding-left: 12px;
+}
+
+#orders .history-line::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 4px;
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: var(--green-600);
+}
+
+#orders .history-line strong,
+#orders .history-line span {
+    display: block;
+}
+
+#orders .history-line span {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 850;
+}
+
+#orders .history-line p {
+    margin: 5px 0 0;
+    color: var(--ink-soft);
+}
+
+/* Empty */
+#orders .empty-state {
+    margin: 0;
+    border: 1px dashed var(--line-strong);
+    border-radius: 16px;
+    background: var(--surface-soft);
+    color: var(--muted);
+    padding: 18px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+#orders .order-filter-empty {
+    margin-top: 4px;
+}
+
+/* Responsive */
+@media (max-width: 1380px) {
+    #orders .quick-stat-grid.order-stat-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    #orders .admin-filter-panel {
+        grid-template-columns: repeat(3, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 1180px) {
+    #orders .quick-stat-grid.order-stat-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #orders .order-grid,
+    #orders .order-actions-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 860px) {
+    #orders .quick-stat-grid.order-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #orders .admin-filter-panel {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #orders .filter-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 620px) {
+    #orders > .section-heading,
+    #orders .order-workbench,
+    #orders .order-detail,
+    #orders .order-panel,
+    #orders .compact-form {
+        border-radius: 16px;
+    }
+
+    #orders .quick-stat-grid.order-stat-grid,
+    #orders .admin-filter-panel {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #orders .order-filter-tabs {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #orders .order-filter-tabs button {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    #orders .filter-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #orders .filter-actions button {
+        width: 100%;
+    }
+
+    #orders .quick-action-strip {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #orders .quick-action-strip::before {
+        margin-right: 0;
+    }
+
+    #orders .quick-action-strip button {
+        width: 100%;
+    }
+}

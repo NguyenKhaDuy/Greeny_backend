@@ -1,0 +1,831 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="care(careProfiles, plants, careProfileTotalCount, carePlantCoveredCount, carePlantMissingCount, careEasyCount, careNeedsExperienceCount)">
+
+    <style>
+        #care.admin-section:not(.is-active) {
+            display: none !important;
+        }
+
+        #care.admin-section.is-active,
+        #care.care-admin.is-active {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            align-content: start !important;
+            gap: 16px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+        }
+
+        #care,
+        #care *,
+        #care *::before,
+        #care *::after {
+            box-sizing: border-box !important;
+        }
+
+        #care > *,
+        #care .surface,
+        #care .care-hero,
+        #care .care-stat-grid,
+        #care .care-filter-panel,
+        #care .care-create-card,
+        #care .care-list-card,
+        #care .care-grid,
+        #care .care-card,
+        #care .collapse-panel,
+        #care .compact-form {
+            min-width: 0 !important;
+            max-width: 100% !important;
+        }
+
+        #care .surface {
+            border-radius: 20px !important;
+            border-color: rgba(34, 113, 80, 0.12) !important;
+            background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.96)),
+                    var(--surface) !important;
+        }
+
+        #care .care-hero {
+            position: relative !important;
+            isolation: isolate !important;
+            overflow: hidden !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: 18px !important;
+            margin: 0 !important;
+            border: 1px solid rgba(34, 113, 80, 0.12) !important;
+            background:
+                    radial-gradient(circle at 0 0, rgba(46, 139, 99, 0.18), transparent 38%),
+                    radial-gradient(circle at 100% 0, rgba(49, 95, 141, 0.10), transparent 34%),
+                    linear-gradient(135deg, rgba(232, 245, 238, 0.96), rgba(255, 255, 255, 0.98)) !important;
+            padding: clamp(18px, 2.4vw, 26px) !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        #care .care-hero::after {
+            content: "" !important;
+            position: absolute !important;
+            right: -76px !important;
+            top: -76px !important;
+            z-index: -1 !important;
+            width: 210px !important;
+            height: 210px !important;
+            border-radius: 999px !important;
+            background: rgba(34, 113, 80, 0.09) !important;
+        }
+
+        #care .care-hero h2 {
+            margin-top: 6px !important;
+            font-size: clamp(24px, 2.6vw, 34px) !important;
+            line-height: 1.08 !important;
+            letter-spacing: -0.04em !important;
+        }
+
+        #care .care-hero p:not(.eyebrow) {
+            max-width: 850px !important;
+            line-height: 1.6 !important;
+        }
+
+        #care .care-hero > a {
+            position: relative !important;
+            z-index: 1 !important;
+            border-radius: 999px !important;
+        }
+
+        #care .care-stat-grid {
+            display: grid !important;
+            grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+            margin: 0 !important;
+        }
+
+        #care .quick-stat {
+            position: relative !important;
+            min-height: 112px !important;
+            display: grid !important;
+            align-content: start !important;
+            gap: 7px !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(34, 113, 80, 0.10) !important;
+            border-radius: 18px !important;
+            background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+                    #fff !important;
+            padding: 14px !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        #care .quick-stat .mini-icon {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 12px !important;
+            background: var(--green-100) !important;
+            color: var(--green-700) !important;
+        }
+
+        #care .quick-stat.warning .mini-icon {
+            background: var(--amber-100) !important;
+            color: var(--amber-700) !important;
+        }
+
+        #care .quick-stat.accent .mini-icon {
+            background: #fff0df !important;
+            color: #b45f0b !important;
+        }
+
+        #care .quick-stat small {
+            margin-top: 3px !important;
+            color: var(--muted) !important;
+            font-size: 11px !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.04em !important;
+            text-transform: uppercase !important;
+            line-height: 1.25 !important;
+        }
+
+        #care .quick-stat strong {
+            color: var(--ink) !important;
+            font-size: clamp(24px, 2vw, 31px) !important;
+            line-height: 1 !important;
+            letter-spacing: -0.035em !important;
+        }
+
+        #care .care-filter-panel {
+            display: grid !important;
+            grid-template-columns: minmax(210px, 1fr) minmax(170px, 0.7fr) minmax(190px, 0.9fr) minmax(190px, 0.9fr) minmax(190px, 0.9fr) auto !important;
+            gap: 12px !important;
+            align-items: end !important;
+            border: 1px solid rgba(34, 113, 80, 0.12) !important;
+            border-radius: 20px !important;
+            background:
+                    linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.94)),
+                    var(--surface-soft) !important;
+            padding: 15px !important;
+        }
+
+        #care label {
+            display: grid !important;
+            gap: 7px !important;
+            min-width: 0 !important;
+            color: var(--muted) !important;
+            font-size: 12px !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.04em !important;
+            text-transform: uppercase !important;
+        }
+
+        #care input,
+        #care select,
+        #care textarea {
+            min-height: 42px !important;
+            border-radius: 13px !important;
+            font-size: 14px !important;
+            font-weight: 650 !important;
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+        }
+
+        #care textarea {
+            line-height: 1.55 !important;
+        }
+
+        #care .filter-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+        }
+
+        #care .filter-actions button {
+            min-height: 40px !important;
+            border-radius: 999px !important;
+            padding-inline: 14px !important;
+        }
+
+        #care .care-create-card,
+        #care .care-list-card {
+            padding: clamp(16px, 2vw, 22px) !important;
+        }
+
+        #care .care-create-form {
+            display: grid !important;
+            grid-template-columns: minmax(260px, 1fr) repeat(4, minmax(150px, 0.8fr)) !important;
+            gap: 14px !important;
+            align-items: end !important;
+        }
+
+        #care .wide {
+            grid-column: 1 / -1 !important;
+        }
+
+        #care .care-create-form button[type="submit"] {
+            width: auto !important;
+            min-height: 44px !important;
+            border-radius: 999px !important;
+            justify-self: start !important;
+            padding-inline: 18px !important;
+        }
+
+        #care .care-list-card {
+            display: grid !important;
+            gap: 14px !important;
+        }
+
+        #care .care-list-head {
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: 16px !important;
+        }
+
+        #care .care-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)) !important;
+            gap: 12px !important;
+            align-items: start !important;
+        }
+
+        #care .care-card {
+            display: grid !important;
+            gap: 12px !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 18px !important;
+            background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+                    #fff !important;
+            padding: 14px !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        #care .care-card:hover {
+            border-color: rgba(34, 113, 80, 0.22) !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+
+        #care .admin-card-head {
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: 12px !important;
+        }
+
+        #care .admin-card-title {
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 11px !important;
+            min-width: 0 !important;
+        }
+
+        #care .care-avatar {
+            display: inline-grid !important;
+            flex: 0 0 42px !important;
+            width: 42px !important;
+            height: 42px !important;
+            place-items: center !important;
+            border-radius: 15px !important;
+            background: var(--green-100) !important;
+            color: var(--green-700) !important;
+        }
+
+        #care .admin-card-title h3 {
+            margin: 0 !important;
+            color: var(--ink) !important;
+            font-size: 18px !important;
+            line-height: 1.18 !important;
+            letter-spacing: -0.02em !important;
+            overflow-wrap: anywhere !important;
+        }
+
+        #care .admin-card-title p {
+            margin: 6px 0 0 !important;
+            color: var(--muted) !important;
+            font-size: 13px !important;
+            line-height: 1.45 !important;
+            overflow-wrap: anywhere !important;
+        }
+
+        #care .care-metrics {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 8px !important;
+            margin: 0 !important;
+        }
+
+        #care .care-metrics div {
+            min-width: 0 !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 13px !important;
+            background: var(--surface-soft) !important;
+            padding: 10px !important;
+        }
+
+        #care .care-metrics dt {
+            color: var(--muted) !important;
+            font-size: 10px !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+        }
+
+        #care .care-metrics dd {
+            margin: 5px 0 0 !important;
+            color: var(--ink-soft) !important;
+            font-size: 13px !important;
+            font-weight: 900 !important;
+            line-height: 1.35 !important;
+            overflow-wrap: anywhere !important;
+        }
+
+        #care .card-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: flex-end !important;
+            gap: 8px !important;
+            align-items: center !important;
+        }
+
+        #care .card-actions form {
+            margin: 0 !important;
+        }
+
+        #care .card-actions .ghost-button {
+            min-height: 36px !important;
+            border-radius: 999px !important;
+            padding-inline: 12px !important;
+            font-size: 13px !important;
+        }
+
+        #care .collapse-panel {
+            border: 1px solid rgba(34, 113, 80, 0.14) !important;
+            border-radius: 16px !important;
+            background:
+                    linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.96)) !important;
+            padding: 14px !important;
+        }
+
+        #care .compact-form {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+        }
+
+        #care .compact-form .form-title {
+            grid-column: 1 / -1 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin: 0 !important;
+            color: var(--green-700) !important;
+            font-weight: 950 !important;
+        }
+
+        #care .compact-form .wide,
+        #care .compact-form .form-actions {
+            grid-column: 1 / -1 !important;
+        }
+
+        #care .compact-form .form-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+        }
+
+        #care .compact-form .form-actions button {
+            min-height: 38px !important;
+            border-radius: 999px !important;
+        }
+
+        #care .empty-state {
+            margin: 0 !important;
+            border: 1px dashed var(--line-strong) !important;
+            border-radius: 16px !important;
+            background: var(--surface-soft) !important;
+            color: var(--muted) !important;
+            padding: 18px !important;
+            text-align: center !important;
+            line-height: 1.5 !important;
+        }
+
+        @media (max-width: 1380px) {
+            #care .care-stat-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+
+            #care .care-filter-panel {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+
+            #care .care-create-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+
+            #care .care-grid {
+                grid-template-columns: repeat(auto-fit, minmax(390px, 1fr)) !important;
+            }
+        }
+
+        @media (max-width: 920px) {
+            #care .care-hero,
+            #care .admin-card-head,
+            #care .card-actions {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+
+            #care .card-actions {
+                justify-content: flex-start !important;
+            }
+
+            #care .care-grid {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            #care .compact-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+
+        @media (max-width: 720px) {
+            #care .care-stat-grid,
+            #care .care-filter-panel,
+            #care .care-create-form,
+            #care .care-metrics,
+            #care .compact-form {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            #care .filter-actions,
+            #care .card-actions,
+            #care .compact-form .form-actions {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            #care .filter-actions button,
+            #care .card-actions button,
+            #care .compact-form .form-actions button {
+                width: 100% !important;
+            }
+
+            #care .admin-card-title {
+                flex-direction: column !important;
+            }
+        }
+        #care [hidden],
+        #care .care-card[hidden],
+        #care .care-filter-empty[hidden],
+        #care .collapse-panel[hidden] {
+            display: none !important;
+        }
+    </style>
+
+    <section class="admin-section care-admin" id="care">
+        <div class="care-hero surface">
+            <div>
+                <p class="eyebrow">
+                    <span class="mini-icon icon-plant" aria-hidden="true"></span>
+                    Chăm sóc cây
+                </p>
+                <h2>Hồ sơ chăm sóc cây</h2>
+                <p>
+                    Quản lý hướng dẫn ánh sáng, nước, độ ẩm và mức độ chăm sóc theo từng sản phẩm cây.
+                    Đây là phần giúp khách mua cây xong không biến nó thành nạn nhân sinh học trong ba ngày.
+                </p>
+            </div>
+
+            <a class="ghost-button icon-button-text" href="/admin#care">
+                <span class="mini-icon icon-refresh" aria-hidden="true"></span>
+                Làm mới
+            </a>
+        </div>
+
+        <div class="quick-stat-grid care-stat-grid">
+            <article class="quick-stat">
+                <span class="mini-icon icon-list" aria-hidden="true"></span>
+                <small>Tổng hồ sơ</small>
+                <strong th:text="${careProfileTotalCount}">0</strong>
+            </article>
+
+            <article class="quick-stat success">
+                <span class="mini-icon icon-check-circle" aria-hidden="true"></span>
+                <small>Đã có hướng dẫn</small>
+                <strong th:text="${carePlantCoveredCount}">0</strong>
+            </article>
+
+            <article class="quick-stat warning">
+                <span class="mini-icon icon-alert" aria-hidden="true"></span>
+                <small>Chưa có hướng dẫn</small>
+                <strong th:text="${carePlantMissingCount}">0</strong>
+            </article>
+
+            <article class="quick-stat success">
+                <span class="mini-icon icon-plant" aria-hidden="true"></span>
+                <small>Dễ chăm</small>
+                <strong th:text="${careEasyCount}">0</strong>
+            </article>
+
+            <article class="quick-stat accent">
+                <span class="mini-icon icon-sun" aria-hidden="true"></span>
+                <small>Cần kinh nghiệm</small>
+                <strong th:text="${careNeedsExperienceCount}">0</strong>
+            </article>
+        </div>
+
+        <form class="admin-filter-panel care-filter-panel" data-care-filter-form>
+            <label>
+                Tìm theo tên cây
+                <input name="plant" type="search" placeholder="Tên cây">
+            </label>
+
+            <label>
+                Mức độ chăm sóc
+                <select name="level">
+                    <option value="all">Tất cả mức độ</option>
+                    <option value="1">Dễ</option>
+                    <option value="2">Trung bình</option>
+                    <option value="3">Cần kinh nghiệm</option>
+                    <option value="4">Khó</option>
+                </select>
+            </label>
+
+            <label>
+                Ánh sáng
+                <input name="light" type="search" placeholder="Ánh sáng gián tiếp">
+            </label>
+
+            <label>
+                Lượng nước
+                <input name="water" type="search" placeholder="2 lần/tuần">
+            </label>
+
+            <label>
+                Độ ẩm
+                <input name="humidity" type="search" placeholder="50-70%">
+            </label>
+
+            <div class="filter-actions">
+                <button class="primary-button icon-button-text" type="button" data-apply-care-filters>
+                    <span class="mini-icon icon-filter" aria-hidden="true"></span>
+                    Lọc
+                </button>
+
+                <button class="ghost-button icon-button-text" type="reset" data-reset-care-filters>
+                    <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                    Xóa lọc
+                </button>
+            </div>
+        </form>
+
+        <section class="surface care-create-card">
+            <div class="section-heading compact">
+                <p class="eyebrow">
+                    <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                    Thêm mới
+                </p>
+                <h2>Lưu hồ sơ chăm sóc</h2>
+                <p th:if="${!#lists.isEmpty(plants)}">
+                    Chọn một cây hợp lệ để tạo mới hoặc cập nhật hồ sơ đang có.
+                </p>
+                <p th:if="${#lists.isEmpty(plants)}" class="empty-state">
+                    Chưa có sản phẩm cây, vui lòng tạo cây trước.
+                </p>
+            </div>
+
+            <form th:if="${!#lists.isEmpty(plants)}"
+                  method="post"
+                  action="/admin/care-profiles"
+                  class="form-grid care-create-form js-loading-form">
+                <label class="wide">
+                    Chọn cây
+                    <select name="plantId" required>
+                        <option value="">Chọn cây cần hướng dẫn</option>
+                        <option th:each="plant : ${plants}"
+                                th:value="${plant.plantId()}"
+                                th:text="${plant.title() != null ? plant.title() : 'Chưa có tên cây'}">
+                            Plant
+                        </option>
+                    </select>
+                </label>
+
+                <label>
+                    Ánh sáng
+                    <input name="lightRequirement" placeholder="Sáng gián tiếp, tránh nắng gắt">
+                </label>
+
+                <label>
+                    Nước
+                    <input name="wateringFrequency" placeholder="2 lần/tuần, khi mặt đất khô">
+                </label>
+
+                <label>
+                    Độ ẩm
+                    <input name="humidityRequirement" placeholder="50-70%, phun sương nhẹ">
+                </label>
+
+                <label>
+                    Mức độ chăm sóc
+                    <select name="careLevel">
+                        <option value="">Chưa chọn</option>
+                        <option value="1">Dễ</option>
+                        <option value="2">Trung bình</option>
+                        <option value="3">Cần kinh nghiệm</option>
+                        <option value="4">Khó</option>
+                    </select>
+                </label>
+
+                <label class="wide">
+                    Hướng dẫn chi tiết
+                    <textarea name="careInstruction"
+                              rows="5"
+                              placeholder="Lưu ý đặt cây, dấu hiệu thiếu nước, cách xoay chậu, cắt tỉa lá..."></textarea>
+                </label>
+
+                <button class="primary-button icon-button-text" type="submit" data-loading-text="Đang lưu...">
+                    <span class="mini-icon icon-save" aria-hidden="true"></span>
+                    Lưu hồ sơ chăm sóc
+                </button>
+            </form>
+        </section>
+
+        <section class="surface care-list-card">
+            <div class="care-list-head">
+                <div class="section-heading compact">
+                    <p class="eyebrow">
+                        <span class="mini-icon icon-list" aria-hidden="true"></span>
+                        Hướng dẫn đang có
+                    </p>
+                    <h2>Danh sách hồ sơ chăm sóc</h2>
+                    <p>
+                        Mỗi thẻ là một hồ sơ chăm sóc theo cây, gồm mức độ, ánh sáng, nước, độ ẩm và hướng dẫn chi tiết.
+                    </p>
+                </div>
+            </div>
+
+            <div class="admin-card-list care-grid">
+                <article th:each="profile : ${careProfiles}"
+                         class="admin-card care-card"
+                         th:attr="data-plant=${profile.plantTitle() != null ? profile.plantTitle() : ''},
+                                  data-level=${profile.careLevel() != null ? profile.careLevel() : 'none'},
+                                  data-light=${profile.lightRequirement() != null ? profile.lightRequirement() : ''},
+                                  data-water=${profile.wateringFrequency() != null ? profile.wateringFrequency() : ''},
+                                  data-humidity=${profile.humidityRequirement() != null ? profile.humidityRequirement() : ''}">
+
+                    <header class="admin-card-head">
+                        <div class="admin-card-title">
+                            <span class="record-avatar care-avatar">
+                                <span class="mini-icon icon-plant" aria-hidden="true"></span>
+                            </span>
+
+                            <div>
+                                <h3 th:text="${profile.plantTitle() != null ? profile.plantTitle() : 'Chưa có tên cây'}">
+                                    Monstera
+                                </h3>
+                                <p th:text="${profile.careInstruction() != null && !profile.careInstruction().isBlank() ? #strings.abbreviate(profile.careInstruction(), 120) : 'Chưa có dữ liệu'}">
+                                    Mô tả ngắn
+                                </p>
+                            </div>
+                        </div>
+
+                        <span class="status-pill"
+                              th:classappend="${profile.careLevel() == 1 ? ' success' : (profile.careLevel() == 2 ? ' info' : (profile.careLevel() == 3 ? ' warning' : (profile.careLevel() == 4 ? ' danger' : ' neutral')))}"
+                              th:text="${profile.careLevel() == 1 ? 'Dễ' : (profile.careLevel() == 2 ? 'Trung bình' : (profile.careLevel() == 3 ? 'Cần kinh nghiệm' : (profile.careLevel() == 4 ? 'Khó' : 'Chưa chọn')))}">
+                            Dễ
+                        </span>
+                    </header>
+
+                    <dl class="card-meta-grid care-metrics">
+                        <div>
+                            <dt>Nước</dt>
+                            <dd th:text="${profile.wateringFrequency() != null && !profile.wateringFrequency().isBlank() ? profile.wateringFrequency() : 'Chưa có dữ liệu'}">
+                                2 lần/tuần
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Độ ẩm</dt>
+                            <dd th:text="${profile.humidityRequirement() != null && !profile.humidityRequirement().isBlank() ? profile.humidityRequirement() : 'Chưa có dữ liệu'}">
+                                60%
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Ánh sáng</dt>
+                            <dd th:text="${profile.lightRequirement() != null && !profile.lightRequirement().isBlank() ? profile.lightRequirement() : 'Chưa có dữ liệu'}">
+                                Ánh sáng
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Trạng thái</dt>
+                            <dd>Đang hiển thị</dd>
+                        </div>
+                    </dl>
+
+                    <div class="card-actions">
+                        <button class="ghost-button icon-button-text js-toggle-panel"
+                                type="button"
+                                th:attr="data-panel-target=${'care-edit-' + profile.careId()}">
+                            <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                            Sửa
+                        </button>
+
+                        <form th:action="@{/admin/care-profiles/{id}/delete(id=${profile.careId()})}"
+                              method="post"
+                              class="js-loading-form"
+                              data-confirm="Xóa hồ sơ chăm sóc cây này?">
+                            <button class="ghost-button danger-ghost icon-button-text"
+                                    type="submit"
+                                    data-loading-text="Đang xóa...">
+                                <span class="mini-icon icon-trash" aria-hidden="true"></span>
+                                Xóa
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="collapse-panel" hidden th:id="${'care-edit-' + profile.careId()}">
+                        <form method="post"
+                              action="/admin/care-profiles"
+                              class="form-grid compact-form js-loading-form">
+                            <p class="form-title">
+                                <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                Cập nhật hồ sơ chăm sóc
+                            </p>
+
+                            <label class="wide">
+                                Chọn cây
+                                <select name="plantId" required>
+                                    <option th:each="plant : ${plants}"
+                                            th:value="${plant.plantId()}"
+                                            th:selected="${plant.plantId() == profile.plantId()}"
+                                            th:text="${plant.title() != null ? plant.title() : 'Chưa có tên cây'}">
+                                        Plant
+                                    </option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Ánh sáng
+                                <input name="lightRequirement"
+                                       th:value="${profile.lightRequirement()}"
+                                       placeholder="Ánh sáng">
+                            </label>
+
+                            <label>
+                                Nước
+                                <input name="wateringFrequency"
+                                       th:value="${profile.wateringFrequency()}"
+                                       placeholder="Lượng nước">
+                            </label>
+
+                            <label>
+                                Độ ẩm
+                                <input name="humidityRequirement"
+                                       th:value="${profile.humidityRequirement()}"
+                                       placeholder="Độ ẩm">
+                            </label>
+
+                            <label>
+                                Mức độ chăm sóc
+                                <select name="careLevel">
+                                    <option value="">Chưa chọn</option>
+                                    <option value="1" th:selected="${profile.careLevel() == 1}">Dễ</option>
+                                    <option value="2" th:selected="${profile.careLevel() == 2}">Trung bình</option>
+                                    <option value="3" th:selected="${profile.careLevel() == 3}">Cần kinh nghiệm</option>
+                                    <option value="4" th:selected="${profile.careLevel() == 4}">Khó</option>
+                                </select>
+                            </label>
+
+                            <label class="wide">
+                                Hướng dẫn chi tiết
+                                <textarea name="careInstruction" rows="4" th:text="${profile.careInstruction()}"></textarea>
+                            </label>
+
+                            <div class="form-actions wide">
+                                <button class="small-button icon-button-text"
+                                        type="submit"
+                                        data-loading-text="Đang lưu...">
+                                    <span class="mini-icon icon-save" aria-hidden="true"></span>
+                                    Lưu thay đổi
+                                </button>
+
+                                <button class="ghost-button js-close-panel" type="button">
+                                    Hủy
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </article>
+
+                <p th:if="${#lists.isEmpty(careProfiles)}" class="empty-state">
+                    Chưa có hồ sơ chăm sóc nào.
+                </p>
+
+                <p class="empty-state care-filter-empty" hidden>
+                    Chưa có dữ liệu phù hợp bộ lọc.
+                </p>
+            </div>
+        </section>
+    </section>
+</th:block>
