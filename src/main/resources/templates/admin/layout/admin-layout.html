@@ -1,0 +1,79 @@
+﻿<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_parameter" th:if="${_csrf != null}" th:content="${_csrf.parameterName}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
+    <title>Greeny Admin | Tổng quan</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/admin/admin-base.css">
+    <link rel="stylesheet" href="/css/admin/admin-layout.css">
+    <link rel="stylesheet" href="/css/admin/forms.css">
+    <link rel="stylesheet" href="/css/admin/tables.css">
+    <link rel="stylesheet" href="/css/admin/badges.css">
+    <link rel="stylesheet" href="/css/admin/products.css">
+    <link rel="stylesheet" href="/css/admin/orders.css">
+    <link rel="stylesheet" href="/css/admin/notifications.css">
+    <link rel="stylesheet" href="/css/admin/revenue.css">
+    <link rel="stylesheet" href="/css/admin/reports.css">
+    <link rel="stylesheet" href="/css/admin/users.css">
+    <link rel="stylesheet" href="/css/admin/reviews.css">
+    <link rel="stylesheet" href="/css/admin/admin-controls.css">
+    <link rel="stylesheet" href="/css/admin/coupons.css">
+    <link rel="stylesheet" href="/css/admin/categories.css">
+    <link rel="stylesheet" href="/css/admin/variants.css">
+    <link rel="stylesheet" href="/css/admin/admin-final.css">
+    <link rel="stylesheet" href="/css/admin/dashboard.css">
+    <link rel="stylesheet" href="/css/admin/responsive.css">
+    <link rel="stylesheet" href="/css/admin/catalog-workspace.css">
+</head>
+<body>
+<div class="app-layout">
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+    <div class="main-area">
+        <th:block th:replace="~{admin/layout/header :: header}"></th:block>
+        <main class="admin-shell">
+            <th:block th:replace="~{admin/fragments/alerts :: alerts(${success}, ${warning})}"></th:block>
+            <th:block th:replace="${content}"></th:block>
+        </main>
+        <th:block th:replace="~{admin/layout/footer :: footer}"></th:block>
+    </div>
+</div>
+<script>
+    (() => {
+        const token = document.querySelector('meta[name="_csrf"]')?.content;
+        const parameter = document.querySelector('meta[name="_csrf_parameter"]')?.content;
+        if (!token || !parameter) {
+            return;
+        }
+        document.querySelectorAll('form').forEach((form) => {
+            const method = (form.getAttribute('method') || 'get').toLowerCase();
+            if (method !== 'post' || form.querySelector(`input[name="${parameter}"]`)) {
+                return;
+            }
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = parameter;
+            input.value = token;
+            form.appendChild(input);
+        });
+    })();
+</script>
+<script src="/js/admin/admin-api.js"></script>
+<script src="/js/admin/admin-common.js"></script>
+<script src="/js/admin/orders.js"></script>
+<script src="/js/admin/coupons.js"></script>
+<script src="/js/admin/categories.js"></script>
+<script src="/js/admin/products.js"></script>
+<script src="/js/admin/variants.js"></script>
+<script src="/js/admin/notifications.js"></script>
+<script src="/js/admin/reviews.js"></script>
+<script src="/js/admin/users.js"></script>
+<script src="/js/admin/care.js"></script>
+<script src="/js/admin/posts.js"></script>
+<script src="/js/admin/inventory.js"></script>
+<script src="/js/admin/revenue.js"></script>
+</body>
+</html>

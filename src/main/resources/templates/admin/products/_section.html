@@ -1,0 +1,487 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="products(catalogPlants, categories, plantVariantCounts, plantTotalCount, plantVisibleCount, plantHiddenCount, plantWithoutVariantCount, plantAirPurifyingCount)">
+
+    <section class="admin-section catalog-section plant-admin" id="plants">
+        <div class="catalog-page-head plant-hero surface">
+            <div>
+                <p class="eyebrow">
+                    <span class="mini-icon icon-plant" aria-hidden="true"></span>
+                    Sản phẩm cây
+                </p>
+                <h2>Quản lý sản phẩm cây</h2>
+                <p>
+                    Quản lý thông tin cây chính, danh mục liên kết, đặc tính, trạng thái hiển thị
+                    và điều hướng nhanh sang biến thể để hoàn thiện khả năng bán hàng.
+                </p>
+            </div>
+
+            <a class="ghost-button icon-button-text" href="/admin#plants">
+                <span class="mini-icon icon-refresh" aria-hidden="true"></span>
+                Làm mới
+            </a>
+        </div>
+
+        <div class="quick-stat-grid catalog-stat-grid plant-stat-grid">
+            <article class="quick-stat">
+                <span class="mini-icon icon-plant" aria-hidden="true"></span>
+                <small>Tổng số cây</small>
+                <strong th:text="${plantTotalCount}">0</strong>
+            </article>
+
+            <article class="quick-stat success">
+                <span class="mini-icon icon-eye" aria-hidden="true"></span>
+                <small>Đang hiển thị</small>
+                <strong th:text="${plantVisibleCount}">0</strong>
+            </article>
+
+            <article class="quick-stat neutral">
+                <span class="mini-icon icon-eye-off" aria-hidden="true"></span>
+                <small>Đang ẩn</small>
+                <strong th:text="${plantHiddenCount}">0</strong>
+            </article>
+
+            <article class="quick-stat warning">
+                <span class="mini-icon icon-alert" aria-hidden="true"></span>
+                <small>Chưa có biến thể</small>
+                <strong th:text="${plantWithoutVariantCount}">0</strong>
+            </article>
+
+            <article class="quick-stat info">
+                <span class="mini-icon icon-check-circle" aria-hidden="true"></span>
+                <small>Lọc không khí</small>
+                <strong th:text="${plantAirPurifyingCount}">0</strong>
+            </article>
+        </div>
+
+        <form class="admin-filter-panel catalog-filter-panel plant-filter-panel surface" data-plant-filter-form>
+            <label>
+                Tìm theo tên cây
+                <input name="title" type="search" placeholder="Nhập tên cây">
+            </label>
+
+            <label>
+                Tìm theo SKU
+                <input name="sku" type="search" placeholder="PL-...">
+            </label>
+
+            <label>
+                Danh mục
+                <select name="categoryId">
+                    <option value="all">Tất cả danh mục</option>
+                    <option value="none">Chưa chọn danh mục</option>
+                    <option th:each="category : ${categories}"
+                            th:value="${category.caId()}"
+                            th:text="${category.title()}">
+                        Danh mục
+                    </option>
+                </select>
+            </label>
+
+            <label>
+                Trạng thái
+                <select name="visibility">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="visible">Đang hiển thị</option>
+                    <option value="hidden">Đang ẩn</option>
+                </select>
+            </label>
+
+            <label>
+                Biến thể
+                <select name="variantState">
+                    <option value="all">Tất cả</option>
+                    <option value="has">Có biến thể</option>
+                    <option value="none">Chưa có biến thể</option>
+                </select>
+            </label>
+
+            <label>
+                Độc tính
+                <input name="toxicity" type="search" placeholder="Không độc, có độc...">
+            </label>
+
+            <div class="filter-actions">
+                <button class="primary-button icon-button-text" type="submit" data-apply-plant-filters>
+                    <span class="mini-icon icon-filter" aria-hidden="true"></span>
+                    Lọc
+                </button>
+
+                <button class="ghost-button icon-button-text" type="reset" data-reset-plant-filters>
+                    <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                    Xóa lọc
+                </button>
+            </div>
+        </form>
+
+        <section class="surface plant-create-card">
+            <div class="section-heading compact">
+                <p class="eyebrow">
+                    <span class="mini-icon icon-plant" aria-hidden="true"></span>
+                    Thêm cây
+                </p>
+                <h2>Thêm sản phẩm cây</h2>
+                <p>
+                    Tạo hồ sơ cây chính trước, sau đó bổ sung biến thể để quản lý giá, SKU,
+                    tồn kho và trạng thái bán thực tế.
+                </p>
+            </div>
+
+            <p th:if="${#lists.isEmpty(categories)}" class="empty-state">
+                Chưa có danh mục, vui lòng tạo danh mục trước.
+            </p>
+
+            <form method="post" action="/admin/plants" class="form-grid plant-create-form js-loading-form">
+                <label>
+                    Tên cây
+                    <input name="title" required placeholder="Monstera Deliciosa" th:disabled="${#lists.isEmpty(categories)}">
+                </label>
+
+                <label>
+                    SKU
+                    <input name="sku" placeholder="PL-MON-001" th:disabled="${#lists.isEmpty(categories)}">
+                </label>
+
+                <label>
+                    Danh mục
+                    <select name="categoryId" required th:disabled="${#lists.isEmpty(categories)}">
+                        <option value="">Chưa chọn danh mục</option>
+                        <option th:each="category : ${categories}"
+                                th:value="${category.caId()}"
+                                th:text="${category.title()}">
+                            Danh mục
+                        </option>
+                    </select>
+                </label>
+
+                <label>
+                    Tên khoa học
+                    <input name="scientificName" placeholder="Monstera deliciosa" th:disabled="${#lists.isEmpty(categories)}">
+                </label>
+
+                <label>
+                    Tên thường dùng
+                    <input name="commonName" placeholder="Trầu bà lá xẻ" th:disabled="${#lists.isEmpty(categories)}">
+                </label>
+
+                <label>
+                    Loại cây
+                    <input name="plantType" type="number" placeholder="1" th:disabled="${#lists.isEmpty(categories)}">
+                </label>
+
+                <label>
+                    Nguồn gốc
+                    <input name="origin" placeholder="Nam Mỹ" th:disabled="${#lists.isEmpty(categories)}">
+                </label>
+
+                <label>
+                    Độc tính
+                    <input name="toxicity" placeholder="Không nên để thú cưng ăn lá" th:disabled="${#lists.isEmpty(categories)}">
+                </label>
+
+                <label class="toggle">
+                    <input name="petFriendly" type="checkbox" value="true" th:disabled="${#lists.isEmpty(categories)}">
+                    <span>Thân thiện thú cưng</span>
+                </label>
+
+                <label class="toggle">
+                    <input name="airPurifying" type="checkbox" value="true" th:disabled="${#lists.isEmpty(categories)}">
+                    <span>Lọc không khí</span>
+                </label>
+
+                <label class="wide">
+                    Mô tả
+                    <textarea name="description"
+                              rows="5"
+                              placeholder="Mô tả đặc điểm, kích thước, phong cách trang trí phù hợp..."
+                              th:disabled="${#lists.isEmpty(categories)}"></textarea>
+                </label>
+
+                <button class="primary-button icon-button-text wide"
+                        type="submit"
+                        th:disabled="${#lists.isEmpty(categories)}"
+                        data-loading-text="Đang lưu...">
+                    <span class="mini-icon icon-save" aria-hidden="true"></span>
+                    Lưu cây
+                </button>
+            </form>
+        </section>
+
+        <section class="surface plant-list-card">
+            <div class="plant-list-head">
+                <div class="section-heading compact">
+                    <p class="eyebrow">
+                        <span class="mini-icon icon-list" aria-hidden="true"></span>
+                        Danh sách
+                    </p>
+                    <h2>Sản phẩm cây hiện có</h2>
+                    <p>
+                        Danh sách dạng thẻ giúp thao tác với sản phẩm, biến thể, trạng thái hiển thị
+                        và xóa an toàn dễ hơn bảng nhiều cột.
+                    </p>
+                </div>
+            </div>
+
+            <div class="plant-card-list" th:if="${!#lists.isEmpty(catalogPlants)}">
+                <th:block th:each="plant : ${catalogPlants}"
+                          th:with="variantCount=${plantVariantCounts.get(plant.plantId()) != null ? plantVariantCounts.get(plant.plantId()) : 0}">
+
+                    <article class="catalog-summary-row plant-summary-row plant-card"
+                             th:attr="data-search=${(plant.title() != null ? plant.title() : '') + ' ' + (plant.commonName() != null ? plant.commonName() : '') + ' ' + (plant.scientificName() != null ? plant.scientificName() : '')},
+                                      data-sku=${plant.sku() != null ? plant.sku() : ''},
+                                      data-category=${plant.categoryId() != null ? plant.categoryId() : 'none'},
+                                      data-visibility=${plant.deletedAt() == null ? 'visible' : 'hidden'},
+                                      data-variants=${variantCount},
+                                      data-toxicity=${plant.toxicity() != null ? plant.toxicity() : ''}">
+
+                        <header class="plant-card-header">
+                            <div class="plant-title-block">
+                                <span class="record-avatar"
+                                      th:text="${plant.title() != null && #strings.length(plant.title()) > 0 ? #strings.substring(plant.title(), 0, 1) : 'C'}">
+                                    C
+                                </span>
+
+                                <div>
+                                    <span class="plant-code-label" th:text="${plant.sku() != null ? 'SKU: ' + plant.sku() : 'Chưa có SKU'}">
+                                        SKU
+                                    </span>
+                                    <h3 th:text="${plant.title() != null ? plant.title() : 'Chưa có dữ liệu'}">
+                                        Monstera
+                                    </h3>
+                                    <p th:text="${plant.scientificName() != null ? plant.scientificName() : (plant.commonName() != null ? plant.commonName() : 'Chưa có tên khoa học / tên thường dùng')}">
+                                        Tên khoa học
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="plant-status-stack">
+                                <span class="status-pill"
+                                      th:classappend="${plant.deletedAt() == null ? ' success' : ' neutral'}"
+                                      th:text="${plant.deletedAt() == null ? 'Đang hiển thị' : 'Đang ẩn'}">
+                                    Đang hiển thị
+                                </span>
+
+                                <span class="status-pill"
+                                      th:classappend="${variantCount > 0 ? ' success' : ' warning'}"
+                                      th:text="${variantCount > 0 ? variantCount + ' biến thể' : 'Chưa có biến thể'}">
+                                    0 biến thể
+                                </span>
+                            </div>
+                        </header>
+
+                        <div class="plant-card-body">
+                            <div class="plant-info-box">
+                                <dt>Danh mục</dt>
+                                <dd>
+                                    <strong th:text="${plant.categoryTitle() != null ? plant.categoryTitle() : 'Chưa chọn danh mục'}">
+                                        Danh mục
+                                    </strong>
+                                    <small>Nhóm hiển thị trên storefront.</small>
+                                </dd>
+                            </div>
+
+                            <div class="plant-info-box">
+                                <dt>Nguồn gốc / Loại cây</dt>
+                                <dd>
+                                    <strong th:text="${plant.origin() != null ? plant.origin() : 'Chưa có nguồn gốc'}">
+                                        Nam Mỹ
+                                    </strong>
+                                    <small th:text="${plant.plantType() != null ? 'Loại cây: ' + plant.plantType() : 'Chưa có loại cây'}">
+                                        Loại cây
+                                    </small>
+                                </dd>
+                            </div>
+
+                            <div class="plant-info-box">
+                                <dt>Đặc tính</dt>
+                                <dd>
+                                    <div class="catalog-tag-list">
+                                        <span th:if="${plant.petFriendly() == true}">Thân thiện thú cưng</span>
+                                        <span th:if="${plant.airPurifying() == true}">Lọc không khí</span>
+                                        <span th:if="${plant.petFriendly() != true && plant.airPurifying() != true}">Chưa có dữ liệu</span>
+                                    </div>
+                                </dd>
+                            </div>
+
+                            <div class="plant-info-box">
+                                <dt>Độc tính</dt>
+                                <dd>
+                                    <strong th:text="${plant.toxicity() != null ? plant.toxicity() : 'Chưa có dữ liệu'}">
+                                        Chưa có dữ liệu
+                                    </strong>
+                                    <small>Quan trọng cho khách có trẻ nhỏ hoặc thú cưng.</small>
+                                </dd>
+                            </div>
+                        </div>
+
+                        <div class="plant-description-box">
+                            <strong>Mô tả sản phẩm</strong>
+                            <p th:text="${plant.description() != null ? plant.description() : 'Chưa có mô tả. Nên bổ sung mô tả để khách hiểu đặc điểm, nhu cầu chăm sóc và phong cách trang trí phù hợp.'}">
+                                Mô tả
+                            </p>
+                        </div>
+
+                        <footer class="plant-card-footer">
+                            <div class="plant-business-note">
+                                <span th:if="${variantCount == 0}">
+                                    Sản phẩm chưa có biến thể, chưa nên bán chính thức.
+                                </span>
+                                <span th:if="${variantCount > 0 && plant.deletedAt() == null}">
+                                    Sản phẩm đã có biến thể và đang hiển thị.
+                                </span>
+                                <span th:if="${plant.deletedAt() != null}">
+                                    Sản phẩm đang ẩn khỏi storefront.
+                                </span>
+                            </div>
+
+                            <div class="catalog-actions plant-card-actions">
+                                <button class="small-button icon-button-text js-edit-catalog" type="button">
+                                    <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                    Sửa cây
+                                </button>
+
+                                <a class="ghost-button icon-button-text"
+                                   href="#variants"
+                                   th:attr="data-jump-variant-plant=${plant.plantId()}">
+                                    <span class="mini-icon icon-package" aria-hidden="true"></span>
+                                    Xem biến thể
+                                </a>
+
+                                <form th:action="@{/admin/plants/{id}/visibility(id=${plant.plantId()})}"
+                                      method="post"
+                                      class="js-loading-form">
+                                    <input name="isVisible" type="hidden" th:value="${plant.deletedAt() != null}">
+                                    <button class="ghost-button icon-button-text" type="submit" data-loading-text="Đang lưu...">
+                                        <span class="mini-icon"
+                                              th:classappend="${plant.deletedAt() == null ? ' icon-eye-off' : ' icon-eye'}"
+                                              aria-hidden="true"></span>
+                                        <span th:text="${plant.deletedAt() == null ? 'Ẩn cây' : 'Hiện cây'}">Ẩn cây</span>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/admin/plants/{id}/delete(id=${plant.plantId()})}"
+                                      method="post"
+                                      class="js-loading-form">
+                                    <button class="ghost-button danger-ghost icon-button-text"
+                                            type="submit"
+                                            th:disabled="${variantCount > 0}"
+                                            data-loading-text="Đang xóa...">
+                                        <span class="mini-icon icon-trash" aria-hidden="true"></span>
+                                        Xóa cây
+                                    </button>
+                                </form>
+                            </div>
+                        </footer>
+
+                        <small th:if="${variantCount > 0}" class="safe-warning">
+                            Sản phẩm đang có biến thể, không thể xóa trực tiếp để tránh mất liên kết tồn kho / đơn hàng.
+                        </small>
+                    </article>
+
+                    <article class="catalog-detail-row plant-detail-row plant-edit-panel">
+                        <details class="catalog-detail">
+                            <summary>
+                                <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                Chỉnh sửa cây
+                            </summary>
+
+                            <form th:action="@{/admin/plants/{id}(id=${plant.plantId()})}"
+                                  method="post"
+                                  class="form-grid catalog-edit-form plant-edit-form js-loading-form">
+
+                                <label>
+                                    Tên cây
+                                    <input name="title" th:value="${plant.title()}" required>
+                                </label>
+
+                                <label>
+                                    SKU
+                                    <input name="sku" th:value="${plant.sku()}">
+                                </label>
+
+                                <label>
+                                    Danh mục
+                                    <select name="categoryId" required>
+                                        <option value="">Chưa chọn danh mục</option>
+                                        <option th:each="category : ${categories}"
+                                                th:value="${category.caId()}"
+                                                th:selected="${category.caId() == plant.categoryId()}"
+                                                th:text="${category.title()}">
+                                            Danh mục
+                                        </option>
+                                    </select>
+                                </label>
+
+                                <label>
+                                    Tên khoa học
+                                    <input name="scientificName" th:value="${plant.scientificName()}">
+                                </label>
+
+                                <label>
+                                    Tên thường dùng
+                                    <input name="commonName" th:value="${plant.commonName()}">
+                                </label>
+
+                                <label>
+                                    Loại cây
+                                    <input name="plantType" th:value="${plant.plantType()}" type="number">
+                                </label>
+
+                                <label>
+                                    Nguồn gốc
+                                    <input name="origin" th:value="${plant.origin()}">
+                                </label>
+
+                                <label>
+                                    Độc tính
+                                    <input name="toxicity" th:value="${plant.toxicity()}">
+                                </label>
+
+                                <label>
+                                    Trạng thái
+                                    <select name="isVisible">
+                                        <option value="true" th:selected="${plant.deletedAt() == null}">Đang hiển thị</option>
+                                        <option value="false" th:selected="${plant.deletedAt() != null}">Ẩn</option>
+                                    </select>
+                                </label>
+
+                                <label class="toggle">
+                                    <input name="petFriendly" type="checkbox" value="true" th:checked="${plant.petFriendly() == true}">
+                                    <span>Thân thiện thú cưng</span>
+                                </label>
+
+                                <label class="toggle">
+                                    <input name="airPurifying" type="checkbox" value="true" th:checked="${plant.airPurifying() == true}">
+                                    <span>Lọc không khí</span>
+                                </label>
+
+                                <label class="wide">
+                                    Mô tả
+                                    <textarea name="description" rows="5" th:text="${plant.description()}"></textarea>
+                                </label>
+
+                                <div class="form-actions wide">
+                                    <button class="primary-button icon-button-text" type="submit" data-loading-text="Đang lưu...">
+                                        <span class="mini-icon icon-save" aria-hidden="true"></span>
+                                        Lưu thay đổi
+                                    </button>
+
+                                    <button class="ghost-button js-cancel-catalog" type="button">
+                                        Hủy
+                                    </button>
+                                </div>
+                            </form>
+                        </details>
+                    </article>
+                </th:block>
+            </div>
+
+            <p th:if="${#lists.isEmpty(catalogPlants)}" class="empty-state">
+                Chưa có dữ liệu sản phẩm cây.
+            </p>
+
+            <p class="empty-state plant-filter-empty" hidden>
+                Không có sản phẩm cây phù hợp bộ lọc.
+            </p>
+        </section>
+    </section>
+</th:block>

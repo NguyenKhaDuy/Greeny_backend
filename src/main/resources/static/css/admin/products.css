@@ -1,0 +1,815 @@
+﻿/* =========================================================
+   Products UI - nghiệp vụ thực tế
+   - Form thêm cây hiển thị đầy đủ.
+   - Danh sách cây full width dạng card, thao tác rộng.
+   - Giữ class JS: .plant-summary-row, .catalog-detail-row, .js-edit-catalog.
+   ========================================================= */
+
+#plants.admin-section:not(.is-active) {
+    display: none !important;
+}
+
+#plants.admin-section.is-active,
+#plants.catalog-section.is-active,
+#plants.plant-admin.is-active {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+#plants,
+#plants *,
+#plants *::before,
+#plants *::after {
+    box-sizing: border-box;
+}
+
+#plants > *,
+#plants .surface,
+#plants .plant-filter-panel,
+#plants .plant-create-card,
+#plants .plant-create-form,
+#plants .plant-list-card,
+#plants .plant-card-list,
+#plants .plant-card,
+#plants .catalog-detail,
+#plants .plant-edit-form {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Hero */
+
+#plants .plant-hero,
+#plants .catalog-page-head {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 0;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 22px;
+    background:
+            radial-gradient(circle at 0 0, rgba(46, 139, 99, 0.18), transparent 38%),
+            radial-gradient(circle at 100% 0, rgba(49, 95, 141, 0.10), transparent 34%),
+            linear-gradient(135deg, rgba(232, 245, 238, 0.96), rgba(255, 255, 255, 0.98));
+    padding: clamp(18px, 2.4vw, 26px);
+    box-shadow: var(--shadow-sm);
+}
+
+#plants .plant-hero::after,
+#plants .catalog-page-head::after {
+    content: "";
+    position: absolute;
+    right: -76px;
+    top: -76px;
+    z-index: -1;
+    width: 210px;
+    height: 210px;
+    border-radius: 999px;
+    background: rgba(34, 113, 80, 0.09);
+}
+
+#plants .plant-hero h2,
+#plants .catalog-page-head h2 {
+    margin-top: 6px;
+    font-size: clamp(24px, 2.6vw, 34px);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+}
+
+#plants .plant-hero p:not(.eyebrow),
+#plants .catalog-page-head p:not(.eyebrow) {
+    max-width: 850px;
+    line-height: 1.6;
+}
+
+#plants .catalog-page-head > a {
+    position: relative;
+    z-index: 1;
+    border-radius: 999px;
+}
+
+/* KPI */
+
+#plants .quick-stat-grid.catalog-stat-grid,
+#plants .quick-stat-grid.plant-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+}
+
+#plants .quick-stat {
+    position: relative;
+    min-height: 126px;
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(34, 113, 80, 0.10);
+    border-radius: 18px;
+    background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+            #fff;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+#plants .quick-stat::before {
+    height: 5px;
+    border-radius: 18px 18px 0 0;
+}
+
+#plants .quick-stat .mini-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 13px;
+    background: var(--green-100);
+    color: var(--green-700);
+}
+
+#plants .quick-stat.warning .mini-icon {
+    background: var(--amber-100);
+    color: var(--amber-700);
+}
+
+#plants .quick-stat.info .mini-icon {
+    background: var(--blue-100);
+    color: var(--blue-700);
+}
+
+#plants .quick-stat.neutral .mini-icon {
+    background: #eef2ef;
+    color: var(--muted);
+}
+
+#plants .quick-stat small {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+#plants .quick-stat strong {
+    color: var(--ink);
+    font-size: clamp(25px, 2.1vw, 32px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    overflow-wrap: anywhere;
+}
+
+/* Shared surfaces */
+
+#plants .surface {
+    border-radius: 22px;
+    border-color: rgba(34, 113, 80, 0.12);
+    background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.96)),
+            var(--surface);
+}
+
+/* Filter */
+
+#plants .plant-filter-panel {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(132px, 1fr));
+    gap: 12px;
+    align-items: end;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 20px;
+    background:
+            linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.94)),
+            var(--surface-soft);
+    padding: 15px;
+}
+
+#plants label {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+#plants input,
+#plants select,
+#plants textarea {
+    min-height: 42px;
+    border-radius: 13px;
+    font-size: 14px;
+    font-weight: 650;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+#plants textarea {
+    line-height: 1.55;
+}
+
+#plants .filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#plants .filter-actions button {
+    min-height: 40px;
+    border-radius: 999px;
+    padding-inline: 14px;
+}
+
+/* Create form */
+
+.plant-create-card {
+    padding: clamp(16px, 2vw, 22px);
+}
+
+.plant-create-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+#plants .toggle {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface-soft);
+    padding: 10px 12px;
+}
+
+#plants .toggle input {
+    width: auto;
+    min-height: auto;
+}
+
+#plants .wide {
+    grid-column: 1 / -1;
+}
+
+#plants .plant-create-form button[type="submit"] {
+    min-height: 44px;
+    border-radius: 999px;
+}
+
+/* List */
+
+.plant-list-card {
+    display: grid;
+    gap: 14px;
+    padding: clamp(16px, 2vw, 22px);
+}
+
+.plant-list-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.plant-card-list {
+    display: grid;
+    gap: 12px;
+}
+
+.plant-card {
+    display: grid;
+    gap: 14px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+            #fff;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.plant-card:hover {
+    border-color: rgba(34, 113, 80, 0.22);
+    box-shadow: var(--shadow-md);
+}
+
+.plant-card-header,
+.plant-card-footer {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.plant-title-block {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+#plants .record-avatar {
+    display: inline-grid;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    place-items: center;
+    border-radius: 16px;
+    background: var(--green-100);
+    color: var(--green-700);
+    font-size: 18px;
+    font-weight: 950;
+}
+
+.plant-code-label {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.plant-title-block h3 {
+    margin: 5px 0 0;
+    color: var(--ink);
+    font-size: clamp(20px, 2vw, 27px);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+}
+
+.plant-title-block p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.plant-status-stack {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.plant-card-body {
+    display: grid;
+    grid-template-columns: minmax(190px, 0.95fr) minmax(210px, 1fr) minmax(210px, 1fr) minmax(230px, 1.1fr);
+    gap: 12px;
+}
+
+.plant-info-box {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface-soft);
+    padding: 12px;
+}
+
+.plant-info-box dt {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.plant-info-box dd {
+    margin: 8px 0 0;
+}
+
+.plant-info-box strong {
+    display: block;
+    color: var(--ink-soft);
+    font-size: 15px;
+    font-weight: 950;
+    overflow-wrap: anywhere;
+}
+
+.plant-info-box small {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    line-height: 1.35;
+}
+
+.catalog-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.catalog-tag-list span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 999px;
+    background: var(--green-100);
+    color: var(--green-700);
+    padding: 5px 9px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.plant-description-box {
+    border: 1px dashed var(--line-strong);
+    border-radius: 16px;
+    background: var(--surface-soft);
+    padding: 12px;
+}
+
+.plant-description-box strong {
+    display: block;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 950;
+}
+
+.plant-description-box p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.plant-business-note {
+    min-width: 0;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.catalog-actions,
+.plant-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.catalog-actions form {
+    margin: 0;
+}
+
+.catalog-actions .small-button,
+.catalog-actions .ghost-button {
+    min-height: 38px;
+    border-radius: 999px;
+    padding-inline: 12px;
+}
+
+.catalog-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+    transform: none;
+}
+
+.safe-warning {
+    display: block;
+    color: var(--amber-700);
+    font-size: 12px;
+    font-weight: 850;
+}
+
+/* Filtering + detail */
+
+.catalog-summary-row.is-filtered-out,
+.catalog-detail-row.is-filtered-out,
+.catalog-detail-row {
+    display: none;
+}
+
+.catalog-detail-row.is-open {
+    display: block;
+}
+
+.plant-edit-panel {
+    margin-top: -4px;
+}
+
+.catalog-detail {
+    overflow: hidden;
+    border: 1px solid rgba(34, 113, 80, 0.14);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    padding: 0;
+}
+
+.catalog-detail summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 50px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--line);
+    background:
+            linear-gradient(135deg, rgba(232, 245, 238, 0.86), rgba(255, 255, 255, 0.96));
+    color: var(--green-700);
+    padding: 12px 16px;
+    font-weight: 950;
+}
+
+.plant-edit-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    background:
+            linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.96));
+    padding: 16px;
+}
+
+.plant-edit-form .form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.plant-edit-form .form-actions button {
+    min-height: 40px;
+    border-radius: 999px;
+}
+
+/* Empty */
+
+#plants .empty-state {
+    margin: 0;
+    border: 1px dashed var(--line-strong);
+    border-radius: 16px;
+    background: var(--surface-soft);
+    color: var(--muted);
+    padding: 18px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Keep old shared product styles for other fragments using this file */
+
+.record-list,
+.care-grid,
+.inventory-list,
+.article-list,
+.order-list,
+.notification-list {
+    display: grid;
+    gap: 12px;
+}
+
+.record-row,
+.care-card,
+.inventory-row,
+.article-row,
+.order-row,
+.notification-row {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #fff;
+}
+
+.record-row,
+.inventory-row {
+    display: grid;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+}
+
+.record-row {
+    grid-template-columns: minmax(210px, 0.9fr) minmax(260px, 1.4fr) auto;
+}
+
+.record-row:hover,
+.care-card:hover,
+.inventory-row:hover,
+.article-row:hover,
+.order-row:hover,
+.notification-row:hover,
+.review-row:hover,
+.rank-row:hover,
+.compact-order-row:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-sm);
+}
+
+.record-main {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.record-main h3,
+.care-card h3,
+.inventory-row h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.record-main p,
+.care-card p,
+.inventory-row p {
+    margin: 4px 0 0;
+    color: var(--muted);
+}
+
+.care-card {
+    padding: 16px;
+}
+
+.care-card header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.care-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.care-metrics div {
+    border-radius: var(--radius);
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 10px;
+}
+
+.care-metrics dt {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.care-metrics dd {
+    margin: 4px 0 0;
+    font-weight: 850;
+}
+
+.instruction,
+.helper-text,
+.empty-state {
+    line-height: 1.55;
+}
+
+.article-row {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+}
+
+.article-preview {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+}
+
+.article-preview img,
+.article-thumb {
+    width: 96px;
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: #fff;
+}
+
+.article-preview img {
+    object-fit: cover;
+}
+
+.article-thumb {
+    display: inline-grid;
+    place-items: center;
+    background: var(--blue-100);
+    color: var(--blue-700);
+    font-size: 28px;
+    font-weight: 950;
+}
+
+.article-preview h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.article-preview p {
+    margin: 6px 0 0;
+    color: var(--muted);
+}
+
+.article-preview small {
+    display: block;
+    margin-top: 6px;
+    color: var(--green-700);
+    font-weight: 850;
+}
+
+.article-preview-panel {
+    display: grid;
+    gap: 10px;
+}
+
+.article-preview-panel h3 {
+    margin: 0;
+    color: var(--text);
+}
+
+.article-preview-content {
+    white-space: pre-wrap;
+    color: var(--text);
+    line-height: 1.65;
+}
+
+.article-edit-form {
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+}
+
+/* Responsive */
+
+@media (max-width: 1380px) {
+    #plants .quick-stat-grid.catalog-stat-grid,
+    #plants .quick-stat-grid.plant-stat-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #plants .plant-filter-panel {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .plant-card-body {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 980px) {
+    #plants .plant-hero,
+    #plants .catalog-page-head,
+    .plant-card-header,
+    .plant-card-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .plant-create-form,
+    .plant-edit-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .plant-status-stack,
+    .catalog-actions,
+    .plant-card-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 720px) {
+    #plants .quick-stat-grid.catalog-stat-grid,
+    #plants .quick-stat-grid.plant-stat-grid,
+    #plants .plant-filter-panel,
+    .plant-card-body,
+    .plant-create-form,
+    .plant-edit-form {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #plants .filter-actions,
+    .plant-edit-form .form-actions,
+    .catalog-actions,
+    .plant-card-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #plants .filter-actions button,
+    .plant-edit-form .form-actions button,
+    .catalog-actions button,
+    .catalog-actions a {
+        width: 100%;
+    }
+
+    .plant-title-block {
+        flex-direction: column;
+    }
+}

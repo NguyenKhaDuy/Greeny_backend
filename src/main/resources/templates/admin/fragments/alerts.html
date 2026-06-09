@@ -1,0 +1,4 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="alerts(success, warning)">
+    <section th:if="${success}" class="notice" role="status" th:text="${success}"></section>
+    <section th:if="${warning}" class="notice warning" role="status" th:text="${warning}"></section>
+</th:block>

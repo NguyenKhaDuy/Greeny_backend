@@ -1,0 +1,931 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="inventory(inventoryItems, categories, variantCategoryIds, variantCategoryTitles, inventoryTrackedCount, inventoryTotalStock, inventoryLowStockCount, inventoryOutOfStockCount, inventoryInStockCount, inventoryStoppedCount)">
+    <style>
+        #inventory.admin-section:not(.is-active) {
+            display: none !important;
+        }
+
+        #inventory.admin-section.is-active,
+        #inventory.inventory-admin.is-active {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            align-content: start !important;
+            gap: 14px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+        }
+
+        #inventory,
+        #inventory *,
+        #inventory *::before,
+        #inventory *::after {
+            box-sizing: border-box !important;
+        }
+
+        #inventory > *,
+        #inventory .surface,
+        #inventory .inventory-hero,
+        #inventory .inventory-stat-grid,
+        #inventory .inventory-filter-panel,
+        #inventory .inventory-adjust-card,
+        #inventory .inventory-list-card,
+        #inventory .inventory-list,
+        #inventory .inventory-card,
+        #inventory .inventory-edit-panel,
+        #inventory .compact-form {
+            min-width: 0 !important;
+            max-width: 100% !important;
+        }
+
+        #inventory .surface {
+            border-radius: 18px !important;
+            border-color: rgba(34, 113, 80, 0.12) !important;
+            background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.96)),
+                    var(--surface) !important;
+        }
+
+        #inventory .inventory-hero {
+            position: relative !important;
+            isolation: isolate !important;
+            overflow: hidden !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: 16px !important;
+            margin: 0 !important;
+            border: 1px solid rgba(34, 113, 80, 0.12) !important;
+            border-radius: 20px !important;
+            background:
+                    radial-gradient(circle at 0 0, rgba(46, 139, 99, 0.16), transparent 38%),
+                    linear-gradient(135deg, rgba(232, 245, 238, 0.96), rgba(255, 255, 255, 0.98)) !important;
+            padding: 18px 22px !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        #inventory .inventory-hero::after {
+            content: "" !important;
+            position: absolute !important;
+            right: -76px !important;
+            top: -76px !important;
+            z-index: -1 !important;
+            width: 190px !important;
+            height: 190px !important;
+            border-radius: 999px !important;
+            background: rgba(34, 113, 80, 0.08) !important;
+        }
+
+        #inventory .inventory-hero h2 {
+            margin-top: 5px !important;
+            font-size: clamp(23px, 2.3vw, 32px) !important;
+            line-height: 1.08 !important;
+            letter-spacing: -0.04em !important;
+        }
+
+        #inventory .inventory-hero p:not(.eyebrow) {
+            max-width: 860px !important;
+            line-height: 1.55 !important;
+        }
+
+        #inventory .inventory-hero > a {
+            position: relative !important;
+            z-index: 1 !important;
+            border-radius: 999px !important;
+        }
+
+        #inventory .inventory-stat-grid {
+            display: grid !important;
+            grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+            gap: 10px !important;
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        #inventory .inventory-stat-grid .quick-stat {
+            min-height: 92px !important;
+            display: grid !important;
+            align-content: start !important;
+            gap: 6px !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(34, 113, 80, 0.10) !important;
+            border-radius: 16px !important;
+            background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+                    #fff !important;
+            padding: 12px !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        #inventory .inventory-stat-grid .quick-stat .mini-icon {
+            width: 30px !important;
+            height: 30px !important;
+            border-radius: 11px !important;
+            background: var(--green-100) !important;
+            color: var(--green-700) !important;
+        }
+
+        #inventory .inventory-stat-grid .quick-stat.warning .mini-icon {
+            background: var(--amber-100) !important;
+            color: var(--amber-700) !important;
+        }
+
+        #inventory .inventory-stat-grid .quick-stat.danger .mini-icon {
+            background: var(--red-100) !important;
+            color: var(--red-700) !important;
+        }
+
+        #inventory .inventory-stat-grid .quick-stat.info .mini-icon {
+            background: var(--blue-100) !important;
+            color: var(--blue-700) !important;
+        }
+
+        #inventory .inventory-stat-grid .quick-stat.neutral .mini-icon {
+            background: #eef2ef !important;
+            color: var(--muted) !important;
+        }
+
+        #inventory .inventory-stat-grid .quick-stat small {
+            margin-top: 3px !important;
+            color: var(--muted) !important;
+            font-size: 11px !important;
+            font-weight: 900 !important;
+            line-height: 1.2 !important;
+            letter-spacing: 0.04em !important;
+            text-transform: uppercase !important;
+        }
+
+        #inventory .inventory-stat-grid .quick-stat strong {
+            color: var(--ink) !important;
+            font-size: 28px !important;
+            line-height: 1 !important;
+            letter-spacing: -0.035em !important;
+        }
+
+        #inventory .inventory-filter-panel {
+            display: grid !important;
+            grid-template-columns: repeat(6, minmax(132px, 1fr)) !important;
+            gap: 10px !important;
+            align-items: end !important;
+            border: 1px solid rgba(34, 113, 80, 0.12) !important;
+            border-radius: 18px !important;
+            background:
+                    linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.94)),
+                    var(--surface-soft) !important;
+            padding: 14px !important;
+        }
+
+        #inventory label {
+            display: grid !important;
+            gap: 6px !important;
+            min-width: 0 !important;
+            color: var(--muted) !important;
+            font-size: 11px !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.04em !important;
+            text-transform: uppercase !important;
+        }
+
+        #inventory input,
+        #inventory select {
+            min-height: 39px !important;
+            border-radius: 12px !important;
+            font-size: 14px !important;
+            font-weight: 650 !important;
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+        }
+
+        #inventory .filter-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+        }
+
+        #inventory .filter-actions button {
+            min-height: 39px !important;
+            border-radius: 999px !important;
+            padding-inline: 14px !important;
+        }
+
+        #inventory .inventory-adjust-card,
+        #inventory .inventory-list-card {
+            padding: 16px !important;
+        }
+
+        #inventory .inventory-adjust-card .section-heading {
+            margin-bottom: 12px !important;
+        }
+
+        #inventory .inventory-adjust-card .section-heading h2 {
+            font-size: 21px !important;
+        }
+
+        #inventory .inventory-adjust-card .section-heading p:not(.eyebrow) {
+            margin-top: 6px !important;
+            line-height: 1.45 !important;
+        }
+
+        #inventory .inventory-adjust-form {
+            display: grid !important;
+            grid-template-columns: minmax(360px, 1.6fr) minmax(170px, 0.55fr) minmax(130px, 0.4fr) auto !important;
+            gap: 12px !important;
+            align-items: end !important;
+        }
+
+        #inventory .inventory-adjust-form .inventory-variant-select {
+            grid-column: auto !important;
+        }
+
+        #inventory .inventory-adjust-form button[type="submit"] {
+            width: auto !important;
+            min-width: 150px !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            border-radius: 999px !important;
+            padding: 0 18px !important;
+            align-self: end !important;
+            justify-self: end !important;
+            white-space: nowrap !important;
+        }
+
+        #inventory .inventory-list-card {
+            display: grid !important;
+            gap: 14px !important;
+        }
+
+        #inventory .inventory-list-head {
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: 16px !important;
+        }
+
+        #inventory .inventory-list-head .section-heading {
+            margin-bottom: 0 !important;
+        }
+
+        #inventory .inventory-list-head h2 {
+            font-size: 22px !important;
+        }
+
+        #inventory .inventory-list {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)) !important;
+            gap: 12px !important;
+            align-items: start !important;
+        }
+
+        #inventory .inventory-card {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 10px !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 16px !important;
+            background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+                    #fff !important;
+            padding: 13px !important;
+            box-shadow: var(--shadow-sm) !important;
+        }
+
+        #inventory .inventory-card:hover {
+            border-color: rgba(34, 113, 80, 0.22) !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+
+        #inventory .inventory-card.low {
+            border-color: rgba(153, 101, 21, 0.22) !important;
+            background:
+                    linear-gradient(180deg, rgba(255, 251, 235, 0.78), rgba(255, 255, 255, 0.96)),
+                    #fff !important;
+        }
+
+        #inventory .inventory-card.out {
+            border-color: rgba(169, 67, 63, 0.22) !important;
+            background:
+                    linear-gradient(180deg, rgba(254, 242, 242, 0.76), rgba(255, 255, 255, 0.96)),
+                    #fff !important;
+        }
+
+        #inventory .inventory-card.stopped {
+            opacity: 0.88 !important;
+        }
+
+        #inventory .inventory-card-header {
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: space-between !important;
+            gap: 10px !important;
+        }
+
+        #inventory .inventory-title-block {
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+            min-width: 0 !important;
+        }
+
+        #inventory .stock-avatar {
+            display: inline-grid !important;
+            flex: 0 0 38px !important;
+            width: 38px !important;
+            height: 38px !important;
+            place-items: center !important;
+            border-radius: 13px !important;
+            background: var(--green-100) !important;
+            color: var(--green-700) !important;
+            font-size: 16px !important;
+            font-weight: 950 !important;
+        }
+
+        #inventory .inventory-sku-label {
+            display: block !important;
+            color: var(--muted) !important;
+            font-size: 11px !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.08em !important;
+            text-transform: uppercase !important;
+        }
+
+        #inventory .inventory-title-block h3 {
+            margin: 4px 0 0 !important;
+            color: var(--ink) !important;
+            font-size: 17px !important;
+            line-height: 1.15 !important;
+            letter-spacing: -0.02em !important;
+            overflow-wrap: anywhere !important;
+        }
+
+        #inventory .inventory-title-block p {
+            margin: 4px 0 0 !important;
+            color: var(--muted) !important;
+            font-size: 13px !important;
+            line-height: 1.35 !important;
+            overflow-wrap: anywhere !important;
+        }
+
+        #inventory .inventory-status-stack {
+            display: flex !important;
+            justify-content: flex-end !important;
+            flex: 0 0 auto !important;
+        }
+
+        #inventory .inventory-meta {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 8px !important;
+            margin: 0 !important;
+        }
+
+        #inventory .inventory-meta div {
+            min-width: 0 !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 13px !important;
+            background: var(--surface-soft) !important;
+            padding: 9px 10px !important;
+        }
+
+        #inventory .inventory-meta dt {
+            color: var(--muted) !important;
+            font-size: 10px !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+        }
+
+        #inventory .inventory-meta dd {
+            margin: 5px 0 0 !important;
+            color: var(--ink-soft) !important;
+            font-size: 13px !important;
+            font-weight: 900 !important;
+            overflow-wrap: anywhere !important;
+        }
+
+        #inventory .stock-number-inline {
+            display: inline-flex !important;
+            align-items: center !important;
+            min-height: 29px !important;
+            border-radius: 999px !important;
+            background: var(--green-100) !important;
+            color: var(--green-700) !important;
+            padding: 4px 11px !important;
+            font-size: 18px !important;
+            font-weight: 950 !important;
+            line-height: 1 !important;
+        }
+
+        #inventory .inventory-card.low .stock-number-inline {
+            background: var(--amber-100) !important;
+            color: var(--amber-700) !important;
+        }
+
+        #inventory .inventory-card.out .stock-number-inline {
+            background: var(--red-100) !important;
+            color: var(--red-700) !important;
+        }
+
+        #inventory .inventory-business-note {
+            border: 1px dashed var(--line-strong) !important;
+            border-radius: 13px !important;
+            background: var(--surface-soft) !important;
+            color: var(--muted) !important;
+            padding: 9px 10px !important;
+            font-size: 13px !important;
+            line-height: 1.4 !important;
+        }
+
+        #inventory .inventory-card-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: flex-end !important;
+            gap: 7px !important;
+            align-items: center !important;
+        }
+
+        #inventory .inventory-card-actions form {
+            margin: 0 !important;
+        }
+
+        #inventory .inventory-card-actions .ghost-button {
+            min-height: 35px !important;
+            border-radius: 999px !important;
+            padding-inline: 10px !important;
+            font-size: 13px !important;
+        }
+
+        #inventory .inventory-edit-panel {
+            border: 1px solid rgba(34, 113, 80, 0.14) !important;
+            border-radius: 15px !important;
+            background:
+                    linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.96)) !important;
+            padding: 12px !important;
+        }
+
+        #inventory .compact-form {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) 120px 120px !important;
+            gap: 10px !important;
+        }
+
+        #inventory .compact-form .form-title {
+            grid-column: 1 / -1 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin: 0 !important;
+            color: var(--green-700) !important;
+            font-weight: 950 !important;
+        }
+
+        #inventory .compact-form .wide,
+        #inventory .compact-form .form-actions {
+            grid-column: 1 / -1 !important;
+        }
+
+        #inventory .compact-form .form-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+        }
+
+        #inventory .compact-form .form-actions button {
+            min-height: 38px !important;
+            border-radius: 999px !important;
+        }
+
+        #inventory .empty-state {
+            margin: 0 !important;
+            border: 1px dashed var(--line-strong) !important;
+            border-radius: 16px !important;
+            background: var(--surface-soft) !important;
+            color: var(--muted) !important;
+            padding: 18px !important;
+            text-align: center !important;
+            line-height: 1.5 !important;
+        }
+
+        @media (max-width: 1500px) {
+            #inventory .inventory-list {
+                grid-template-columns: repeat(auto-fit, minmax(390px, 1fr)) !important;
+            }
+        }
+
+        @media (max-width: 1380px) {
+            #inventory .inventory-stat-grid,
+            #inventory .inventory-filter-panel {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+
+            #inventory .inventory-adjust-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+
+            #inventory .inventory-adjust-form .inventory-variant-select,
+            #inventory .inventory-adjust-form button[type="submit"] {
+                grid-column: 1 / -1 !important;
+            }
+        }
+
+        @media (max-width: 980px) {
+            #inventory .inventory-hero,
+            #inventory .inventory-card-header,
+            #inventory .inventory-card-actions {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+
+            #inventory .inventory-status-stack,
+            #inventory .inventory-card-actions {
+                justify-content: flex-start !important;
+            }
+
+            #inventory .inventory-list {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+        }
+
+        @media (max-width: 720px) {
+            #inventory .inventory-stat-grid,
+            #inventory .inventory-filter-panel,
+            #inventory .inventory-adjust-form,
+            #inventory .inventory-meta,
+            #inventory .compact-form {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            #inventory .filter-actions,
+            #inventory .inventory-card-actions,
+            #inventory .compact-form .form-actions {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+
+            #inventory .filter-actions button,
+            #inventory .inventory-card-actions button,
+            #inventory .inventory-card-actions a,
+            #inventory .compact-form .form-actions button {
+                width: 100% !important;
+            }
+
+            #inventory .inventory-title-block {
+                flex-direction: column !important;
+            }
+        }
+        #inventory [hidden],
+        #inventory .inventory-card[hidden],
+        #inventory .inventory-filter-empty[hidden],
+        #inventory .collapse-panel[hidden] {
+            display: none !important;
+        }
+    </style>
+
+    <section class="admin-section inventory-admin" id="inventory">
+        <div class="inventory-hero surface">
+            <div>
+                <p class="eyebrow">
+                    <span class="mini-icon icon-inventory" aria-hidden="true"></span>
+                    Tồn kho
+                </p>
+                <h2>Quản lý tồn kho</h2>
+                <p>
+                    Quản lý tồn kho theo biến thể sản phẩm, lọc nhanh SKU / danh mục / trạng thái
+                    và cập nhật nhập - xuất - đặt lại tồn thực tế.
+                </p>
+            </div>
+
+            <a class="ghost-button icon-button-text" href="/admin#inventory">
+                <span class="mini-icon icon-refresh" aria-hidden="true"></span>
+                Làm mới
+            </a>
+        </div>
+
+        <div class="quick-stat-grid inventory-stat-grid">
+            <article class="quick-stat">
+                <span class="mini-icon icon-package" aria-hidden="true"></span>
+                <small>Đang theo dõi</small>
+                <strong th:text="${inventoryTrackedCount}">0</strong>
+            </article>
+
+            <article class="quick-stat info">
+                <span class="mini-icon icon-inventory" aria-hidden="true"></span>
+                <small>Tổng tồn</small>
+                <strong th:text="${inventoryTotalStock}">0</strong>
+            </article>
+
+            <article class="quick-stat warning">
+                <span class="mini-icon icon-alert" aria-hidden="true"></span>
+                <small>Sắp hết</small>
+                <strong th:text="${inventoryLowStockCount}">0</strong>
+            </article>
+
+            <article class="quick-stat danger">
+                <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                <small>Hết hàng</small>
+                <strong th:text="${inventoryOutOfStockCount}">0</strong>
+            </article>
+
+            <article class="quick-stat success">
+                <span class="mini-icon icon-check-circle" aria-hidden="true"></span>
+                <small>Còn hàng</small>
+                <strong th:text="${inventoryInStockCount}">0</strong>
+            </article>
+
+            <article class="quick-stat neutral">
+                <span class="mini-icon icon-eye-off" aria-hidden="true"></span>
+                <small>Ngưng</small>
+                <strong th:text="${inventoryStoppedCount}">0</strong>
+            </article>
+        </div>
+
+        <form class="admin-filter-panel inventory-filter-panel" data-inventory-filter-form>
+            <label>
+                Tìm theo tên cây
+                <input name="plant" type="search" placeholder="Tên cây">
+            </label>
+
+            <label>
+                Tìm theo SKU biến thể
+                <input name="sku" type="search" placeholder="SKU">
+            </label>
+
+            <label>
+                Lọc theo danh mục
+                <select name="categoryId">
+                    <option value="all">Tất cả danh mục</option>
+                    <option value="none">Chưa chọn danh mục</option>
+                    <option th:each="category : ${categories}"
+                            th:value="${category.caId()}"
+                            th:text="${category.title() != null ? category.title() : 'Chưa có tên danh mục'}">
+                        Danh mục
+                    </option>
+                </select>
+            </label>
+
+            <label>
+                Trạng thái tồn kho
+                <select name="status">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="ok">Còn hàng</option>
+                    <option value="low">Sắp hết hàng</option>
+                    <option value="out">Hết hàng</option>
+                    <option value="stopped">Ngưng theo dõi</option>
+                </select>
+            </label>
+
+            <label>
+                Từ số lượng
+                <input name="minQuantity" type="number" min="0" placeholder="0">
+            </label>
+
+            <label>
+                Đến số lượng
+                <input name="maxQuantity" type="number" min="0" placeholder="100">
+            </label>
+
+            <div class="filter-actions">
+                <button class="primary-button icon-button-text" type="button" data-apply-inventory-filters>
+                    <span class="mini-icon icon-filter" aria-hidden="true"></span>
+                    Lọc
+                </button>
+
+                <button class="ghost-button icon-button-text" type="reset" data-reset-inventory-filters>
+                    <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                    Xóa lọc
+                </button>
+            </div>
+        </form>
+
+        <section class="surface inventory-adjust-card">
+            <div class="section-heading compact">
+                <p class="eyebrow">
+                    <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                    Điều chỉnh nhanh
+                </p>
+                <h2>Lưu tồn kho</h2>
+                <p>
+                    Chọn biến thể, loại thao tác và số lượng. Backend đã chặn số lượng âm khi xuất kho
+                    hoặc đặt lại tồn thực tế.
+                </p>
+            </div>
+
+            <form method="post"
+                  action="/admin/inventory/stock"
+                  class="form-grid inventory-adjust-form js-loading-form">
+                <label class="inventory-variant-select">
+                    Sản phẩm / biến thể
+                    <select name="variantId" required>
+                        <option value="">Chọn mặt hàng</option>
+                        <option th:each="item : ${inventoryItems}"
+                                th:value="${item.variantId()}"
+                                th:text="${(item.plantTitle() != null ? item.plantTitle() : 'Chưa có cây cha') + ' - ' + (item.name() != null ? item.name() : 'Biến thể') + ' (' + (item.sku() != null ? item.sku() : 'Chưa có SKU') + ')'}">
+                            Variant
+                        </option>
+                    </select>
+                </label>
+
+                <label>
+                    Thao tác
+                    <select name="movementType" required>
+                        <option value="IMPORT">Nhập thêm</option>
+                        <option value="EXPORT">Xuất kho</option>
+                        <option value="ADJUST">Đặt lại tồn thực tế</option>
+                    </select>
+                </label>
+
+                <label>
+                    Số lượng
+                    <input name="amount" type="number" min="0" required placeholder="0">
+                </label>
+
+                <button class="primary-button icon-button-text" type="submit" data-loading-text="Đang cập nhật...">
+                    <span class="mini-icon icon-save" aria-hidden="true"></span>
+                    Lưu tồn kho
+                </button>
+            </form>
+        </section>
+
+        <section class="surface inventory-list-card">
+            <div class="inventory-list-head">
+                <div class="section-heading compact">
+                    <p class="eyebrow">
+                        <span class="mini-icon icon-list" aria-hidden="true"></span>
+                        Tồn kho hiện có
+                    </p>
+                    <h2>Danh sách tồn kho</h2>
+                    <p>
+                        Mỗi thẻ là một biến thể đang được theo dõi tồn kho. Ưu tiên xử lý mặt hàng hết hàng,
+                        sắp hết hàng hoặc đang ngưng theo dõi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="admin-card-list inventory-list">
+                <article th:each="item : ${inventoryItems}"
+                         class="admin-card inventory-card"
+                         th:classappend="${item.isActive() != true ? ' stopped' : (item.quantity() == null || item.quantity() <= 0 ? ' out' : (item.quantity() <= 5 ? ' low' : ''))}"
+                         th:with="categoryTitle=${variantCategoryTitles != null && variantCategoryTitles.get(item.plantId()) != null ? variantCategoryTitles.get(item.plantId()) : 'Chưa chọn danh mục'}"
+                         th:attr="data-plant=${item.plantTitle() != null ? item.plantTitle() : ''},
+                                  data-sku=${item.sku() != null ? item.sku() : ''},
+                                  data-category=${variantCategoryIds.get(item.plantId()) != null ? variantCategoryIds.get(item.plantId()) : 'none'},
+                                  data-status=${item.isActive() != true ? 'stopped' : (item.quantity() == null || item.quantity() <= 0 ? 'out' : (item.quantity() <= 5 ? 'low' : 'ok'))},
+                                  data-quantity=${item.quantity() != null ? item.quantity() : 0}">
+
+                    <header class="inventory-card-header">
+                        <div class="inventory-title-block">
+                            <span class="record-avatar stock-avatar"
+                                  th:text="${#strings.substring(item.name() != null && !item.name().isBlank() ? item.name() : 'S', 0, 1)}">
+                                S
+                            </span>
+
+                            <div>
+                                <span class="inventory-sku-label"
+                                      th:text="${item.sku() != null && !item.sku().isBlank() ? 'SKU: ' + item.sku() : 'Chưa có SKU'}">
+                                    SKU
+                                </span>
+                                <h3 th:text="${item.name() != null && !item.name().isBlank() ? item.name() : 'Biến thể'}">
+                                    Biến thể
+                                </h3>
+                                <p th:text="${item.plantTitle() != null ? item.plantTitle() : 'Chưa có cây cha'}">
+                                    Cây cha
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="inventory-status-stack">
+                            <span class="status-pill"
+                                  th:classappend="${item.isActive() != true ? ' neutral' : (item.quantity() == null || item.quantity() <= 0 ? ' danger' : (item.quantity() <= 5 ? ' warning' : ' success'))}"
+                                  th:text="${item.isActive() != true ? 'Ngưng theo dõi' : (item.quantity() == null || item.quantity() <= 0 ? 'Hết hàng' : (item.quantity() <= 5 ? 'Sắp hết hàng' : 'Còn hàng'))}">
+                                Còn hàng
+                            </span>
+                        </div>
+                    </header>
+
+                    <dl class="card-meta-grid inventory-meta">
+                        <div>
+                            <dt>Cây cha</dt>
+                            <dd th:text="${item.plantTitle() != null ? item.plantTitle() : 'Chưa có dữ liệu'}">
+                                Cây cha
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Danh mục</dt>
+                            <dd th:text="${categoryTitle}">
+                                Danh mục
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Số lượng tồn</dt>
+                            <dd>
+                                <span class="stock-number-inline" th:text="${item.quantity() != null ? item.quantity() : 0}">
+                                    0
+                                </span>
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Cập nhật lần cuối</dt>
+                            <dd th:text="${item.updatedAt() != null ? #temporals.format(item.updatedAt(), 'dd/MM/yyyy HH:mm') : 'Chưa có dữ liệu'}">
+                                Ngày cập nhật
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <div class="inventory-business-note">
+                        <span th:if="${item.isActive() != true}">
+                            Biến thể đang ngưng theo dõi. Bật theo dõi lại khi cần quản lý tồn kho.
+                        </span>
+                        <span th:if="${item.isActive() == true && (item.quantity() == null || item.quantity() <= 0)}">
+                            Hết hàng, nên nhập thêm hoặc kiểm tra trạng thái bán của biến thể.
+                        </span>
+                        <span th:if="${item.isActive() == true && item.quantity() != null && item.quantity() > 0 && item.quantity() <= 5}">
+                            Sắp hết hàng, cần theo dõi nhập hàng trước khi phát sinh đơn mới.
+                        </span>
+                        <span th:if="${item.isActive() == true && item.quantity() != null && item.quantity() > 5}">
+                            Tồn kho đang ổn, có thể tiếp tục bán.
+                        </span>
+                    </div>
+
+                    <div class="card-actions inventory-card-actions">
+                        <button class="ghost-button icon-button-text js-toggle-panel"
+                                type="button"
+                                th:attr="data-panel-target=${'inventory-edit-' + item.variantId()}">
+                            <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                            Sửa tồn kho
+                        </button>
+
+                        <form th:action="@{/admin/inventory/{id}/visibility(id=${item.variantId()})}"
+                              method="post"
+                              class="js-loading-form">
+                            <input name="isActive" type="hidden" th:value="${item.isActive() != true}">
+                            <button class="ghost-button icon-button-text" type="submit" data-loading-text="Đang lưu...">
+                                <span class="mini-icon"
+                                      th:classappend="${item.isActive() == true ? ' icon-eye-off' : ' icon-eye'}"
+                                      aria-hidden="true"></span>
+                                <span th:text="${item.isActive() == true ? 'Ngừng theo dõi' : 'Theo dõi lại'}">
+                                    Ngừng theo dõi
+                                </span>
+                            </button>
+                        </form>
+
+                        <a class="ghost-button icon-button-text"
+                           href="#variants"
+                           th:attr="data-jump-variant-plant=${item.plantId()}">
+                            <span class="mini-icon icon-eye" aria-hidden="true"></span>
+                            Xem biến thể
+                        </a>
+                    </div>
+
+                    <div class="collapse-panel inventory-edit-panel" hidden th:id="${'inventory-edit-' + item.variantId()}">
+                        <form method="post" action="/admin/inventory/stock" class="form-grid compact-form js-loading-form">
+                            <p class="form-title">
+                                <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                Cập nhật tồn kho
+                            </p>
+
+                            <input name="variantId" type="hidden" th:value="${item.variantId()}">
+                            <input name="movementType" type="hidden" value="ADJUST">
+
+                            <label class="wide">
+                                Biến thể
+                                <input readonly
+                                       th:value="${(item.plantTitle() != null ? item.plantTitle() : 'Chưa có cây cha') + ' - ' + (item.name() != null ? item.name() : 'Biến thể')}">
+                            </label>
+
+                            <label>
+                                Số lượng hiện tại
+                                <input readonly th:value="${item.quantity() != null ? item.quantity() : 0}">
+                            </label>
+
+                            <label>
+                                Số lượng mới
+                                <input name="amount" type="number" min="0" required th:value="${item.quantity() != null ? item.quantity() : 0}">
+                            </label>
+
+                            <div class="form-actions wide">
+                                <button class="small-button icon-button-text" type="submit" data-loading-text="Đang lưu...">
+                                    <span class="mini-icon icon-save" aria-hidden="true"></span>
+                                    Lưu tồn kho
+                                </button>
+
+                                <button class="ghost-button js-close-panel" type="button">
+                                    Hủy
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </article>
+
+                <p th:if="${#lists.isEmpty(inventoryItems)}" class="empty-state">
+                    Chưa có biến thể sản phẩm để quản lý tồn kho.
+                </p>
+
+                <p class="empty-state inventory-filter-empty" hidden>
+                    Không có dữ liệu phù hợp bộ lọc.
+                </p>
+            </div>
+        </section>
+    </section>
+</th:block>

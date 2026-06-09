@@ -1,0 +1,558 @@
+﻿/* =========================================================
+   Notifications UI
+   CSS riêng cho mục Thông báo.
+   Không nhét style vào HTML, không phụ thuộc final-*.
+   ========================================================= */
+
+#notifications.admin-section:not(.is-active) {
+    display: none !important;
+}
+
+#notifications.admin-section.is-active,
+#notifications.notification-admin.is-active {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+#notifications,
+#notifications *,
+#notifications *::before,
+#notifications *::after {
+    box-sizing: border-box;
+}
+
+#notifications > *,
+#notifications .surface,
+#notifications .notification-hero,
+#notifications .notification-stat-grid,
+#notifications .notification-filter-panel,
+#notifications .notification-compose-card,
+#notifications .notification-list-card,
+#notifications .notification-list,
+#notifications .notification-row,
+#notifications .notification-meta,
+#notifications .notification-recipients {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Hero */
+
+#notifications .notification-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 0;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 0 0, rgba(46, 139, 99, 0.18), transparent 38%),
+        radial-gradient(circle at 100% 0, rgba(49, 95, 141, 0.10), transparent 34%),
+        linear-gradient(135deg, rgba(232, 245, 238, 0.96), rgba(255, 255, 255, 0.98));
+    padding: clamp(18px, 2.4vw, 26px);
+    box-shadow: var(--shadow-sm);
+}
+
+#notifications .notification-hero::after {
+    content: "";
+    position: absolute;
+    right: -76px;
+    top: -76px;
+    z-index: -1;
+    width: 210px;
+    height: 210px;
+    border-radius: 999px;
+    background: rgba(34, 113, 80, 0.09);
+}
+
+#notifications .notification-hero h2 {
+    margin-top: 6px;
+    font-size: clamp(24px, 2.6vw, 34px);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+}
+
+#notifications .notification-hero p:not(.eyebrow) {
+    max-width: 860px;
+    line-height: 1.6;
+}
+
+#notifications .notification-hero > a {
+    position: relative;
+    z-index: 1;
+    border-radius: 999px;
+}
+
+/* KPI */
+
+#notifications .notification-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+}
+
+#notifications .quick-stat {
+    min-height: 112px;
+    display: grid;
+    align-content: start;
+    gap: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(34, 113, 80, 0.10);
+    border-radius: 18px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+        #fff;
+    padding: 14px;
+    box-shadow: var(--shadow-sm);
+}
+
+#notifications .quick-stat .mini-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+    background: var(--green-100);
+    color: var(--green-700);
+}
+
+#notifications .quick-stat.info .mini-icon {
+    background: var(--blue-100);
+    color: var(--blue-700);
+}
+
+#notifications .quick-stat.accent .mini-icon {
+    background: #fff0df;
+    color: #b45f0b;
+}
+
+#notifications .quick-stat.neutral .mini-icon {
+    background: #eef2ef;
+    color: var(--muted);
+}
+
+#notifications .quick-stat small {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.25;
+}
+
+#notifications .quick-stat strong {
+    color: var(--ink);
+    font-size: clamp(24px, 2vw, 31px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+}
+
+/* Surface */
+
+#notifications .surface {
+    border-radius: 22px;
+    border-color: rgba(34, 113, 80, 0.12);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.96)),
+        var(--surface);
+}
+
+/* Filter */
+
+#notifications .notification-filter-panel {
+    display: grid;
+    grid-template-columns:
+        minmax(220px, 1.2fr)
+        minmax(160px, .7fr)
+        minmax(200px, 1fr)
+        minmax(160px, .75fr)
+        minmax(145px, .6fr)
+        minmax(145px, .65fr);
+    gap: 12px;
+    align-items: end;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 20px;
+    background:
+        linear-gradient(180deg, rgba(249, 251, 250, 0.98), rgba(255, 255, 255, 0.94)),
+        var(--surface-soft);
+    padding: 15px;
+    overflow: hidden;
+}
+
+#notifications label {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+#notifications input,
+#notifications select,
+#notifications textarea {
+    min-height: 42px;
+    border-radius: 13px;
+    font-size: 14px;
+    font-weight: 650;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+#notifications textarea {
+    line-height: 1.55;
+}
+
+#notifications .filter-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+}
+
+#notifications .filter-actions .primary-button,
+#notifications .filter-actions .ghost-button {
+    white-space: nowrap;
+}
+
+#notifications .filter-actions button {
+    min-height: 40px;
+    border-radius: 999px;
+    padding-inline: 14px;
+}
+
+/* Compose */
+
+#notifications .notification-compose-card,
+#notifications .notification-list-card {
+    padding: clamp(16px, 2vw, 22px);
+}
+
+#notifications .notification-compose-card {
+    display: grid;
+    gap: 14px;
+}
+
+#notifications .notification-compose-form {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    align-items: end;
+}
+
+#notifications .wide {
+    grid-column: 1 / -1;
+}
+
+#notifications .notification-role-field.is-hidden,
+#notifications .notification-user-field.is-hidden {
+    display: none !important;
+}
+
+#notifications .notification-all-warning {
+    margin: 0;
+    border: 1px solid rgba(153, 101, 21, 0.20);
+    border-radius: 14px;
+    background: var(--amber-100);
+    color: var(--amber-700);
+    padding: 11px 12px;
+    line-height: 1.45;
+    font-weight: 850;
+}
+
+#notifications .notification-compose-form button[type="submit"] {
+    width: auto;
+    min-height: 44px;
+    border-radius: 999px;
+    justify-self: start;
+    padding-inline: 18px;
+}
+
+/* List */
+
+#notifications .notification-list-card {
+    display: grid;
+    gap: 14px;
+}
+
+#notifications .notification-list-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+#notifications .notification-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+#notifications .notification-row {
+    display: grid;
+    gap: 13px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94)),
+        #fff;
+    padding: 14px;
+    box-shadow: var(--shadow-sm);
+}
+
+#notifications .notification-row:hover {
+    border-color: rgba(34, 113, 80, 0.22);
+    box-shadow: var(--shadow-md);
+}
+
+#notifications .admin-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+#notifications .admin-card-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    min-width: 0;
+}
+
+#notifications .notification-avatar {
+    display: inline-grid;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 15px;
+    background: var(--green-100);
+    color: var(--green-700);
+}
+
+#notifications .admin-card-title h3 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 18px;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+}
+
+#notifications .admin-card-title p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+/* Meta */
+
+#notifications .notification-meta {
+    display: grid;
+    grid-template-columns: minmax(160px, .7fr) minmax(170px, .75fr) minmax(220px, 1.2fr);
+    gap: 8px;
+    margin: 0;
+}
+
+#notifications .notification-meta div {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--surface-soft);
+    padding: 10px;
+}
+
+#notifications .notification-meta dt {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+#notifications .notification-meta dd {
+    margin: 5px 0 0;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+/* Recipients */
+
+#notifications .notification-recipients {
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 15px;
+    background: var(--surface-soft);
+    padding: 0;
+    overflow: hidden;
+}
+
+#notifications .notification-recipients summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    cursor: pointer;
+    color: var(--green-700);
+    font-weight: 950;
+    padding: 10px 12px;
+    list-style: none;
+}
+
+#notifications .notification-recipients summary::-webkit-details-marker {
+    display: none;
+}
+
+#notifications .recipient-list {
+    display: grid;
+    border-top: 1px solid var(--line);
+    padding: 4px 12px 10px;
+}
+
+#notifications .recipient-line {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) minmax(180px, 1.2fr) auto;
+    gap: 10px;
+    align-items: center;
+    border-top: 1px solid var(--line);
+    padding: 8px 0;
+}
+
+#notifications .recipient-line:first-of-type {
+    border-top: 0;
+}
+
+#notifications .recipient-line small {
+    color: var(--muted);
+    overflow-wrap: anywhere;
+}
+
+#notifications .recipient-line strong {
+    color: var(--green-700);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* Actions */
+
+#notifications .card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    align-items: center;
+}
+
+#notifications .card-actions form {
+    margin: 0;
+}
+
+#notifications .card-actions .ghost-button {
+    min-height: 36px;
+    border-radius: 999px;
+    padding-inline: 12px;
+    font-size: 13px;
+}
+
+/* Empty + hidden */
+
+#notifications .empty-state {
+    margin: 0;
+    border: 1px dashed var(--line-strong);
+    border-radius: 16px;
+    background: var(--surface-soft);
+    color: var(--muted);
+    padding: 18px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+#notifications [hidden],
+#notifications .notification-row[hidden],
+#notifications .notification-filter-empty[hidden],
+#notifications .notification-all-warning[hidden] {
+    display: none !important;
+}
+
+/* Responsive */
+
+@media (max-width: 1480px) {
+    #notifications .notification-stat-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #notifications .notification-filter-panel {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #notifications .notification-compose-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #notifications .notification-list {
+        grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
+    }
+}
+
+@media (max-width: 920px) {
+    #notifications .notification-hero,
+    #notifications .admin-card-head,
+    #notifications .card-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #notifications .card-actions {
+        justify-content: flex-start;
+    }
+
+    #notifications .notification-list,
+    #notifications .notification-compose-form,
+    #notifications .notification-meta {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 720px) {
+    #notifications .notification-stat-grid,
+    #notifications .notification-filter-panel {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #notifications .filter-actions,
+    #notifications .card-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #notifications .filter-actions button,
+    #notifications .card-actions button {
+        width: 100%;
+    }
+
+    #notifications .admin-card-title {
+        flex-direction: column;
+    }
+
+    #notifications .recipient-line {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

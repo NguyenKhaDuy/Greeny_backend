@@ -1,0 +1,139 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="sidebar">
+    <aside class="sidebar" id="adminSidebar">
+        <a class="brand" href="/admin" aria-label="Greeny Admin">
+            <span class="brand-mark">G</span>
+            <span>
+                <strong>Greeny</strong>
+                <small>Admin Console</small>
+            </span>
+        </a>
+
+        <nav class="side-nav" aria-label="Admin navigation">
+            <div class="nav-group">
+                <p>Tổng quan</p>
+
+                <a class="active"
+                   href="#dashboard"
+                   data-title="Dashboard tổng quan"
+                   data-description="Tổng hợp nhanh đơn hàng, doanh thu, người dùng và tồn kho cần chú ý.">
+                    <span class="nav-icon icon-dashboard"></span>
+                    Dashboard
+                </a>
+
+                <a href="#revenue"
+                   data-title="Thống kê doanh thu"
+                   data-description="Theo dõi doanh thu thực thu, đơn đã thanh toán và dòng tiền theo ngày.">
+                    <span class="nav-icon icon-revenue"></span>
+                    Doanh thu
+                </a>
+
+               <a href="#product-stats"
+				   data-title="Phân tích hiệu suất sản phẩm"
+				   data-description="So sánh hiệu suất sản phẩm, danh mục, kiểu cây, tồn kho, doanh thu và đánh giá.">
+				    <span class="nav-icon icon-report"></span>
+				    Hiệu suất sản phẩm
+				</a>
+            </div>
+
+            <div class="nav-group">
+                <p>Kinh doanh</p>
+
+                <a href="#orders"
+                   data-title="Quản lý đơn hàng"
+                   data-description="Xử lý trạng thái đơn, thanh toán, giao hàng và lịch sử vận hành.">
+                    <span class="nav-icon icon-orders"></span>
+                    Đơn hàng
+                </a>
+
+                <a href="#coupons"
+                   data-title="Quản lý mã giảm giá"
+                   data-description="Thiết lập code, điều kiện áp dụng và giới hạn sử dụng.">
+                    <span class="nav-icon icon-coupon"></span>
+                    Mã giảm giá
+                </a>
+            </div>
+
+            <div class="nav-group">
+                <p>Sản phẩm</p>
+
+                <a href="#plants"
+                   data-title="Sản phẩm"
+                   data-description="Quản lý thông tin cây, danh mục, đặc tính và nội dung hiển thị.">
+                    <span class="nav-icon icon-plant"></span>
+                    Sản phẩm
+                </a>
+
+                <a href="#categories"
+                   data-title="Loại hàng"
+                   data-description="Sắp xếp danh mục và trạng thái hiển thị trên storefront.">
+                    <span class="nav-icon icon-category"></span>
+                    Loại hàng
+                </a>
+
+                <a href="#variants"
+                   data-title="Biến thể sản phẩm"
+                   data-description="Quản lý giá, SKU, kích thước, thuộc tính và trạng thái bán.">
+                    <span class="nav-icon icon-variant"></span>
+                    Biến thể
+                </a>
+
+                <a href="#inventory"
+                   data-title="Tồn kho"
+                   data-description="Theo dõi tồn kho, cảnh báo sắp hết và cập nhật số lượng nhanh.">
+                    <span class="nav-icon icon-inventory"></span>
+                    Tồn kho
+                </a>
+
+                <a href="#care"
+                   data-title="Chăm sóc cây"
+                   data-description="Cập nhật hồ sơ chăm sóc, ánh sáng, nước và hướng dẫn chi tiết.">
+                    <span class="nav-icon icon-care"></span>
+                    Chăm sóc cây
+                </a>
+            </div>
+
+            <div class="nav-group">
+                <p>Nội dung</p>
+
+                <a href="#articles"
+                   data-title="Bài viết"
+                   data-description="Quản lý bài viết chăm sóc cây, mẹo trồng cây và nội dung tư vấn.">
+                    <span class="nav-icon icon-article"></span>
+                    Bài viết
+                </a>
+
+                <a href="#notifications"
+                   data-title="Thông báo"
+                   data-description="Gửi thông báo theo user, role hoặc toàn bộ khách hàng.">
+                    <span class="nav-icon icon-notification"></span>
+                    Thông báo
+                </a>
+            </div>
+
+            <div class="nav-group">
+                <p>Khách hàng</p>
+
+                <a href="#users"
+                   data-title="Quản lý user"
+                   data-description="Theo dõi tài khoản, phân quyền và trạng thái khách hàng.">
+                    <span class="nav-icon icon-users"></span>
+                    User
+                </a>
+
+                <a href="#reviews"
+                   data-title="Quản lý đánh giá"
+                   data-description="Duyệt đánh giá, ẩn nội dung không phù hợp và gửi phản hồi.">
+                    <span class="nav-icon icon-review"></span>
+                    Đánh giá
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="ghost-button danger-ghost logout-side" id="logoutButton" type="button">
+                <span class="nav-icon icon-logout"></span>
+                Đăng xuất
+            </button>
+        </div>
+    </aside>
+</th:block>

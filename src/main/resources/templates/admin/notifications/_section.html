@@ -1,0 +1,330 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="notifications(notifications, notificationUsers, notificationTotalCount, notificationSentTodayCount, notificationSystemCount, notificationOrderCount, notificationPromotionCount, notificationLatestRecipientCount)">
+
+    <section class="admin-section notification-admin" id="notifications">
+        <div class="notification-hero surface">
+            <div>
+                <p class="eyebrow">
+                    <span class="mini-icon icon-bell" aria-hidden="true"></span>
+                    Thông báo
+                </p>
+                <h2>Gửi thông báo</h2>
+                <p>
+                    Gửi thông báo cho toàn bộ người dùng, theo nhóm quyền hoặc một tài khoản cụ thể.
+                    Màn hình này là cái loa phường của admin, nên dùng cẩn thận kẻo khách tưởng website bị ám.
+                </p>
+            </div>
+
+            <a class="ghost-button icon-button-text" href="/admin#notifications">
+                <span class="mini-icon icon-refresh" aria-hidden="true"></span>
+                Làm mới
+            </a>
+        </div>
+
+        <div class="quick-stat-grid notification-stat-grid">
+            <article class="quick-stat">
+                <span class="mini-icon icon-bell" aria-hidden="true"></span>
+                <small>Tổng thông báo</small>
+                <strong th:text="${notificationTotalCount}">0</strong>
+            </article>
+
+            <article class="quick-stat success">
+                <span class="mini-icon icon-send" aria-hidden="true"></span>
+                <small>Gửi hôm nay</small>
+                <strong th:text="${notificationSentTodayCount}">0</strong>
+            </article>
+
+            <article class="quick-stat info">
+                <span class="mini-icon icon-shield" aria-hidden="true"></span>
+                <small>Hệ thống</small>
+                <strong th:text="${notificationSystemCount}">0</strong>
+            </article>
+
+            <article class="quick-stat success">
+                <span class="mini-icon icon-orders" aria-hidden="true"></span>
+                <small>Đơn hàng</small>
+                <strong th:text="${notificationOrderCount}">0</strong>
+            </article>
+
+            <article class="quick-stat accent">
+                <span class="mini-icon icon-coupon" aria-hidden="true"></span>
+                <small>Khuyến mãi</small>
+                <strong th:text="${notificationPromotionCount}">0</strong>
+            </article>
+
+            <article class="quick-stat neutral">
+                <span class="mini-icon icon-users" aria-hidden="true"></span>
+                <small>Người nhận gần nhất</small>
+                <strong th:text="${notificationLatestRecipientCount}">0</strong>
+            </article>
+        </div>
+
+        <form class="admin-filter-panel notification-filter-panel" data-notification-filter-form>
+            <label>
+                Tìm theo tiêu đề / nội dung
+                <input name="title" type="search" placeholder="Tiêu đề hoặc nội dung">
+            </label>
+
+            <label>
+                Loại thông báo
+                <select name="type">
+                    <option value="all">Tất cả loại</option>
+                    <option value="0">Hệ thống</option>
+                    <option value="1">Đơn hàng</option>
+                    <option value="2">Khuyến mãi</option>
+                    <option value="3">Chăm sóc cây</option>
+                </select>
+            </label>
+
+            <label>
+                Người nhận
+                <input name="recipient" type="search" placeholder="Tên, email hoặc user ID">
+            </label>
+
+            <label>
+                Trạng thái đọc
+                <select name="readStatus">
+                    <option value="all">Tất cả</option>
+                    <option value="read">Tất cả đã đọc</option>
+                    <option value="unread">Còn người chưa đọc</option>
+                </select>
+            </label>
+
+            <label>
+                Từ số người nhận
+                <input name="minRecipients" type="number" min="0" placeholder="0">
+            </label>
+
+            <label>
+                Ngày gửi
+                <input name="created" type="date">
+            </label>
+
+            <div class="filter-actions">
+                <button class="primary-button icon-button-text" type="button" data-apply-notification-filters>
+                    <span class="mini-icon icon-filter" aria-hidden="true"></span>
+                    Lọc
+                </button>
+
+                <button class="ghost-button icon-button-text" type="reset" data-reset-notification-filters>
+                    <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                    Xóa lọc
+                </button>
+            </div>
+        </form>
+
+        <section class="surface notification-compose-card">
+            <div class="section-heading compact">
+                <p class="eyebrow">
+                    <span class="mini-icon icon-send" aria-hidden="true"></span>
+                    Soạn thông báo
+                </p>
+                <h2>Gửi thông báo mới</h2>
+                <p>
+                    Chọn phạm vi người nhận, loại thông báo, nội dung và dữ liệu bổ sung nếu cần điều hướng sâu.
+                </p>
+            </div>
+
+            <form method="post"
+                  action="/admin/notifications"
+                  class="form-grid notification-compose-form js-loading-form">
+
+                <label>
+                    Kiểu người nhận
+                    <select name="targetType" id="notificationTargetType" required>
+                        <option value="ALL">Tất cả người dùng</option>
+                        <option value="ROLE">Nhóm người dùng</option>
+                        <option value="USER">Một tài khoản cụ thể</option>
+                    </select>
+                </label>
+
+                <label>
+                    Loại thông báo
+                    <select name="type">
+                        <option value="0">Hệ thống</option>
+                        <option value="1">Đơn hàng</option>
+                        <option value="2">Khuyến mãi</option>
+                        <option value="3">Chăm sóc cây</option>
+                    </select>
+                </label>
+
+                <p class="safe-warning notification-all-warning wide">
+                    <span class="mini-icon icon-alert" aria-hidden="true"></span>
+                    Thông báo sẽ được gửi cho toàn bộ người dùng phù hợp.
+                </p>
+
+                <label class="notification-role-field">
+                    Nhóm người nhận
+                    <select name="role">
+                        <option value="1">Khách hàng</option>
+                        <option value="0">Quản trị viên</option>
+                    </select>
+                </label>
+
+                <label class="notification-user-field">
+                    Người nhận
+                    <select name="userId">
+                        <option value="">Chọn tài khoản</option>
+                        <option th:each="user : ${notificationUsers}"
+                                th:value="${user.userId}"
+                                th:text="${(user.title != null ? user.title : 'Người dùng') + ' - ' + (user.email != null ? user.email : 'Chưa có email')}">
+                            User
+                        </option>
+                    </select>
+                </label>
+
+                <label class="wide">
+                    Tiêu đề
+                    <input name="title" maxlength="50" required placeholder="Đơn hàng của bạn đã được cập nhật">
+                </label>
+
+                <label class="wide">
+                    Nội dung
+                    <textarea name="messageText" rows="5" required placeholder="Nhập nội dung thông báo..."></textarea>
+                </label>
+
+                <label class="wide">
+                    Dữ liệu bổ sung
+                    <input name="data" placeholder='{"orderId":"...","url":"/orders/..."}'>
+                </label>
+
+                <button class="primary-button icon-button-text" type="submit" data-loading-text="Đang gửi...">
+                    <span class="mini-icon icon-send" aria-hidden="true"></span>
+                    Gửi thông báo
+                </button>
+            </form>
+        </section>
+
+        <section class="surface notification-list-card">
+            <div class="notification-list-head">
+                <div class="section-heading compact">
+                    <p class="eyebrow">
+                        <span class="mini-icon icon-clock" aria-hidden="true"></span>
+                        Lịch sử gửi
+                    </p>
+                    <h2>Lịch sử thông báo</h2>
+                    <p>
+                        Theo dõi thông báo đã gửi, loại thông báo, người nhận, trạng thái đọc và dữ liệu đi kèm.
+                    </p>
+                </div>
+            </div>
+
+            <div class="admin-card-list notification-list">
+                <article th:each="notification : ${notifications}"
+                         class="admin-card notification-row"
+                         th:attr="data-type=${notification.type() != null ? notification.type() : 0},
+                                  data-recipient-count=${notification.recipientCount() != null ? notification.recipientCount() : 0},
+                                  data-title=${(notification.title() != null ? notification.title() : '') + ' ' + (notification.messageText() != null ? notification.messageText() : '') + ' ' + (notification.data() != null ? notification.data() : '')},
+                                  data-created=${notification.createdAt() != null ? #temporals.format(notification.createdAt(), 'yyyy-MM-dd') : ''},
+                                  data-read-status=${#lists.isEmpty(notification.recipients()) || #lists.isEmpty(notification.recipients().?[isRead() != true]) ? 'read' : 'unread'}">
+
+                    <header class="admin-card-head">
+                        <div class="admin-card-title">
+                            <span class="record-avatar notification-avatar">
+                                <span class="mini-icon icon-bell" aria-hidden="true"></span>
+                            </span>
+
+                            <div>
+                                <h3 th:text="${notification.title() != null && !notification.title().isBlank() ? notification.title() : 'Thông báo'}">
+                                    Thông báo
+                                </h3>
+                                <p th:text="${notification.messageText() != null && !notification.messageText().isBlank() ? #strings.abbreviate(notification.messageText(), 140) : 'Chưa có dữ liệu'}">
+                                    Nội dung
+                                </p>
+                            </div>
+                        </div>
+
+                        <span class="status-pill success"
+                              th:text="${(notification.recipientCount() != null ? notification.recipientCount() : 0) + ' người nhận'}">
+                            0 người nhận
+                        </span>
+                    </header>
+
+                    <dl class="card-meta-grid notification-meta">
+                        <div>
+                            <dt>Loại thông báo</dt>
+                            <dd>
+                                <span class="status-pill"
+                                      th:classappend="${notification.type() == 1 ? ' success' : (notification.type() == 2 ? ' warning' : (notification.type() == 3 ? ' success' : ' info'))}"
+                                      th:text="${notification.type() == 1 ? 'Đơn hàng' : (notification.type() == 2 ? 'Khuyến mãi' : (notification.type() == 3 ? 'Chăm sóc cây' : 'Hệ thống'))}">
+                                    Hệ thống
+                                </span>
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Thời gian</dt>
+                            <dd th:text="${notification.createdAt() != null ? #temporals.format(notification.createdAt(), 'dd/MM/yyyy HH:mm') : 'Chưa có dữ liệu'}">
+                                Thời gian
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt>Dữ liệu bổ sung</dt>
+                            <dd th:text="${notification.data() != null && !notification.data().isBlank() ? notification.data() : 'Chưa có dữ liệu'}">
+                                Data
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <details class="notification-recipients">
+                        <summary>
+                            <span class="mini-icon icon-users" aria-hidden="true"></span>
+                            Người nhận
+                        </summary>
+
+                        <div th:if="${!#lists.isEmpty(notification.recipients())}" class="recipient-list">
+                            <div th:each="recipient, iter : ${notification.recipients()}"
+                                 th:if="${iter.index < 20}"
+                                 class="recipient-line">
+                                <span th:text="${recipient.userName() != null && !recipient.userName().isBlank() ? recipient.userName() : 'Người dùng'}">
+                                    User
+                                </span>
+
+                                <small th:text="${recipient.email() != null ? recipient.email() : 'Chưa có email'}">
+                                    email
+                                </small>
+
+                                <strong th:text="${recipient.isRead()} ? 'Đã đọc' : 'Chưa đọc'">
+                                    Read
+                                </strong>
+                            </div>
+
+                            <p th:if="${notification.recipientCount() != null && notification.recipientCount() > 20}"
+                               class="helper-text"
+                               th:text="${'Đang hiển thị 20/' + notification.recipientCount() + ' người nhận'}">
+                                Đang hiển thị 20 người nhận
+                            </p>
+                        </div>
+
+                        <p th:if="${#lists.isEmpty(notification.recipients())}" class="empty-state">
+                            Chưa có người nhận.
+                        </p>
+                    </details>
+
+                    <div class="card-actions">
+                        <form th:action="@{/admin/notifications/{id}/delete(id=${notification.notificationId()})}"
+                              method="post"
+                              class="js-loading-form"
+                              data-confirm="Xóa thông báo này khỏi lịch sử admin?">
+                            <button class="ghost-button danger-ghost icon-button-text"
+                                    type="submit"
+                                    data-loading-text="Đang xóa...">
+                                <span class="mini-icon icon-trash" aria-hidden="true"></span>
+                                Xóa
+                            </button>
+                        </form>
+                    </div>
+                </article>
+
+                <p th:if="${#lists.isEmpty(notifications)}" class="empty-state">
+                    Chưa có thông báo nào được gửi.
+                </p>
+
+                <p class="empty-state notification-filter-empty" hidden>
+                    Chưa có dữ liệu phù hợp bộ lọc.
+                </p>
+            </div>
+        </section>
+    </section>
+</th:block>

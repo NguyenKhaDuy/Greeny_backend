@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Greeny | Dang nhap</title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="login-page">
+<main class="login-shell">
+    <section class="login-panel">
+        <div>
+            <p class="eyebrow">Greeny Admin</p>
+            <h1>Dang nhap quan tri</h1>
+            <p class="muted">Token se duoc luu bang cookie HttpOnly toi da 3 ngay.</p>
+        </div>
+        <form id="loginForm" class="stack">
+            <label>Email
+                <input type="email" name="email" autocomplete="email" required>
+            </label>
+            <label>Mat khau
+                <input type="password" name="password" autocomplete="current-password" required>
+            </label>
+            <button type="submit" class="primary-button">Dang nhap</button>
+            <p id="loginMessage" class="form-message"></p>
+        </form>
+    </section>
+</main>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const message = document.getElementById('loginMessage');
+        message.textContent = 'Dang kiem tra...';
+
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                email: form.email.value,
+                password: form.password.value
+            })
+        });
+
+        if (response.ok) {
+            window.location.href = '/admin';
+            return;
+        }
+
+        const data = await response.json().catch(() => ({message: 'Dang nhap that bai'}));
+        message.textContent = data.message || 'Dang nhap that bai';
+    });
+</script>
+</body>
+</html>
