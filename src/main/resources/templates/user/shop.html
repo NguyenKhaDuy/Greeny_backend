@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Greeny | Shop</title>
+    <link rel="stylesheet" href="/css/shop.css">
+</head>
+<body>
+<div class="shop-layout">
+    <header class="shop-header">
+        <a class="brand" href="/shop" aria-label="Greeny shop">
+            <span class="brand-mark">G</span>
+            <span>
+                <strong>Greeny</strong>
+                <small>Plant shop</small>
+            </span>
+        </a>
+        <nav class="shop-tabs" aria-label="User navigation">
+            <button class="active" type="button" data-view="catalog">San pham</button>
+            <button type="button" data-view="cart">Gio hang <span id="cartCount">0</span></button>
+            <button type="button" data-view="checkout">Dat hang</button>
+            <button type="button" data-view="account">Tai khoan</button>
+            <button type="button" data-view="orders">Don hang</button>
+            <button type="button" data-view="notifications">Thong bao <span id="unreadCount">0</span></button>
+            <button type="button" data-view="reviews">Danh gia</button>
+        </nav>
+        <div class="auth-box">
+            <span id="sessionLabel">Chua dang nhap</span>
+            <button id="logoutButton" class="ghost-button" type="button" hidden>Dang xuat</button>
+        </div>
+    </header>
+
+    <main class="shop-main">
+        <aside class="login-panel" id="loginPanel">
+            <h2>Dang nhap</h2>
+            <form id="loginForm" class="stack-form">
+                <label>Email<input name="email" type="email" autocomplete="email" required></label>
+                <label>Mat khau<input name="password" type="password" autocomplete="current-password" required></label>
+                <button class="primary-button" type="submit">Dang nhap</button>
+            </form>
+            <p id="loginMessage" class="form-message"></p>
+        </aside>
+
+        <section class="view is-active" id="catalogView">
+            <div class="toolbar">
+                <form id="catalogFilters" class="filter-grid">
+                    <label>Tim kiem<input name="query" placeholder="Ten cay, mo ta, bien the"></label>
+                    <label>Danh muc<select name="categoryId" id="categoryFilter"></select></label>
+                    <label>Gia tu<input name="minPrice" type="number" min="0" step="1000"></label>
+                    <label>Gia den<input name="maxPrice" type="number" min="0" step="1000"></label>
+                    <label>Sap xep
+                        <select name="sort">
+                            <option value="newest">Moi nhat</option>
+                            <option value="price_asc">Gia tang dan</option>
+                            <option value="price_desc">Gia giam dan</option>
+                            <option value="bestselling">Ban chay</option>
+                        </select>
+                    </label>
+                    <label class="check-row"><input name="inStock" type="checkbox"><span>Con hang</span></label>
+                    <button class="primary-button" type="submit">Loc</button>
+                </form>
+            </div>
+            <p id="catalogStatus" class="state-line">Dang tai san pham...</p>
+            <div id="productGrid" class="product-grid"></div>
+            <div class="pagination">
+                <button id="prevPage" class="ghost-button" type="button">Truoc</button>
+                <span id="pageLabel">0 / 0</span>
+                <button id="nextPage" class="ghost-button" type="button">Sau</button>
+            </div>
+            <section id="productDetail" class="detail-panel" hidden></section>
+        </section>
+
+        <section class="view" id="cartView">
+            <div class="section-head">
+                <h2>Gio hang</h2>
+                <button id="clearCartButton" class="ghost-button danger" type="button">Xoa gio hang</button>
+            </div>
+            <p id="cartStatus" class="state-line">Dang tai gio hang...</p>
+            <div id="cartList" class="item-list"></div>
+            <dl class="money-box">
+                <div><dt>Tam tinh</dt><dd id="cartSubtotal">0</dd></div>
+                <div><dt>Tong tam tinh</dt><dd id="cartTotal">0</dd></div>
+            </dl>
+        </section>
+
+        <section class="view" id="checkoutView">
+            <div class="section-head">
+                <h2>Dat hang</h2>
+                <button id="refreshCheckoutButton" class="ghost-button" type="button">Tai lai</button>
+            </div>
+            <div class="checkout-grid">
+                <form id="checkoutForm" class="panel-form">
+                    <label>Dia chi co san<select name="addressId" id="checkoutAddress"></select></label>
+                    <fieldset class="address-fieldset">
+                        <legend>Them dia chi moi</legend>
+                        <label>Nguoi nhan<input name="receiverName"></label>
+                        <label>So dien thoai<input name="receiverPhone"></label>
+                        <label>Dia chi<input name="addressDetail"></label>
+                        <label>Phuong/xa<input name="wardName"></label>
+                        <label>Quan/huyen<input name="districtName"></label>
+                        <label>Tinh/thanh<input name="provinceName"></label>
+                    </fieldset>
+                    <label>Ma giam gia<input name="couponCode" id="couponCode" placeholder="GREENY10"></label>
+                    <button id="applyCouponButton" class="ghost-button" type="button">Kiem tra ma</button>
+                    <label>Thanh toan
+                        <select name="paymentMethod">
+                            <option value="COD">COD</option>
+                            <option value="ONLINE">Online mock</option>
+                        </select>
+                    </label>
+                    <label>Ghi chu<textarea name="notes" rows="3"></textarea></label>
+                    <button class="primary-button" type="submit">Xac nhan dat hang</button>
+                </form>
+                <aside class="summary-panel">
+                    <h3>Xac nhan</h3>
+                    <div id="checkoutItems" class="mini-list"></div>
+                    <dl class="money-box">
+                        <div><dt>Tam tinh</dt><dd id="checkoutSubtotal">0</dd></div>
+                        <div><dt>Giam gia</dt><dd id="checkoutDiscount">0</dd></div>
+                        <div><dt>Phi ship</dt><dd id="checkoutShipping">0</dd></div>
+                        <div><dt>Tong</dt><dd id="checkoutTotal">0</dd></div>
+                    </dl>
+                    <p id="checkoutStatus" class="state-line"></p>
+                    <div id="mockPaymentBox" class="mock-box" hidden>
+                        <button id="mockPaySuccess" class="primary-button" type="button">Mock thanh cong</button>
+                        <button id="mockPayFail" class="ghost-button danger" type="button">Mock that bai</button>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="view" id="accountView">
+            <div class="account-grid">
+                <form id="profileForm" class="panel-form">
+                    <h2>Thong tin ca nhan</h2>
+                    <label>Ho ten<input name="title" required></label>
+                    <label>Email<input name="email" type="email"></label>
+                    <label>So dien thoai<input name="phone"></label>
+                    <label>Avatar URL<input name="avatar"></label>
+                    <button class="primary-button" type="submit">Luu thong tin</button>
+                </form>
+                <form id="passwordForm" class="panel-form">
+                    <h2>Doi mat khau</h2>
+                    <label>Mat khau hien tai<input name="currentPassword" type="password" required></label>
+                    <label>Mat khau moi<input name="newPassword" type="password" minlength="8" required></label>
+                    <button class="primary-button" type="submit">Doi mat khau</button>
+                </form>
+                <form id="addressForm" class="panel-form wide-form">
+                    <h2>Dia chi giao hang</h2>
+                    <input name="addressId" type="hidden">
+                    <label>Nguoi nhan<input name="receiverName" required></label>
+                    <label>So dien thoai<input name="receiverPhone" required></label>
+                    <label>Dia chi<input name="addressDetail" required></label>
+                    <label>Phuong/xa<input name="wardName" required></label>
+                    <label>Quan/huyen<input name="districtName" required></label>
+                    <label>Tinh/thanh<input name="provinceName" required></label>
+                    <label class="check-row"><input name="isDefault" type="checkbox"><span>Mac dinh</span></label>
+                    <button class="primary-button" type="submit">Luu dia chi</button>
+                    <button id="resetAddressForm" class="ghost-button" type="button">Tao moi</button>
+                </form>
+            </div>
+            <div id="addressList" class="item-list"></div>
+        </section>
+
+        <section class="view" id="ordersView">
+            <div class="section-head">
+                <h2>Don hang</h2>
+                <button id="refreshOrdersButton" class="ghost-button" type="button">Tai lai</button>
+            </div>
+            <p id="ordersStatus" class="state-line">Dang tai don hang...</p>
+            <div id="orderList" class="order-list"></div>
+        </section>
+
+        <section class="view" id="notificationsView">
+            <div class="section-head">
+                <h2>Thong bao</h2>
+                <button id="markAllReadButton" class="ghost-button" type="button">Danh dau da doc</button>
+            </div>
+            <p id="notificationStatus" class="state-line">Dang tai thong bao...</p>
+            <div id="notificationList" class="item-list"></div>
+        </section>
+
+        <section class="view" id="reviewsView">
+            <div class="review-grid">
+                <form id="reviewForm" class="panel-form">
+                    <h2>Danh gia san pham</h2>
+                    <input name="reviewId" type="hidden">
+                    <label>Don hang<input name="orderId" required></label>
+                    <label>San pham<input name="plantId" required></label>
+                    <label>So sao<input name="rating" type="number" min="1" max="5" value="5" required></label>
+                    <label>Tieu de<input name="title" maxlength="50"></label>
+                    <label>Nhan xet<textarea name="comment" rows="4" required></textarea></label>
+                    <label>Anh URL<input name="images"></label>
+                    <button class="primary-button" type="submit">Luu danh gia</button>
+                    <button id="resetReviewForm" class="ghost-button" type="button">Tao moi</button>
+                </form>
+                <div>
+                    <div class="section-head">
+                        <h2>Danh gia cua toi</h2>
+                        <button id="refreshReviewsButton" class="ghost-button" type="button">Tai lai</button>
+                    </div>
+                    <div id="reviewList" class="item-list"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<section class="ai-chat-widget" id="aiChatWidget" aria-live="polite">
+    <button id="aiChatToggle" class="ai-chat-toggle" type="button" aria-label="Mo chat AI">AI</button>
+    <div id="aiChatPanel" class="ai-chat-panel" hidden>
+        <header class="ai-chat-head">
+            <div>
+                <strong>Tro ly Greeny</strong>
+                <small id="aiChatStatus">San sang</small>
+            </div>
+            <div class="ai-chat-actions">
+                <button id="aiChatClear" class="ghost-button" type="button">Xoa</button>
+                <button id="aiChatClose" class="ghost-button" type="button" aria-label="Dong chat">X</button>
+            </div>
+        </header>
+        <div id="aiChatLimits" class="ai-chat-limits"></div>
+        <div id="aiChatMessages" class="ai-chat-messages"></div>
+        <form id="aiChatForm" class="ai-chat-form">
+            <input id="aiChatInput" name="message" maxlength="1000" autocomplete="off" placeholder="Hoi ve cay, gia, cham soc, don hang">
+            <button id="aiChatSend" class="primary-button" type="submit">Gui</button>
+        </form>
+    </div>
+</section>
+
+<div id="toast" class="toast" hidden></div>
+<script src="/js/shop.js"></script>
+</body>
+</html>

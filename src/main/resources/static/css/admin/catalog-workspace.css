@@ -1,0 +1,109 @@
+﻿        /*
+         * Catalog workspace — hai cột (form + danh sách) cùng chiều cao, cuộn riêng.
+         * Áp dụng cho cả ba trang: #categories, #plants, #variants.
+         * Chỉ ghi đè thuộc tính layout, giữ nguyên mọi màu sắc & spacing gốc.
+         */
+
+        /* 1. Grid: hai cột cùng chiều cao tối đa 72vh */
+        .catalog-workspace {
+            grid-auto-rows: minmax(0, 72vh);   /* cả hai ô cùng một row height */
+            align-items: stretch;              /* kéo đều hai ô về đúng chiều cao */
+        }
+
+        /* 2. Mỗi card là flex-column để con stretch được */
+        .catalog-workspace .catalog-form-card,
+        .catalog-workspace .catalog-list-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* 3. Heading cố định, không cuộn */
+        .catalog-workspace .catalog-form-card > .section-heading,
+        .catalog-workspace .catalog-list-card  > .section-heading,
+        .catalog-workspace .catalog-form-card > p.empty-state {
+            flex-shrink: 0;
+        }
+
+        /* 4. Form cuộn theo chiều dọc khi nội dung dài */
+        .catalog-workspace .catalog-form-card form.form-grid {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 6px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--line-strong) transparent;
+        }
+
+        .catalog-workspace .catalog-form-card form.form-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+        .catalog-workspace .catalog-form-card form.form-grid::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .catalog-workspace .catalog-form-card form.form-grid::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: var(--line-strong);
+        }
+
+        /* 5. Nút lưu ghim đáy form, lấy màu nền từ --surface (#ffffff) */
+        .catalog-workspace .catalog-form-card form.form-grid > button[type="submit"] {
+            position: sticky;
+            bottom: 0;
+            z-index: 1;
+            background: var(--surface);        /* #ffffff — đúng với CSS gốc */
+            padding-top: 10px;
+            margin-top: 4px;
+            box-shadow: 0 -8px 12px var(--surface); /* che nội dung trôi lên phía sau */
+        }
+
+        /* 6. Bảng danh sách cuộn riêng, chiếm phần còn lại */
+        .catalog-workspace .catalog-list-card .table-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-x: auto;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--line-strong) transparent;
+        }
+
+        .catalog-workspace .catalog-list-card .table-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .catalog-workspace .catalog-list-card .table-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .catalog-workspace .catalog-list-card .table-scroll::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: var(--line-strong);
+        }
+
+        /*
+         * 7. Responsive — khớp với breakpoint gốc (1240px).
+         *    Dưới 1240px CSS gốc đã làm grid-template-columns: 1fr,
+         *    ta chỉ cần bỏ chiều cao cố định và cho phép scroll bình thường.
+         */
+        @media (max-width: 1240px) {
+            .catalog-workspace {
+                grid-auto-rows: auto;
+            }
+            .catalog-workspace .catalog-form-card,
+            .catalog-workspace .catalog-list-card {
+                height: auto;
+                overflow: visible;
+            }
+            .catalog-workspace .catalog-form-card form.form-grid {
+                overflow-y: visible;
+                padding-right: 0;
+            }
+            .catalog-workspace .catalog-form-card form.form-grid > button[type="submit"] {
+                position: static;
+                box-shadow: none;
+            }
+            .catalog-workspace .catalog-list-card .table-scroll {
+                overflow-y: auto;
+                max-height: 70vh;
+            }
+        }

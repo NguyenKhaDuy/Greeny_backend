@@ -1,0 +1,58 @@
+package org.example.greenybackend.modules.admin.dto;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import org.example.greenybackend.modules.order.dto.AdminOrderResponse;
+
+public record RevenueDashboardResponse(
+        BigDecimal totalRevenue,
+        BigDecimal todayRevenue,
+        BigDecimal monthRevenue,
+        BigDecimal averageOrderValue,
+        BigDecimal discountTotal,
+        BigDecimal shippingFeeTotal,
+        Integer totalOrders,
+        Integer paidOrders,
+        Integer unpaidOrders,
+        Integer cancelledOrders,
+        Integer soldQuantity,
+        Integer conversionPaidPercent,
+        List<RevenueDailyResponse> dailyRevenue,
+        List<ProductStatisticResponse> topProducts,
+        List<AdminOrderResponse> recentPaidOrders,
+        Integer dashboardDays,
+        Integer periodOrders,
+        Integer periodPaidOrders,
+        BigDecimal periodRevenue,
+        Integer periodUsers,
+        DashboardTrendResponse orderTrend,
+        DashboardTrendResponse revenueTrend,
+        DashboardTrendResponse userTrend,
+        DashboardTrendResponse inventoryTrend,
+        String activeRange,
+        String rangeLabel,
+        LocalDate rangeStart,
+        LocalDate rangeEnd,
+        String comparisonLabel,
+        BigDecimal rangeRevenue,
+        Integer rangeOrders,
+        Integer rangePaidOrders,
+        Integer rangeUnpaidOrders,
+        Integer rangeCancelledOrders,
+        BigDecimal rangeAverageOrderValue,
+        Integer rangePaymentRatePercent,
+        List<RevenueDailyResponse> fourteenDayRevenue,
+        List<RevenueBreakdownResponse> statusBreakdown,
+        List<RevenueBreakdownResponse> paymentMethodBreakdown,
+        List<RevenueProductContributionResponse> topRevenueProducts,
+        List<RevenueSlowProductResponse> slowProducts,
+        List<RevenueRecentOrderResponse> recentPaidOrderSummaries,
+        DashboardTrendResponse totalRevenueTrend,
+        DashboardTrendResponse todayRevenueTrend,
+        DashboardTrendResponse monthRevenueTrend,
+        DashboardTrendResponse averageOrderValueTrend,
+        DashboardTrendResponse paymentRateTrend,
+        DashboardTrendResponse cancelledOrdersTrend
+) {
+}

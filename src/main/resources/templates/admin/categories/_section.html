@@ -1,0 +1,348 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="categories(categories, categoryPlantCounts, categoryTotalCount, categoryActiveCount, categoryHiddenCount, categoryWithPlantCount)">
+
+    <section class="admin-section catalog-section category-admin" id="categories">
+        <div class="catalog-page-head category-hero surface">
+            <div>
+                <p class="eyebrow">
+                    <span class="mini-icon icon-category" aria-hidden="true"></span>
+                    Loại hàng
+                </p>
+                <h2>Quản lý loại hàng / danh mục</h2>
+                <p>
+                    Quản lý nhóm sản phẩm cây, ảnh đại diện, trạng thái hiển thị, thứ tự ưu tiên
+                    và mức độ liên kết với sản phẩm trên storefront.
+                </p>
+            </div>
+
+            <a class="ghost-button icon-button-text" href="/admin#categories">
+                <span class="mini-icon icon-refresh" aria-hidden="true"></span>
+                Làm mới
+            </a>
+        </div>
+
+        <div class="quick-stat-grid catalog-stat-grid category-stat-grid">
+            <article class="quick-stat">
+                <span class="mini-icon icon-category" aria-hidden="true"></span>
+                <small>Tổng danh mục</small>
+                <strong th:text="${categoryTotalCount}">0</strong>
+            </article>
+
+            <article class="quick-stat success">
+                <span class="mini-icon icon-eye" aria-hidden="true"></span>
+                <small>Đang hiển thị</small>
+                <strong th:text="${categoryActiveCount}">0</strong>
+            </article>
+
+            <article class="quick-stat neutral">
+                <span class="mini-icon icon-eye-off" aria-hidden="true"></span>
+                <small>Đang ẩn</small>
+                <strong th:text="${categoryHiddenCount}">0</strong>
+            </article>
+
+            <article class="quick-stat info">
+                <span class="mini-icon icon-plant" aria-hidden="true"></span>
+                <small>Có sản phẩm</small>
+                <strong th:text="${categoryWithPlantCount}">0</strong>
+            </article>
+        </div>
+
+        <form class="admin-filter-panel catalog-filter-panel category-filter-panel surface" data-category-filter-form>
+            <label>
+                Tìm theo tên danh mục
+                <input name="q" type="search" placeholder="Nhập tên hoặc mô tả danh mục">
+            </label>
+
+            <label>
+                Trạng thái
+                <select name="status">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="active">Đang hiển thị</option>
+                    <option value="hidden">Ẩn</option>
+                </select>
+            </label>
+
+            <label>
+                Sắp xếp
+                <select name="sort">
+                    <option value="sort-asc">Thứ tự tăng dần</option>
+                    <option value="sort-desc">Thứ tự giảm dần</option>
+                </select>
+            </label>
+
+            <div class="filter-actions">
+                <button class="primary-button icon-button-text" type="submit" data-apply-category-filters>
+                    <span class="mini-icon icon-filter" aria-hidden="true"></span>
+                    Lọc
+                </button>
+
+                <button class="ghost-button icon-button-text" type="reset" data-reset-category-filters>
+                    <span class="mini-icon icon-x-circle" aria-hidden="true"></span>
+                    Xóa lọc
+                </button>
+            </div>
+        </form>
+
+        <section class="surface category-create-card">
+            <div class="section-heading compact">
+                <p class="eyebrow">
+                    <span class="mini-icon icon-category" aria-hidden="true"></span>
+                    Thêm danh mục
+                </p>
+                <h2>Thêm loại hàng</h2>
+                <p>
+                    Tạo nhóm sản phẩm mới để gom cây theo nhu cầu mua hàng, vị trí trưng bày
+                    hoặc chiến dịch bán hàng.
+                </p>
+            </div>
+
+            <form method="post" action="/admin/categories" class="form-grid category-create-form js-loading-form">
+                <label>
+                    Tên danh mục
+                    <input name="title" required placeholder="Ví dụ: Cây trong nhà">
+                </label>
+
+                <label>
+                    Thứ tự ưu tiên
+                    <input name="sortOrder" type="number" placeholder="10">
+                </label>
+
+                <label class="wide">
+                    Ảnh đại diện
+                    <input name="imageUrl" type="url" placeholder="https://...">
+                </label>
+
+                <label class="wide">
+                    Mô tả
+                    <textarea name="description" rows="4" placeholder="Mô tả ngắn về nhóm sản phẩm"></textarea>
+                </label>
+
+                <label class="toggle">
+                    <input name="isActive" type="checkbox" value="true" checked>
+                    <span>Đang hiển thị</span>
+                </label>
+
+                <button class="primary-button icon-button-text wide" type="submit" data-loading-text="Đang lưu...">
+                    <span class="mini-icon icon-save" aria-hidden="true"></span>
+                    Lưu danh mục
+                </button>
+            </form>
+        </section>
+
+        <section class="surface category-list-card">
+            <div class="category-list-head">
+                <div class="section-heading compact">
+                    <p class="eyebrow">
+                        <span class="mini-icon icon-list" aria-hidden="true"></span>
+                        Danh sách
+                    </p>
+                    <h2>Loại hàng hiện có</h2>
+                    <p>
+                        Danh sách dạng thẻ giúp xem mô tả, ảnh đại diện, số sản phẩm và thao tác
+                        nhanh hơn bảng nhiều cột.
+                    </p>
+                </div>
+            </div>
+
+            <div class="category-card-list" th:if="${!#lists.isEmpty(categories)}">
+                <th:block th:each="category : ${categories}"
+                          th:with="plantCount=${categoryPlantCounts.get(category.caId()) != null ? categoryPlantCounts.get(category.caId()) : 0}">
+
+                    <article class="catalog-summary-row category-summary-row category-card"
+                             th:attr="data-search=${(category.title() != null ? category.title() : '') + ' ' + (category.description() != null ? category.description() : '')},
+                                      data-status=${category.isActive() == true ? 'active' : 'hidden'},
+                                      data-sort=${category.sortOrder() != null ? category.sortOrder() : 999999}">
+
+                        <header class="category-card-header">
+                            <div class="category-title-block">
+                                <div class="category-thumb"
+                                     th:classappend="${category.imageUrl() == null || #strings.isEmpty(category.imageUrl()) ? ' is-empty' : ''}">
+                                    <img th:if="${category.imageUrl() != null && !#strings.isEmpty(category.imageUrl())}"
+                                         th:src="${category.imageUrl()}"
+                                         th:alt="${category.title() != null ? category.title() : 'Ảnh danh mục'}">
+                                    <span th:if="${category.imageUrl() == null || #strings.isEmpty(category.imageUrl())}"
+                                          th:text="${category.title() != null && #strings.length(category.title()) > 0 ? #strings.substring(category.title(), 0, 1) : 'D'}">
+                                        D
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <span class="category-code-label"
+                                          th:text="${category.sortOrder() != null ? 'Thứ tự: ' + category.sortOrder() : 'Chưa có thứ tự'}">
+                                        Thứ tự
+                                    </span>
+                                    <h3 th:text="${category.title() != null ? category.title() : 'Chưa có dữ liệu'}">
+                                        Cây trong nhà
+                                    </h3>
+                                    <p th:text="${category.description() != null ? category.description() : 'Chưa có mô tả. Nên bổ sung mô tả để khách hiểu nhóm sản phẩm này dùng cho nhu cầu nào.'}">
+                                        Mô tả
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="category-status-stack">
+                                <span class="status-pill"
+                                      th:classappend="${category.isActive() == true ? ' success' : ' neutral'}"
+                                      th:text="${category.isActive() == true ? 'Đang hiển thị' : 'Đang ẩn'}">
+                                    Đang hiển thị
+                                </span>
+
+                                <span class="status-pill"
+                                      th:classappend="${plantCount > 0 ? ' info' : ' warning'}"
+                                      th:text="${plantCount + ' sản phẩm'}">
+                                    0 sản phẩm
+                                </span>
+                            </div>
+                        </header>
+
+                        <div class="category-card-body">
+                            <div class="category-info-box">
+                                <dt>Số sản phẩm</dt>
+                                <dd>
+                                    <strong th:text="${plantCount + ' sản phẩm'}">0 sản phẩm</strong>
+                                    <small th:text="${plantCount > 0 ? 'Danh mục đang được sử dụng.' : 'Danh mục chưa liên kết sản phẩm.'}">
+                                        Trạng thái liên kết
+                                    </small>
+                                </dd>
+                            </div>
+
+                            <div class="category-info-box">
+                                <dt>Thứ tự ưu tiên</dt>
+                                <dd>
+                                    <strong th:text="${category.sortOrder() != null ? category.sortOrder() : '-'}">1</strong>
+                                    <small>Thứ tự nhỏ hơn thường nên hiển thị trước.</small>
+                                </dd>
+                            </div>
+
+                            <div class="category-info-box">
+                                <dt>Ảnh đại diện</dt>
+                                <dd>
+                                    <strong th:text="${category.imageUrl() != null && !#strings.isEmpty(category.imageUrl()) ? 'Đã có ảnh' : 'Chưa có ảnh'}">
+                                        Đã có ảnh
+                                    </strong>
+                                    <small th:text="${category.imageUrl() != null && !#strings.isEmpty(category.imageUrl()) ? category.imageUrl() : 'Nên bổ sung ảnh để storefront chuyên nghiệp hơn.'}">
+                                        Ảnh đại diện
+                                    </small>
+                                </dd>
+                            </div>
+                        </div>
+
+                        <footer class="category-card-footer">
+                            <div class="category-business-note">
+                                <span th:if="${plantCount > 0 && category.isActive() == true}">
+                                    Danh mục đang hiển thị và có sản phẩm, có thể dùng trên storefront.
+                                </span>
+                                <span th:if="${plantCount > 0 && category.isActive() != true}">
+                                    Danh mục có sản phẩm nhưng đang ẩn, khách có thể không thấy nhóm hàng này.
+                                </span>
+                                <span th:if="${plantCount <= 0}">
+                                    Danh mục chưa có sản phẩm, nên liên kết cây trước khi dùng cho bán hàng.
+                                </span>
+                            </div>
+
+                            <div class="catalog-actions category-card-actions">
+                                <button class="small-button icon-button-text js-edit-catalog" type="button">
+                                    <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                    Sửa danh mục
+                                </button>
+
+                                <form th:action="@{/admin/categories/{id}/visibility(id=${category.caId()})}"
+                                      method="post"
+                                      class="js-loading-form">
+                                    <input name="title" type="hidden" th:value="${category.title()}">
+                                    <input name="description" type="hidden" th:value="${category.description()}">
+                                    <input name="imageUrl" type="hidden" th:value="${category.imageUrl()}">
+                                    <input name="sortOrder" type="hidden" th:value="${category.sortOrder()}">
+                                    <input name="isActive" type="hidden" th:value="${category.isActive() != true}">
+
+                                    <button class="ghost-button icon-button-text" type="submit" data-loading-text="Đang lưu...">
+                                        <span class="mini-icon"
+                                              th:classappend="${category.isActive() == true ? ' icon-eye-off' : ' icon-eye'}"
+                                              aria-hidden="true"></span>
+                                        <span th:text="${category.isActive() == true ? 'Ẩn danh mục' : 'Hiện danh mục'}">
+                                            Ẩn danh mục
+                                        </span>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/admin/categories/{id}/delete(id=${category.caId()})}"
+                                      method="post"
+                                      class="js-loading-form">
+                                    <button class="ghost-button danger-ghost icon-button-text"
+                                            type="submit"
+                                            th:disabled="${plantCount > 0}"
+                                            data-loading-text="Đang xóa...">
+                                        <span class="mini-icon icon-trash" aria-hidden="true"></span>
+                                        Xóa danh mục
+                                    </button>
+                                </form>
+                            </div>
+                        </footer>
+
+                        <small th:if="${plantCount > 0}" class="safe-warning">
+                            Danh mục đang có sản phẩm, không thể xóa để tránh mất liên kết dữ liệu.
+                        </small>
+                    </article>
+
+                    <article class="catalog-detail-row category-detail-row category-edit-panel">
+                        <details class="catalog-detail">
+                            <summary>
+                                <span class="mini-icon icon-edit" aria-hidden="true"></span>
+                                Chỉnh sửa danh mục
+                            </summary>
+
+                            <form th:action="@{/admin/categories/{id}(id=${category.caId()})}"
+                                  method="post"
+                                  class="form-grid catalog-edit-form category-edit-form js-loading-form">
+
+                                <label>
+                                    Tên danh mục
+                                    <input name="title" th:value="${category.title()}" required>
+                                </label>
+
+                                <label>
+                                    Thứ tự ưu tiên
+                                    <input name="sortOrder" th:value="${category.sortOrder()}" type="number">
+                                </label>
+
+                                <label class="wide">
+                                    Ảnh đại diện
+                                    <input name="imageUrl" th:value="${category.imageUrl()}" type="url">
+                                </label>
+
+                                <label class="wide">
+                                    Mô tả
+                                    <textarea name="description" rows="4" th:text="${category.description()}"></textarea>
+                                </label>
+
+                                <label class="toggle">
+                                    <input name="isActive" type="checkbox" value="true" th:checked="${category.isActive() == true}">
+                                    <span>Đang hiển thị</span>
+                                </label>
+
+                                <div class="form-actions wide">
+                                    <button class="primary-button icon-button-text" type="submit" data-loading-text="Đang lưu...">
+                                        <span class="mini-icon icon-save" aria-hidden="true"></span>
+                                        Lưu thay đổi
+                                    </button>
+
+                                    <button class="ghost-button js-cancel-catalog" type="button">
+                                        Hủy
+                                    </button>
+                                </div>
+                            </form>
+                        </details>
+                    </article>
+                </th:block>
+            </div>
+
+            <p th:if="${#lists.isEmpty(categories)}" class="empty-state">
+                Chưa có dữ liệu danh mục.
+            </p>
+
+            <p class="empty-state category-filter-empty" hidden>
+                Không có danh mục phù hợp bộ lọc.
+            </p>
+        </section>
+    </section>
+</th:block>

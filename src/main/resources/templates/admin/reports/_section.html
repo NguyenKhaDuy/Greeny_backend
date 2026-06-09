@@ -1,0 +1,255 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="productStats(productStats)">
+    <section class="admin-section product-performance-section" id="product-stats"
+             th:with="categoryStats=${productStats.?[statisticLevel() == 'CATEGORY']},
+                      typeStats=${productStats.?[statisticLevel() == 'PLANT_TYPE']},
+                      plantRows=${productStats.?[statisticLevel() == 'PLANT']},
+                      lowStockRows=${productStats.?[statisticLevel() == 'PLANT' && (stockQuantity() == null || stockQuantity() <= 5)]}">
+
+        <div class="product-performance-report">
+            <header class="surface product-performance-hero">
+                <div class="product-performance-hero__main">
+                    <span class="product-performance-hero__icon" aria-hidden="true">📈</span>
+
+                    <div class="section-heading">
+                        <p class="eyebrow">Phân tích sản phẩm</p>
+                        <h2>Hiệu suất danh mục & sản phẩm</h2>
+                        <p>
+                            Theo dõi cơ cấu danh mục, kiểu cây, tồn kho, sản lượng bán,
+                            doanh thu và chất lượng đánh giá để ưu tiên nhập hàng, khuyến mãi và tối ưu sản phẩm.
+                        </p>
+
+                        <div class="performance-meta">
+                            <span>Dữ liệu tổng hợp từ sản phẩm</span>
+                            <span th:text="${#lists.size(plantRows) + ' cây đang theo dõi'}">0 cây đang theo dõi</span>
+                            <span th:text="${#lists.size(lowStockRows) + ' mục tồn kho cần chú ý'}">0 mục tồn kho cần chú ý</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="performance-kpi-grid" aria-label="Chỉ số tổng quan sản phẩm">
+                <article class="surface performance-kpi-card primary">
+                    <span class="performance-kpi-icon" aria-hidden="true">🪴</span>
+                    <div>
+                        <p>Sản phẩm theo dõi</p>
+                        <strong th:text="${#lists.size(plantRows)}">0</strong>
+                        <small>Số cây có dữ liệu thống kê chi tiết.</small>
+                    </div>
+                </article>
+
+                <article class="surface performance-kpi-card">
+                    <span class="performance-kpi-icon" aria-hidden="true">🏷️</span>
+                    <div>
+                        <p>Nhóm danh mục</p>
+                        <strong th:text="${#lists.size(categoryStats)}">0</strong>
+                        <small>Nhóm loại hàng đang được dùng để phân tích cơ cấu sản phẩm.</small>
+                    </div>
+                </article>
+
+                <article class="surface performance-kpi-card">
+                    <span class="performance-kpi-icon" aria-hidden="true">🌿</span>
+                    <div>
+                        <p>Nhóm kiểu cây</p>
+                        <strong th:text="${#lists.size(typeStats)}">0</strong>
+                        <small>Phân nhóm theo đặc tính hoặc kiểu cây để đọc xu hướng bán.</small>
+                    </div>
+                </article>
+
+                <article class="surface performance-kpi-card warning">
+                    <span class="performance-kpi-icon" aria-hidden="true">⚠️</span>
+                    <div>
+                        <p>Tồn kho cần xử lý</p>
+                        <strong th:text="${#lists.size(lowStockRows)}">0</strong>
+                        <small>Cây hết hàng hoặc sắp hết, cần nhập thêm hoặc điều chỉnh trạng thái bán.</small>
+                    </div>
+                </article>
+            </section>
+
+            <div class="product-stat-grid performance-overview-grid">
+                <section class="surface performance-panel">
+                    <div class="section-heading compact">
+                        <p class="eyebrow">Cơ cấu danh mục</p>
+                        <h2>Hiệu suất theo loại hàng</h2>
+                        <p>Đọc nhanh danh mục nào đang có nhiều sản phẩm, biến thể, tồn kho và doanh thu.</p>
+                    </div>
+
+                    <div class="rank-list performance-rank-list" th:if="${!#lists.isEmpty(categoryStats)}">
+                        <article th:each="stat, iter : ${categoryStats}" class="rank-row product-stat-row performance-rank-row">
+                            <span th:text="${iter.count}">1</span>
+
+                            <div>
+                                <h3 th:text="${stat.groupTitle() != null ? stat.groupTitle() : 'Chưa có tên loại'}">Loại cây</h3>
+                                <p th:text="${(stat.plantCount() != null ? stat.plantCount() : 0) + ' cây / ' + (stat.variantCount() != null ? stat.variantCount() : 0) + ' biến thể / tồn ' + (stat.stockQuantity() != null ? stat.stockQuantity() : 0)}">
+                                    0 cây / 0 biến thể / tồn 0
+                                </p>
+                            </div>
+
+                            <strong th:text="${#numbers.formatDecimal(stat.revenue() != null ? stat.revenue() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">
+                                0 ₫
+                            </strong>
+                        </article>
+                    </div>
+
+                    <p th:if="${#lists.isEmpty(categoryStats)}" class="empty-state">
+                        Chưa có dữ liệu thống kê theo loại hàng.
+                    </p>
+                </section>
+
+                <section class="surface performance-panel">
+                    <div class="section-heading compact">
+                        <p class="eyebrow">Cơ cấu kiểu cây</p>
+                        <h2>Hiệu suất theo kiểu cây</h2>
+                        <p>So sánh nhóm cây theo sản lượng bán, đánh giá và doanh thu để định hướng nhập hàng.</p>
+                    </div>
+
+                    <div class="rank-list performance-rank-list" th:if="${!#lists.isEmpty(typeStats)}">
+                        <article th:each="stat, iter : ${typeStats}" class="rank-row product-stat-row performance-rank-row">
+                            <span th:text="${iter.count}">1</span>
+
+                            <div>
+                                <h3 th:text="${stat.groupTitle() != null ? stat.groupTitle() : 'Chưa có kiểu cây'}">Kiểu cây</h3>
+                                <p th:text="${(stat.soldQuantity() != null ? stat.soldQuantity() : 0) + ' đã bán / ' + (stat.reviewCount() != null ? stat.reviewCount() : 0) + ' đánh giá'}">
+                                    0 đã bán / 0 đánh giá
+                                </p>
+                            </div>
+
+                            <strong th:text="${#numbers.formatDecimal(stat.revenue() != null ? stat.revenue() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">
+                                0 ₫
+                            </strong>
+                        </article>
+                    </div>
+
+                    <p th:if="${#lists.isEmpty(typeStats)}" class="empty-state">
+                        Chưa có dữ liệu thống kê theo kiểu cây.
+                    </p>
+                </section>
+            </div>
+
+            <section class="surface performance-panel performance-risk-panel">
+                <div class="section-heading compact">
+                    <p class="eyebrow">Tín hiệu vận hành</p>
+                    <h2>Sản phẩm cần ưu tiên xử lý</h2>
+                    <p>Danh sách cây có tồn kho thấp hoặc đã hết hàng. Đây là phần admin nên nhìn trước, thay vì chờ khách bấm mua rồi hệ thống khóc.</p>
+                </div>
+
+                <div class="performance-risk-list" th:if="${!#lists.isEmpty(lowStockRows)}">
+                    <article th:each="product, iter : ${lowStockRows}"
+                             th:if="${iter.index < 6}"
+                             class="performance-risk-card">
+                        <span class="status-pill"
+                              th:classappend="${product.stockQuantity() == null || product.stockQuantity() <= 0 ? ' danger' : ' warning'}"
+                              th:text="${product.stockQuantity() == null || product.stockQuantity() <= 0 ? 'Hết hàng' : 'Sắp hết'}">
+                            Sắp hết
+                        </span>
+
+                        <div>
+                            <h3 th:text="${product.plantTitle() != null ? product.plantTitle() : 'Chưa có tên cây'}">Tên cây</h3>
+                            <p th:text="${(product.categoryTitle() != null ? product.categoryTitle() : 'Chưa phân loại') + ' · ' + (product.plantTypeLabel() != null ? product.plantTypeLabel() : 'Chưa có kiểu cây')}">
+                                Loại · Kiểu cây
+                            </p>
+                        </div>
+
+                        <dl>
+                            <div>
+                                <dt>Tồn</dt>
+                                <dd th:text="${product.stockQuantity() != null ? product.stockQuantity() : 0}">0</dd>
+                            </div>
+                            <div>
+                                <dt>Đã bán</dt>
+                                <dd th:text="${product.soldQuantity() != null ? product.soldQuantity() : 0}">0</dd>
+                            </div>
+                            <div>
+                                <dt>Doanh thu</dt>
+                                <dd th:text="${#numbers.formatDecimal(product.revenue() != null ? product.revenue() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</dd>
+                            </div>
+                        </dl>
+                    </article>
+                </div>
+
+                <p th:if="${#lists.isEmpty(lowStockRows)}" class="empty-state">
+                    Tồn kho đang ổn, chưa có sản phẩm cần cảnh báo.
+                </p>
+            </section>
+
+            <section class="surface table-surface performance-table-panel">
+                <div class="section-heading compact">
+                    <p class="eyebrow">Chi tiết sản phẩm</p>
+                    <h2>Bảng hiệu suất từng cây</h2>
+                    <p>Theo dõi tồn kho, số lượng bán, doanh thu và đánh giá trung bình của từng sản phẩm.</p>
+                </div>
+
+                <div class="table-scroll" th:if="${!#lists.isEmpty(plantRows)}">
+                    <table class="data-table performance-table">
+                        <thead>
+                        <tr>
+                            <th>Cây</th>
+                            <th>Loại</th>
+                            <th>Kiểu cây</th>
+                            <th>Biến thể</th>
+                            <th>Tồn kho</th>
+                            <th>Đã bán</th>
+                            <th>Doanh thu</th>
+                            <th>Đánh giá</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="product : ${plantRows}">
+                            <td>
+                                <strong th:text="${product.plantTitle() != null ? product.plantTitle() : 'Chưa có tên cây'}">
+                                    Plant
+                                </strong>
+                            </td>
+
+                            <td th:text="${product.categoryTitle() != null ? product.categoryTitle() : 'Chưa phân loại'}">
+                                Category
+                            </td>
+
+                            <td th:text="${product.plantTypeLabel() != null ? product.plantTypeLabel() : 'Chưa có kiểu cây'}">
+                                Kiểu cây
+                            </td>
+
+                            <td th:text="${product.variantCount() != null ? product.variantCount() : 0}">
+                                0
+                            </td>
+
+                            <td>
+                                <span class="status-pill"
+                                      th:classappend="${product.stockQuantity() == null || product.stockQuantity() <= 0 ? ' danger' : (product.stockQuantity() <= 5 ? ' warning' : ' success')}"
+                                      th:text="${product.stockQuantity() != null ? product.stockQuantity() : 0}">
+                                    0
+                                </span>
+                            </td>
+
+                            <td th:text="${product.soldQuantity() != null ? product.soldQuantity() : 0}">
+                                0
+                            </td>
+
+                            <td>
+                                <strong th:text="${#numbers.formatDecimal(product.revenue() != null ? product.revenue() : 0, 0, 'POINT', 0, 'COMMA') + ' ₫'}">
+                                    0 ₫
+                                </strong>
+                            </td>
+
+                            <td>
+                                <div class="rating-cell">
+                                    <strong th:text="${#numbers.formatDecimal(product.averageRating() != null ? product.averageRating() : 0, 1, 'POINT', 1, 'COMMA')}">
+                                        0,0
+                                    </strong>
+                                    <small th:text="${(product.reviewCount() != null ? product.reviewCount() : 0) + ' đánh giá'}">
+                                        0 đánh giá
+                                    </small>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p th:if="${#lists.isEmpty(plantRows)}" class="empty-state">
+                    Chưa có dữ liệu thống kê sản phẩm.
+                </p>
+            </section>
+        </div>
+    </section>
+</th:block>

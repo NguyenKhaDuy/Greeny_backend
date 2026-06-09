@@ -1,0 +1,21 @@
+﻿<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout/admin-layout :: layout(~{::adminContent})}">
+<body>
+<th:block th:fragment="adminContent">
+    <th:block th:replace="~{admin/dashboard/_section :: dashboard(${orders}, ${inventoryItems}, ${reviews}, ${revenueDashboard}, ${dashboardDays}, ${productStats})}"></th:block>
+    <th:block th:replace="~{admin/orders/_section :: orders(${orders})}"></th:block>
+    <th:block th:replace="~{admin/revenue/_section :: revenue(${revenueDashboard}, ${revenueRange}, ${revenueStart}, ${revenueEnd})}"></th:block>
+    <th:block th:replace="~{admin/reports/_section :: productStats(${productStats})}"></th:block>
+    <th:block th:replace="~{admin/reviews/_section :: reviews(${reviews}, ${reviewTotalCount}, ${reviewPendingCount}, ${reviewApprovedCount}, ${reviewHiddenCount}, ${reviewAverageRating}, ${reviewLowRatingCount})}"></th:block>
+    <th:block th:replace="~{admin/users/_section :: users(${users}, ${userTotalCount}, ${userAdminCount}, ${userCustomerCount}, ${userActiveCount}, ${userLockedCount}, ${userNewSevenDaysCount})}"></th:block>
+    <th:block th:replace="~{admin/categories/_section :: categories(${categories}, ${categoryPlantCounts}, ${categoryTotalCount}, ${categoryActiveCount}, ${categoryHiddenCount}, ${categoryWithPlantCount})}"></th:block>
+    <th:block th:replace="~{admin/products/_section :: products(${catalogPlants}, ${categories}, ${plantVariantCounts}, ${plantTotalCount}, ${plantVisibleCount}, ${plantHiddenCount}, ${plantWithoutVariantCount}, ${plantAirPurifyingCount})}"></th:block>
+    <th:block th:replace="~{admin/variants/_section :: variants(${variants}, ${catalogPlants}, ${categories}, ${variantCategoryTitles}, ${variantTotalCount}, ${variantActiveCount}, ${variantHiddenCount}, ${variantOutOfStockCount}, ${variantLowStockCount}, ${variantTotalStock})}"></th:block>
+    <th:block th:replace="~{admin/care/_section :: care(${careProfiles}, ${plants}, ${careProfileTotalCount}, ${carePlantCoveredCount}, ${carePlantMissingCount}, ${careEasyCount}, ${careNeedsExperienceCount})}"></th:block>
+    <th:block th:replace="~{admin/notifications/_section :: notifications(${notifications}, ${notificationUsers}, ${notificationTotalCount}, ${notificationSentTodayCount}, ${notificationSystemCount}, ${notificationOrderCount}, ${notificationPromotionCount}, ${notificationLatestRecipientCount})}"></th:block>
+    <th:block th:replace="~{admin/coupons/_section :: coupons(${regularCoupons}, ${systemCoupons}, ${couponTotalUsage}, ${couponActiveCount}, ${couponExpiringCount}, ${couponExpiredCount}, ${couponUsedOutCount}, ${couponStatusKeys}, ${couponStatusLabels}, ${couponUsedOutFlags}, ${couponSystemCodeFlags}, ${couponDeactivateDisabledFlags}, ${now}, ${soon})}"></th:block>
+    <th:block th:replace="~{admin/posts/_section :: posts(${articles}, ${articleTotalCount}, ${articleMissingImageCount})}"></th:block>
+    <th:block th:replace="~{admin/inventory/_section :: inventory(${inventoryItems}, ${categories}, ${variantCategoryIds}, ${variantCategoryTitles}, ${inventoryTrackedCount}, ${inventoryTotalStock}, ${inventoryLowStockCount}, ${inventoryOutOfStockCount}, ${inventoryInStockCount}, ${inventoryStoppedCount})}"></th:block>
+</th:block>
+</body>
+</html>

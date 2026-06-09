@@ -1,0 +1,129 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="users(users, userTotalCount, userAdminCount, userCustomerCount, userActiveCount, userLockedCount, userNewSevenDaysCount)">
+            <section class="admin-section final-admin-section" id="users">
+                <div class="catalog-page-head surface">
+                    <div>
+                        <p class="eyebrow"><span class="mini-icon icon-users" aria-hidden="true"></span> Tài khoản</p>
+                        <h2>Quản lý user</h2>
+                        <p>Theo dõi tài khoản, quyền, trạng thái hoạt động và mở phần chỉnh sửa khi thật sự cần cập nhật.</p>
+                    </div>
+                    <a class="ghost-button icon-button-text" href="/admin#users"><span class="mini-icon icon-refresh" aria-hidden="true"></span>Làm mới</a>
+                </div>
+
+                <div class="quick-stat-grid final-stat-grid">
+                    <article class="quick-stat"><span class="mini-icon icon-users" aria-hidden="true"></span><small>Tổng user</small><strong th:text="${userTotalCount}">0</strong></article>
+                    <article class="quick-stat info"><span class="mini-icon icon-shield" aria-hidden="true"></span><small>Admin</small><strong th:text="${userAdminCount}">0</strong></article>
+                    <article class="quick-stat neutral"><span class="mini-icon icon-users" aria-hidden="true"></span><small>Khách hàng</small><strong th:text="${userCustomerCount}">0</strong></article>
+                    <article class="quick-stat success"><span class="mini-icon icon-check-circle" aria-hidden="true"></span><small>Đang hoạt động</small><strong th:text="${userActiveCount}">0</strong></article>
+                    <article class="quick-stat danger"><span class="mini-icon icon-lock" aria-hidden="true"></span><small>Đã khóa</small><strong th:text="${userLockedCount}">0</strong></article>
+                    <article class="quick-stat accent"><span class="mini-icon icon-clock" aria-hidden="true"></span><small>User mới trong 7 ngày</small><strong th:text="${userNewSevenDaysCount}">0</strong></article>
+                </div>
+
+                <div class="surface final-workbench">
+                    <form class="admin-filter-panel final-filter-panel" data-user-filter-form>
+                        <label>Tìm theo tên<input name="name" type="search" placeholder="Tên hiển thị"></label>
+                        <label>Tìm theo email<input name="email" type="search" placeholder="email@example.com"></label>
+                        <label>Tìm theo số điện thoại<input name="phone" type="search" placeholder="Số điện thoại"></label>
+                        <label>Quyền
+                            <select name="role">
+                                <option value="all">Tất cả quyền</option>
+                                <option value="0">Admin</option>
+                                <option value="1">User</option>
+                            </select>
+                        </label>
+                        <label>Trạng thái
+                            <select name="status">
+                                <option value="all">Tất cả trạng thái</option>
+                                <option value="1">Đang hoạt động</option>
+                                <option value="0">Chờ xác minh</option>
+                                <option value="2">Đã khóa</option>
+                                <option value="-1">Đã xóa</option>
+                            </select>
+                        </label>
+                        <label>Ngày tạo<input name="created" type="date"></label>
+                        <div class="filter-actions wide">
+                            <button class="primary-button" type="button" data-apply-user-filters><span class="mini-icon icon-filter" aria-hidden="true"></span>Lọc</button>
+                            <button class="ghost-button" type="reset" data-reset-user-filters><span class="mini-icon icon-x-circle" aria-hidden="true"></span>Xóa lọc</button>
+                        </div>
+                    </form>
+
+                    <div class="admin-card-list user-list">
+                        <article th:each="user : ${users}" class="admin-card user-card"
+                                 th:attr="data-name=${user.title() != null ? user.title() : ''},
+                                          data-email=${user.email() != null ? user.email() : ''},
+                                          data-phone=${user.phone() != null ? user.phone() : ''},
+                                          data-role=${user.role() != null ? user.role() : 1},
+                                          data-status=${user.status() != null ? user.status() : 'none'},
+                                          data-created=${user.createdAt() != null ? #temporals.format(user.createdAt(), 'yyyy-MM-dd') : ''}">
+                            <header class="admin-card-head">
+                                <div class="admin-card-title">
+                                    <span class="record-avatar" th:text="${#strings.substring(user.title() != null && !user.title().isBlank() ? user.title() : 'U', 0, 1)}">U</span>
+                                    <div>
+                                        <h3 th:text="${user.title() != null && !user.title().isBlank() ? user.title() : 'Chưa có tên'}">User</h3>
+                                        <p th:text="${user.email() != null ? user.email() : 'Chưa có email'}">email</p>
+                                    </div>
+                                </div>
+                                <div class="status-stack">
+                                    <span class="status-pill" th:classappend="${user.role() == 0 ? ' info' : ' neutral'}" th:text="${user.roleLabel() != null ? user.roleLabel() : 'Chưa gán quyền'}">User</span>
+                                    <span class="status-pill" th:classappend="${user.status() == 1 ? ' success' : (user.status() == 2 || user.status() == -1 ? ' danger' : ' warning')}" th:text="${user.statusLabel() != null ? user.statusLabel() : 'Không rõ'}">Đang hoạt động</span>
+                                </div>
+                            </header>
+
+                            <dl class="card-meta-grid user-meta">
+                                <div><dt>Tài khoản</dt><dd th:text="${'ID ' + (user.userId() != null && user.userId().length() >= 8 ? #strings.substring(user.userId(), 0, 8) : 'Chưa có dữ liệu')}">ID</dd></div>
+                                <div><dt>Liên hệ</dt><dd th:text="${user.phone() != null && !user.phone().isBlank() ? user.phone() : 'Chưa có số điện thoại'}">Số điện thoại</dd></div>
+                                <div><dt>Ngày tạo</dt><dd th:text="${user.createdAt() != null ? #temporals.format(user.createdAt(), 'dd/MM/yyyy HH:mm') : 'Chưa có dữ liệu'}">Ngày tạo</dd></div>
+                                <div><dt>Lần đăng nhập gần nhất</dt><dd th:text="${user.lastLogin() != null ? #temporals.format(user.lastLogin(), 'dd/MM/yyyy HH:mm') : 'Chưa đăng nhập'}">Đăng nhập</dd></div>
+                            </dl>
+
+                            <div class="card-actions">
+                                <button class="ghost-button icon-button-text js-toggle-panel" type="button" th:attr="data-panel-target=${'user-edit-' + user.userId()}"><span class="mini-icon icon-edit" aria-hidden="true"></span>Sửa</button>
+                                <form th:action="@{/admin/users/{id}(id=${user.userId()})}" method="post" class="js-loading-form">
+                                    <input name="title" type="hidden" th:value="${user.title() != null ? user.title() : ''}">
+                                    <input name="phone" type="hidden" th:value="${user.phone() != null ? user.phone() : ''}">
+                                    <input name="role" type="hidden" th:value="${user.role() != null ? user.role() : 1}">
+                                    <input name="status" type="hidden" th:value="${user.status() == 2 ? 1 : 2}">
+                                    <button class="ghost-button icon-button-text" type="submit" data-loading-text="Đang cập nhật...">
+                                        <span class="mini-icon" th:classappend="${user.status() == 2 ? ' icon-check' : ' icon-lock'}" aria-hidden="true"></span>
+                                        <span th:text="${user.status() == 2 ? 'Mở khóa' : 'Khóa'}">Khóa</span>
+                                    </button>
+                                </form>
+                                <form th:action="@{/admin/users/{id}/delete(id=${user.userId()})}" method="post" class="js-loading-form" data-confirm="Xóa mềm user này? Tài khoản sẽ bị thu hồi token và chuyển sang trạng thái Đã xóa.">
+                                    <button class="ghost-button danger-ghost icon-button-text" type="submit" data-loading-text="Đang xóa..."><span class="mini-icon icon-trash" aria-hidden="true"></span>Xóa</button>
+                                </form>
+                                <button class="ghost-button icon-button-text" type="button" th:attr="data-jump-user-orders=${user.email() != null ? user.email() : ''}"><span class="mini-icon icon-orders" aria-hidden="true"></span>Xem đơn hàng</button>
+                            </div>
+
+                            <div class="collapse-panel" hidden th:id="${'user-edit-' + user.userId()}">
+                                <form th:action="@{/admin/users/{id}(id=${user.userId()})}" method="post" class="form-grid compact-form js-loading-form">
+                                    <p class="form-title"><span class="mini-icon icon-edit" aria-hidden="true"></span>Cập nhật nhanh</p>
+                                    <label>Tên<input name="title" th:value="${user.title()}" placeholder="Tên hiển thị"></label>
+                                    <label>Số điện thoại<input name="phone" th:value="${user.phone()}" placeholder="Số điện thoại"></label>
+                                    <label>Quyền
+                                        <select name="role">
+                                            <option value="0" th:selected="${user.role() == 0}">Admin</option>
+                                            <option value="1" th:selected="${user.role() == 1}">User</option>
+                                        </select>
+                                    </label>
+                                    <label>Trạng thái
+                                        <select name="status">
+                                            <option value="1" th:selected="${user.status() == 1}">Đang hoạt động</option>
+                                            <option value="0" th:selected="${user.status() == 0}">Chờ xác minh</option>
+                                            <option value="2" th:selected="${user.status() == 2}">Đã khóa</option>
+                                            <option value="-1" th:selected="${user.status() == -1}">Đã xóa</option>
+                                        </select>
+                                    </label>
+                                    <p class="helper-text wide">Không hiển thị mật khẩu hoặc hash mật khẩu trong khu vực quản trị.</p>
+                                    <div class="form-actions wide">
+                                        <button class="small-button icon-button-text" type="submit" data-loading-text="Đang lưu..."><span class="mini-icon icon-save" aria-hidden="true"></span>Lưu thay đổi</button>
+                                        <button class="ghost-button js-close-panel" type="button">Hủy</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </article>
+                        <p th:if="${#lists.isEmpty(users)}" class="empty-state">Chưa có user nào.</p>
+                        <p class="empty-state user-filter-empty" hidden>Chưa có dữ liệu phù hợp bộ lọc.</p>
+                    </div>
+                </div>
+            </section>
+
+</th:block>
