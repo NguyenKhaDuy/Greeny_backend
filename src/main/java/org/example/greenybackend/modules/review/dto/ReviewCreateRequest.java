@@ -5,7 +5,6 @@ public record ReviewCreateRequest(
         String plantId,
         Integer rating,
         String title,
-        String comment,
-        String images
+        String comment
 ) {
 }

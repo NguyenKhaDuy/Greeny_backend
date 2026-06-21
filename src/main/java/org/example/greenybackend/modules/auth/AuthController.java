@@ -78,7 +78,8 @@ public class AuthController {
         return new AuthResponse(
                 user.getUserId(),
                 user.getEmail(),
-                user.getTitle(),
+                user.getDisplayName(),
+                user.getDisplayName(),
                 user.getRole(),
                 user.getStatus(),
                 user.getEmailVerat(),

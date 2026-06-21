@@ -155,7 +155,7 @@
                 Chưa có sản phẩm cây, vui lòng tạo cây trước.
             </p>
 
-            <form method="post" action="/admin/variants" class="form-grid variant-create-form js-loading-form">
+            <form method="post" action="/admin/variants" enctype="multipart/form-data" class="form-grid variant-create-form js-loading-form">
                 <label class="wide">
                     Sản phẩm cây
                     <select name="plantId" required th:disabled="${#lists.isEmpty(catalogPlants)}">
@@ -206,6 +206,11 @@
                 <label class="wide">
                     Thuộc tính
                     <input name="attribute" placeholder="Lá lớn, chậu trắng, cao 40-50cm" th:disabled="${#lists.isEmpty(catalogPlants)}">
+                </label>
+
+                <label class="wide">
+                    Ảnh sản phẩm
+                    <input name="imageFiles" type="file" accept="image/*" multiple th:disabled="${#lists.isEmpty(catalogPlants)}">
                 </label>
 
                 <label class="wide">
@@ -264,8 +269,14 @@
 
                         <header class="variant-card-header">
                             <div class="variant-title-block">
-                                <span class="variant-avatar">
-                                    <span class="mini-icon icon-package" aria-hidden="true"></span>
+                                <span class="variant-avatar"
+                                      th:classappend="${variant.imageUrl() == null || #strings.isEmpty(variant.imageUrl()) ? ' is-empty' : ''}">
+                                    <img th:if="${variant.imageUrl() != null && !#strings.isEmpty(variant.imageUrl())}"
+                                         th:src="${variant.imageUrl()}"
+                                         th:alt="${variant.name() != null ? variant.name() : 'Ảnh biến thể'}">
+                                    <span th:if="${variant.imageUrl() == null || #strings.isEmpty(variant.imageUrl())}"
+                                          class="mini-icon icon-package"
+                                          aria-hidden="true"></span>
                                 </span>
 
                                 <div>
@@ -349,6 +360,18 @@
                                     <small>Thông tin giúp khách phân biệt biến thể.</small>
                                 </dd>
                             </div>
+
+                            <div class="variant-info-box">
+                                <dt>Ảnh sản phẩm</dt>
+                                <dd>
+                                    <strong th:text="${variant.images() != null && !#lists.isEmpty(variant.images()) ? #lists.size(variant.images()) + ' ảnh' : 'Chưa có ảnh'}">
+                                        0 ảnh
+                                    </strong>
+                                    <small th:text="${variant.images() != null && !#lists.isEmpty(variant.images()) ? 'Ảnh được lưu trong database.' : 'Nên bổ sung ảnh để hiển thị trên shop.'}">
+                                        Ảnh sản phẩm
+                                    </small>
+                                </dd>
+                            </div>
                         </div>
 
                         <div class="variant-seo-box">
@@ -410,6 +433,7 @@
 
                             <form th:action="@{/admin/variants/{id}(id=${variant.variantId()})}"
                                   method="post"
+                                  enctype="multipart/form-data"
                                   class="form-grid catalog-edit-form variant-edit-form js-loading-form">
 
                                 <label class="wide">
@@ -471,6 +495,11 @@
                                 <label class="wide">
                                     Thuộc tính
                                     <input name="attribute" th:value="${variant.attribute()}">
+                                </label>
+
+                                <label class="wide">
+                                    Ảnh sản phẩm
+                                    <input name="imageFiles" type="file" accept="image/*" multiple>
                                 </label>
 
                                 <label class="wide">

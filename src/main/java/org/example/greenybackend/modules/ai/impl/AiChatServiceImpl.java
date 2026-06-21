@@ -46,13 +46,13 @@ public class AiChatServiceImpl implements AiChatService {
     @Override
     public ChatResponse chat(UserEntity user, ChatRequest request) {
         String message = validateMessage(request);
-        AiChat conversation = conversationService.findOrCreateConversation(user, request == null ? null : request.conversationId());
-        AiContextResult context = contextService.buildContext(user, message);
-        ChatMessageDTO userMessage = conversationService.saveUserMessage(user, conversation.getIdSession(), message, context.intent());
+        AiChat conversation = conversationService.findOrCreateConversation(user, request == null ? null : request.conversationId()); //mess cũ
+        AiContextResult context = contextService.buildContext(user, message); //tạo
+        ChatMessageDTO userMessage = conversationService.saveUserMessage(user, conversation.getIdSession(), message, context.intent());//lưu câu hỏi
 
-        AiGenerationResult generation = aiProviderService.generate(user, message, context);
+        AiGenerationResult generation = aiProviderService.generate(user, message, context);//gọi AI
 
-        ChatMessageDTO aiMessage = conversationService.saveAiMessage(
+        ChatMessageDTO aiMessage = conversationService.saveAiMessage( //Lưu trả lời AI
                 user,
                 conversation.getIdSession(),
                 generation.content(),
@@ -75,7 +75,7 @@ public class AiChatServiceImpl implements AiChatService {
     }
 
     @Override
-    public SseEmitter stream(UserEntity user, ChatRequest request) {
+    public SseEmitter stream(UserEntity user, ChatRequest request) { //lấy câu trả lời, cắt đoạn nhỏ - gửi lên fontend
         SseEmitter emitter = new SseEmitter(120_000L);
         aiChatTaskExecutor.execute(() -> {
             try {

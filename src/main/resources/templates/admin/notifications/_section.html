@@ -167,7 +167,7 @@
                         <option value="">Chọn tài khoản</option>
                         <option th:each="user : ${notificationUsers}"
                                 th:value="${user.userId}"
-                                th:text="${(user.title != null ? user.title : 'Người dùng') + ' - ' + (user.email != null ? user.email : 'Chưa có email')}">
+                                th:text="${(!#strings.isEmpty(user.fullName) ? user.fullName : (user.title != null ? user.title : 'Người dùng')) + ' - ' + (user.email != null ? user.email : 'Chưa có email')}">
                             User
                         </option>
                     </select>

@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class AdminWebController {
@@ -294,12 +295,12 @@ public class AdminWebController {
     public String createCategory(
             @RequestParam String title,
             @RequestParam(required = false) String description,
-            @RequestParam(required = false) String imageUrl,
+            @RequestParam(required = false) MultipartFile imageFile,
             @RequestParam(required = false, defaultValue = "false") Boolean isActive,
             @RequestParam(required = false) Integer sortOrder,
             RedirectAttributes redirectAttributes
     ) {
-        catalogService.createCategory(new CategoryRequest(title, description, imageUrl, isActive, sortOrder));
+        catalogService.createCategory(new CategoryRequest(title, description, isActive, sortOrder), imageFile);
         return success(redirectAttributes, "Đã thêm danh mục mới.", "categories");
     }
 
@@ -308,12 +309,12 @@ public class AdminWebController {
             @PathVariable String categoryId,
             @RequestParam String title,
             @RequestParam(required = false) String description,
-            @RequestParam(required = false) String imageUrl,
+            @RequestParam(required = false) MultipartFile imageFile,
             @RequestParam(required = false, defaultValue = "false") Boolean isActive,
             @RequestParam(required = false) Integer sortOrder,
             RedirectAttributes redirectAttributes
     ) {
-        catalogService.updateCategory(categoryId, new CategoryRequest(title, description, imageUrl, isActive, sortOrder));
+        catalogService.updateCategory(categoryId, new CategoryRequest(title, description, isActive, sortOrder), imageFile);
         return success(redirectAttributes, "Đã cập nhật danh mục.", "categories");
     }
 
@@ -432,12 +433,13 @@ public class AdminWebController {
             @RequestParam(required = false, defaultValue = "false") Boolean isActive,
             @RequestParam(required = false) String seoDescription,
             @RequestParam(required = false) String seoTitle,
+            @RequestParam(required = false) MultipartFile[] imageFiles,
             RedirectAttributes redirectAttributes
     ) {
         variantService.createVariant(new ProductVariantRequest(
                 plantId, name, sku, heightCm, potSize, price, salePrice,
                 quantity, attribute, isActive, seoDescription, seoTitle
-        ));
+        ), imageFiles);
         return success(redirectAttributes, "Đã thêm biến thể mới.", "variants");
     }
 
@@ -456,12 +458,13 @@ public class AdminWebController {
             @RequestParam(required = false, defaultValue = "false") Boolean isActive,
             @RequestParam(required = false) String seoDescription,
             @RequestParam(required = false) String seoTitle,
+            @RequestParam(required = false) MultipartFile[] imageFiles,
             RedirectAttributes redirectAttributes
     ) {
         variantService.updateVariant(variantId, new ProductVariantRequest(
                 plantId, name, sku, heightCm, potSize, price, salePrice,
                 quantity, attribute, isActive, seoDescription, seoTitle
-        ));
+        ), imageFiles);
         return success(redirectAttributes, "Đã cập nhật biến thể.", "variants");
     }
 
@@ -610,6 +613,7 @@ public class AdminWebController {
     public String updateUser(
             @AuthenticationPrincipal(expression = "user") UserEntity currentAdmin,
             @PathVariable String userId,
+            @RequestParam(required = false) String fullName,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) Integer role,
@@ -617,7 +621,7 @@ public class AdminWebController {
             RedirectAttributes redirectAttributes
     ) {
         AdminUserResponse before = userService.getUser(userId);
-        AdminUserResponse after = userService.updateUser(userId, new AdminUserUpdateRequest(title, phone, role, status), currentAdmin);
+        AdminUserResponse after = userService.updateUser(userId, new AdminUserUpdateRequest(fullName, title, phone, role, status), currentAdmin);
         return success(redirectAttributes, userUpdateMessage(before, after), "users");
     }
 
@@ -693,10 +697,10 @@ public class AdminWebController {
             @RequestParam(required = false) String slug,
             @RequestParam(required = false) String excerpt,
             @RequestParam String content,
-            @RequestParam(required = false) String thumbnail,
+            @RequestParam(required = false) MultipartFile thumbnailFile,
             RedirectAttributes redirectAttributes
     ) {
-        articleService.createArticle(new PlantCareArticleRequest(title, slug, excerpt, content, thumbnail), author);
+        articleService.createArticle(new PlantCareArticleRequest(title, slug, excerpt, content), author, thumbnailFile);
         return success(redirectAttributes, "Đã thêm bài viết.", "articles");
     }
 
@@ -707,10 +711,10 @@ public class AdminWebController {
             @RequestParam(required = false) String slug,
             @RequestParam(required = false) String excerpt,
             @RequestParam String content,
-            @RequestParam(required = false) String thumbnail,
+            @RequestParam(required = false) MultipartFile thumbnailFile,
             RedirectAttributes redirectAttributes
     ) {
-        articleService.updateArticle(articleId, new PlantCareArticleRequest(title, slug, excerpt, content, thumbnail));
+        articleService.updateArticle(articleId, new PlantCareArticleRequest(title, slug, excerpt, content), thumbnailFile);
         return success(redirectAttributes, "Đã cập nhật bài viết.", "articles");
     }
 
@@ -736,9 +740,9 @@ public class AdminWebController {
     }
 
     private String userUpdateMessage(AdminUserResponse before, AdminUserResponse after) {
-        String userLabel = after.title() == null || after.title().isBlank()
+        String userLabel = after.fullName() == null || after.fullName().isBlank()
                 ? (after.email() == null || after.email().isBlank() ? "user" : after.email())
-                : after.title();
+                : after.fullName();
         if (!Integer.valueOf(0).equals(before.role()) && Integer.valueOf(0).equals(after.role())) {
             return "Đã nâng quyền " + userLabel + " lên Admin. Tài khoản này có quyền truy cập khu vực quản trị.";
         }

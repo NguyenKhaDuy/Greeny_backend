@@ -6,6 +6,7 @@ public record AuthResponse(
         String userId,
         String email,
         String title,
+        String fullName,
         Integer role,
         Integer status,
         LocalDateTime emailVerifiedAt,

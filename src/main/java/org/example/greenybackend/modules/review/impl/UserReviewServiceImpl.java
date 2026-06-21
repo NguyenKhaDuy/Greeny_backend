@@ -1,5 +1,7 @@
 package org.example.greenybackend.modules.review.impl;
 
+import org.example.greenybackend.common.util.ImageStorageService;
+import org.example.greenybackend.common.util.ImageStorageService.StoredImage;
 import org.example.greenybackend.modules.review.UserReviewService;
 import org.example.greenybackend.modules.review.ProductReviewsRepository;
 import java.time.LocalDateTime;
@@ -19,6 +21,7 @@ import org.example.greenybackend.modules.review.dto.ReviewResponse;
 import org.example.greenybackend.modules.review.dto.ReviewUpdateRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class UserReviewServiceImpl implements UserReviewService {
@@ -28,19 +31,22 @@ public class UserReviewServiceImpl implements UserReviewService {
     private final UserOrderService orderService;
     private final ShopCatalogService catalogService;
     private final UserNotificationService notificationService;
+    private final ImageStorageService imageStorageService;
 
     public UserReviewServiceImpl(
             ProductReviewsRepository reviewRepository,
             PlantRepository plantRepository,
             UserOrderService orderService,
             ShopCatalogService catalogService,
-            UserNotificationService notificationService
+            UserNotificationService notificationService,
+            ImageStorageService imageStorageService
     ) {
         this.reviewRepository = reviewRepository;
         this.plantRepository = plantRepository;
         this.orderService = orderService;
         this.catalogService = catalogService;
         this.notificationService = notificationService;
+        this.imageStorageService = imageStorageService;
     }
 
     @Transactional(readOnly = true)
@@ -54,6 +60,12 @@ public class UserReviewServiceImpl implements UserReviewService {
     @Transactional
     @Override
     public ReviewResponse createReview(UserEntity user, ReviewCreateRequest request) {
+        return createReview(user, request, null);
+    }
+
+    @Transactional
+    @Override
+    public ReviewResponse createReview(UserEntity user, ReviewCreateRequest request, MultipartFile imageFile) {
         validateReviewFields(request == null ? null : request.rating(), request == null ? null : request.comment());
         if (request.orderId() == null || request.orderId().isBlank()) {
             throw new IllegalArgumentException("Can chon don hang da mua");
@@ -85,7 +97,7 @@ public class UserReviewServiceImpl implements UserReviewService {
         review.setRating(request.rating());
         review.setTitle(trimToLength(request.title(), 50));
         review.setComment(trimToNull(request.comment()));
-        review.setImages(trimToNull(request.images()));
+        applyImage(review, imageStorageService.read(imageFile));
         review.setIsApproved(true);
         review.setHelpfulCount(0);
         review.setCreatedAt(now);
@@ -105,12 +117,18 @@ public class UserReviewServiceImpl implements UserReviewService {
     @Transactional
     @Override
     public ReviewResponse updateReview(UserEntity user, String reviewId, ReviewUpdateRequest request) {
+        return updateReview(user, reviewId, request, null);
+    }
+
+    @Transactional
+    @Override
+    public ReviewResponse updateReview(UserEntity user, String reviewId, ReviewUpdateRequest request, MultipartFile imageFile) {
         validateReviewFields(request == null ? null : request.rating(), request == null ? null : request.comment());
         ProductReviews review = findMyReview(user, reviewId);
         review.setRating(request.rating());
         review.setTitle(trimToLength(request.title(), 50));
         review.setComment(trimToNull(request.comment()));
-        review.setImages(trimToNull(request.images()));
+        applyImage(review, imageStorageService.read(imageFile));
         review.setUpdatedAt(LocalDateTime.now());
         return catalogService.toReviewResponse(review);
     }
@@ -167,5 +185,15 @@ public class UserReviewServiceImpl implements UserReviewService {
             return null;
         }
         return value.trim();
+    }
+
+    private void applyImage(ProductReviews review, StoredImage image) {
+        if (image == null) {
+            return;
+        }
+        review.setImagesData(image.data());
+        review.setImagesContentType(image.contentType());
+        review.setImagesFileName(image.fileName());
+        review.setImagesSize(image.size());
     }
 }

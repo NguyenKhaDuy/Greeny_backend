@@ -48,7 +48,7 @@
 
                     <div class="admin-card-list user-list">
                         <article th:each="user : ${users}" class="admin-card user-card"
-                                 th:attr="data-name=${user.title() != null ? user.title() : ''},
+                                 th:attr="data-name=${user.fullName() != null ? user.fullName() : (user.title() != null ? user.title() : '')},
                                           data-email=${user.email() != null ? user.email() : ''},
                                           data-phone=${user.phone() != null ? user.phone() : ''},
                                           data-role=${user.role() != null ? user.role() : 1},
@@ -56,9 +56,9 @@
                                           data-created=${user.createdAt() != null ? #temporals.format(user.createdAt(), 'yyyy-MM-dd') : ''}">
                             <header class="admin-card-head">
                                 <div class="admin-card-title">
-                                    <span class="record-avatar" th:text="${#strings.substring(user.title() != null && !user.title().isBlank() ? user.title() : 'U', 0, 1)}">U</span>
+                                    <span class="record-avatar" th:text="${#strings.substring(user.fullName() != null && !user.fullName().isBlank() ? user.fullName() : (user.title() != null && !user.title().isBlank() ? user.title() : 'U'), 0, 1)}">U</span>
                                     <div>
-                                        <h3 th:text="${user.title() != null && !user.title().isBlank() ? user.title() : 'Chưa có tên'}">User</h3>
+                                        <h3 th:text="${user.fullName() != null && !user.fullName().isBlank() ? user.fullName() : (user.title() != null && !user.title().isBlank() ? user.title() : 'Chưa có tên')}">User</h3>
                                         <p th:text="${user.email() != null ? user.email() : 'Chưa có email'}">email</p>
                                     </div>
                                 </div>
@@ -78,6 +78,7 @@
                             <div class="card-actions">
                                 <button class="ghost-button icon-button-text js-toggle-panel" type="button" th:attr="data-panel-target=${'user-edit-' + user.userId()}"><span class="mini-icon icon-edit" aria-hidden="true"></span>Sửa</button>
                                 <form th:action="@{/admin/users/{id}(id=${user.userId()})}" method="post" class="js-loading-form">
+                                    <input name="fullName" type="hidden" th:value="${user.fullName() != null ? user.fullName() : (user.title() != null ? user.title() : '')}">
                                     <input name="title" type="hidden" th:value="${user.title() != null ? user.title() : ''}">
                                     <input name="phone" type="hidden" th:value="${user.phone() != null ? user.phone() : ''}">
                                     <input name="role" type="hidden" th:value="${user.role() != null ? user.role() : 1}">
@@ -96,7 +97,8 @@
                             <div class="collapse-panel" hidden th:id="${'user-edit-' + user.userId()}">
                                 <form th:action="@{/admin/users/{id}(id=${user.userId()})}" method="post" class="form-grid compact-form js-loading-form">
                                     <p class="form-title"><span class="mini-icon icon-edit" aria-hidden="true"></span>Cập nhật nhanh</p>
-                                    <label>Tên<input name="title" th:value="${user.title()}" placeholder="Tên hiển thị"></label>
+                                    <label>Họ tên<input name="fullName" th:value="${user.fullName() != null ? user.fullName() : user.title()}" placeholder="Họ tên"></label>
+                                    <input name="title" type="hidden" th:value="${user.title() != null ? user.title() : ''}">
                                     <label>Số điện thoại<input name="phone" th:value="${user.phone()}" placeholder="Số điện thoại"></label>
                                     <label>Quyền
                                         <select name="role">

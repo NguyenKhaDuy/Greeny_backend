@@ -695,3 +695,494 @@
         width: 100%;
     }
 }
+
+/* Product performance report */
+#product-stats.admin-section:not(.is-active) {
+    display: none !important;
+}
+
+#product-stats.admin-section.is-active {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+#product-stats,
+#product-stats *,
+#product-stats *::before,
+#product-stats *::after {
+    box-sizing: border-box;
+}
+
+#product-stats > *,
+#product-stats .surface,
+#product-stats .product-performance-report,
+#product-stats .product-performance-hero,
+#product-stats .performance-kpi-grid,
+#product-stats .performance-overview-grid,
+#product-stats .performance-panel,
+#product-stats .performance-risk-list,
+#product-stats .performance-table-panel,
+#product-stats .table-scroll {
+    min-width: 0;
+    max-width: 100%;
+}
+
+#product-stats .product-performance-report {
+    display: grid;
+    gap: 16px;
+}
+
+#product-stats .product-performance-hero {
+    overflow: hidden;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 20px;
+    background:
+            linear-gradient(135deg, rgba(232, 245, 238, 0.96), rgba(255, 255, 255, 0.98) 56%, rgba(234, 242, 251, 0.84));
+    padding: clamp(18px, 2.4vw, 26px);
+    box-shadow: var(--shadow-sm);
+}
+
+#product-stats .product-performance-hero__main {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+#product-stats .product-performance-hero__icon,
+#product-stats .performance-kpi-icon {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    background: var(--green-100);
+    color: var(--green-700);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+}
+
+#product-stats .product-performance-hero__icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    font-size: 28px;
+}
+
+#product-stats .product-performance-hero .section-heading {
+    margin: 0;
+}
+
+#product-stats .product-performance-hero .section-heading h2 {
+    margin: 4px 0 8px;
+    font-size: clamp(24px, 2.4vw, 34px);
+    line-height: 1.12;
+    letter-spacing: 0;
+}
+
+#product-stats .product-performance-hero .section-heading p:not(.eyebrow) {
+    max-width: 920px;
+    line-height: 1.6;
+}
+
+#product-stats .performance-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+#product-stats .performance-meta span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+    color: var(--ink-soft);
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+#product-stats .performance-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+#product-stats .performance-kpi-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    min-height: 142px;
+    overflow: hidden;
+    border: 1px solid rgba(34, 113, 80, 0.10);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 253, 251, 0.94));
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+#product-stats .performance-kpi-card.primary {
+    border-color: rgba(34, 113, 80, 0.18);
+}
+
+#product-stats .performance-kpi-card.warning {
+    border-color: rgba(153, 101, 21, 0.18);
+}
+
+#product-stats .performance-kpi-card.warning .performance-kpi-icon {
+    background: var(--amber-100);
+    color: var(--amber-700);
+}
+
+#product-stats .performance-kpi-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    font-size: 22px;
+}
+
+#product-stats .performance-kpi-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+#product-stats .performance-kpi-card strong {
+    display: block;
+    margin-top: 5px;
+    color: var(--ink);
+    font-size: clamp(26px, 2.2vw, 36px);
+    line-height: 1;
+    letter-spacing: 0;
+}
+
+#product-stats .performance-kpi-card small {
+    display: block;
+    margin-top: 8px;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+#product-stats .performance-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+#product-stats .performance-overview-grid > .performance-panel {
+    align-self: start;
+}
+
+#product-stats .performance-panel {
+    display: grid;
+    grid-auto-rows: max-content;
+    align-content: start;
+    gap: 14px;
+    border: 1px solid rgba(34, 113, 80, 0.11);
+    border-radius: 18px;
+    background: #fff;
+    padding: clamp(15px, 1.8vw, 20px);
+    box-shadow: var(--shadow-sm);
+}
+
+#product-stats .section-heading.compact {
+    margin: 0;
+}
+
+#product-stats .section-heading.compact h2 {
+    margin: 3px 0 6px;
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: 0;
+}
+
+#product-stats .section-heading.compact p:not(.eyebrow) {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+#product-stats .performance-rank-list,
+#product-stats .performance-risk-list {
+    display: grid;
+    align-content: start;
+    align-self: start;
+    gap: 10px;
+}
+
+#product-stats .performance-rank-row {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface-soft);
+    padding: 12px;
+}
+
+#product-stats .performance-rank-row > span:first-child {
+    display: inline-grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--green-100);
+    color: var(--green-700);
+    font-weight: 950;
+}
+
+#product-stats .performance-rank-row h3,
+#product-stats .performance-risk-card h3 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.3;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+}
+
+#product-stats .performance-rank-row p,
+#product-stats .performance-risk-card p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+#product-stats .performance-rank-row > strong {
+    color: var(--green-700);
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+#product-stats .performance-risk-panel {
+    border-color: rgba(153, 101, 21, 0.18);
+}
+
+#product-stats .performance-risk-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    border: 1px solid rgba(153, 101, 21, 0.14);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255, 250, 240, 0.92), rgba(255, 255, 255, 0.96));
+    padding: 13px;
+}
+
+#product-stats .performance-risk-card dl {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 10px;
+    margin: 0;
+}
+
+#product-stats .performance-risk-card dl div {
+    display: grid;
+    gap: 2px;
+    min-width: 64px;
+    border-left: 1px solid rgba(153, 101, 21, 0.16);
+    padding-left: 10px;
+}
+
+#product-stats .performance-risk-card dt {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+#product-stats .performance-risk-card dd {
+    margin: 0;
+    color: var(--ink);
+    font-weight: 950;
+}
+
+#product-stats .performance-table-panel {
+    padding: 0;
+    overflow: hidden;
+}
+
+#product-stats .performance-table-panel > .section-heading {
+    padding: 18px 18px 0;
+}
+
+#product-stats .performance-search-bar {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto auto;
+    gap: 10px;
+    align-items: end;
+    margin: 0 18px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface-soft);
+    padding: 12px;
+}
+
+#product-stats .performance-search-bar label {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+#product-stats .performance-search-bar input {
+    min-height: 40px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 650;
+    text-transform: none;
+}
+
+#product-stats .performance-search-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    border: 1px solid rgba(34, 113, 80, 0.12);
+    border-radius: 999px;
+    background: var(--green-100);
+    color: var(--green-700);
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 950;
+    white-space: nowrap;
+}
+
+#product-stats .performance-search-bar button {
+    min-height: 40px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+#product-stats .performance-table-panel .table-scroll {
+    margin: 0 18px 18px;
+    border-radius: 14px;
+}
+
+#product-stats .performance-table {
+    min-width: 980px;
+}
+
+#product-stats .performance-table th {
+    background: #f8fbf9;
+    color: var(--muted);
+    font-weight: 950;
+    letter-spacing: 0;
+}
+
+#product-stats .performance-table td {
+    vertical-align: middle;
+}
+
+#product-stats .performance-table td:first-child strong {
+    color: var(--green-700);
+}
+
+#product-stats .rating-cell {
+    display: grid;
+    gap: 2px;
+}
+
+#product-stats .rating-cell strong {
+    color: var(--amber-700);
+}
+
+#product-stats .rating-cell small {
+    color: var(--muted);
+}
+
+#product-stats .empty-state {
+    margin: 0;
+    border: 1px dashed var(--line-strong);
+    border-radius: 14px;
+    background: var(--surface-soft);
+    color: var(--muted);
+    padding: 16px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+#product-stats .performance-filter-empty {
+    margin: 0 18px 18px;
+}
+
+@media (max-width: 1200px) {
+    #product-stats .performance-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #product-stats .performance-overview-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 760px) {
+    #product-stats .product-performance-hero__main,
+    #product-stats .performance-kpi-card,
+    #product-stats .performance-risk-card {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #product-stats .performance-kpi-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #product-stats .performance-rank-row {
+        grid-template-columns: 34px minmax(0, 1fr);
+    }
+
+    #product-stats .performance-rank-row > strong {
+        grid-column: 2;
+        white-space: normal;
+    }
+
+    #product-stats .performance-risk-card dl {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #product-stats .performance-search-bar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #product-stats .performance-search-count,
+    #product-stats .performance-search-bar button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    #product-stats .product-performance-hero,
+    #product-stats .performance-panel,
+    #product-stats .performance-kpi-card,
+    #product-stats .performance-risk-card {
+        border-radius: 14px;
+    }
+
+    #product-stats .performance-risk-card dl {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #product-stats .performance-risk-card dl div {
+        border-left: 0;
+        border-top: 1px solid rgba(153, 101, 21, 0.16);
+        padding: 8px 0 0;
+    }
+}

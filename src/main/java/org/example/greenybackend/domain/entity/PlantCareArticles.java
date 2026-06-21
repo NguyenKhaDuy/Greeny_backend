@@ -31,8 +31,19 @@ public class PlantCareArticles {
     @Column(name = "CONTENT")
     private String content;
 
-    @Column(name = "THUMBNAIL")
-    private String thumbnail;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "THUMBNAIL_DATA", columnDefinition = "LONGBLOB")
+    private byte[] thumbnailData;
+
+    @Column(name = "THUMBNAIL_CONTENT_TYPE", length = 100)
+    private String thumbnailContentType;
+
+    @Column(name = "THUMBNAIL_FILE_NAME")
+    private String thumbnailFileName;
+
+    @Column(name = "THUMBNAIL_SIZE")
+    private Long thumbnailSize;
 
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;

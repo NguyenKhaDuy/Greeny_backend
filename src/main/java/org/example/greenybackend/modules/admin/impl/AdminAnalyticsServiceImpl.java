@@ -519,7 +519,7 @@ public class AdminAnalyticsServiceImpl implements AdminAnalyticsService {
         if (order.getUserEntity() == null) {
             return "Khách hàng";
         }
-        return valueOrDefault(order.getUserEntity().getTitle(), "Khách hàng");
+        return valueOrDefault(order.getUserEntity().getDisplayName(), "Khách hàng");
     }
 
     private DashboardTrendResponse numericTrend(int current, int previous, int days, boolean higherIsBetter) {

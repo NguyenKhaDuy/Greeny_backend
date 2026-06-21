@@ -3,30 +3,46 @@ package org.example.greenybackend.modules.variant.impl;
 import static org.example.greenybackend.common.util.AdminFilters.contains;
 import static org.example.greenybackend.common.util.AdminFilters.isBlankOrAll;
 
+import org.example.greenybackend.common.util.ImageStorageService;
+import org.example.greenybackend.common.util.ImageStorageService.StoredImage;
+import org.example.greenybackend.common.util.ImageDataUris;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.example.greenybackend.domain.entity.Category;
 import org.example.greenybackend.domain.entity.Plant;
+import org.example.greenybackend.domain.entity.ProductImage;
 import org.example.greenybackend.domain.entity.ProductVariant;
 import org.example.greenybackend.modules.plant.PlantRepository;
+import org.example.greenybackend.modules.product.ProductImageRepository;
 import org.example.greenybackend.modules.variant.AdminVariantService;
 import org.example.greenybackend.modules.variant.ProductVariantRepository;
 import org.example.greenybackend.modules.variant.dto.ProductVariantRequest;
 import org.example.greenybackend.modules.variant.dto.ProductVariantResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class AdminVariantServiceImpl implements AdminVariantService {
 
     private final ProductVariantRepository variantRepository;
     private final PlantRepository plantRepository;
+    private final ProductImageRepository imageRepository;
+    private final ImageStorageService imageStorageService;
 
-    public AdminVariantServiceImpl(ProductVariantRepository variantRepository, PlantRepository plantRepository) {
+    public AdminVariantServiceImpl(
+            ProductVariantRepository variantRepository,
+            PlantRepository plantRepository,
+            ProductImageRepository imageRepository,
+            ImageStorageService imageStorageService
+    ) {
         this.variantRepository = variantRepository;
         this.plantRepository = plantRepository;
+        this.imageRepository = imageRepository;
+        this.imageStorageService = imageStorageService;
     }
 
     @Override
@@ -69,6 +85,12 @@ public class AdminVariantServiceImpl implements AdminVariantService {
     @Transactional
     @Override
     public ProductVariantResponse createVariant(ProductVariantRequest request) {
+        return createVariant(request, null);
+    }
+
+    @Transactional
+    @Override
+    public ProductVariantResponse createVariant(ProductVariantRequest request, MultipartFile[] imageFiles) {
         validateRequest(request);
 
         LocalDateTime now = LocalDateTime.now();
@@ -78,17 +100,29 @@ public class AdminVariantServiceImpl implements AdminVariantService {
         variant.setIsActive(request.isActive() == null || request.isActive());
         variant.setCreatedAt(now);
         variant.setUpdatedAt(now);
-        return toResponse(variantRepository.save(variant));
+        ProductVariant saved = variantRepository.save(variant);
+        replaceImages(saved, imageStorageService.readAll(imageFiles), now);
+        return toResponse(saved);
     }
 
     @Transactional
     @Override
     public ProductVariantResponse updateVariant(String variantId, ProductVariantRequest request) {
+        return updateVariant(variantId, request, null);
+    }
+
+    @Transactional
+    @Override
+    public ProductVariantResponse updateVariant(String variantId, ProductVariantRequest request, MultipartFile[] imageFiles) {
         validateRequest(request);
 
         ProductVariant variant = findVariant(variantId);
         applyRequest(variant, request);
         variant.setUpdatedAt(LocalDateTime.now());
+        List<StoredImage> images = imageStorageService.readAll(imageFiles);
+        if (!images.isEmpty()) {
+            replaceImages(variant, images, variant.getUpdatedAt());
+        }
         return toResponse(variant);
     }
 
@@ -192,6 +226,30 @@ public class AdminVariantServiceImpl implements AdminVariantService {
         variant.setSeoTitle(trimToNull(request.seoTitle()));
     }
 
+    private void replaceImages(ProductVariant variant, List<StoredImage> images, LocalDateTime now) {
+        if (images == null || images.isEmpty()) {
+            return;
+        }
+        List<ProductImage> currentImages = imageRepository.findByProductVariantVariantIdOrderByCreatedAtAsc(variant.getVariantId());
+        imageRepository.deleteAll(currentImages);
+        variant.getProductImages().clear();
+
+        List<ProductImage> savedImages = new ArrayList<>();
+        for (StoredImage storedImage : images) {
+            ProductImage image = new ProductImage();
+            image.setImageId(UUID.randomUUID().toString());
+            image.setProductVariant(variant);
+            image.setImageData(storedImage.data());
+            image.setImageContentType(storedImage.contentType());
+            image.setImageFileName(storedImage.fileName());
+            image.setImageSize(storedImage.size());
+            image.setCreatedAt(now);
+            savedImages.add(image);
+        }
+        imageRepository.saveAll(savedImages);
+        variant.getProductImages().addAll(savedImages);
+    }
+
     private Plant findPlant(String plantId) {
         if (plantId == null || plantId.isBlank()) {
             throw new IllegalArgumentException("Biến thể phải thuộc về một cây");
@@ -202,6 +260,7 @@ public class AdminVariantServiceImpl implements AdminVariantService {
 
     private ProductVariantResponse toResponse(ProductVariant variant) {
         Plant plant = variant.getPlant();
+        List<String> images = imageUrls(variant);
         return new ProductVariantResponse(
                 variant.getVariantId(),
                 plant == null ? null : plant.getPlantId(),
@@ -217,9 +276,21 @@ public class AdminVariantServiceImpl implements AdminVariantService {
                 variant.getIsActive(),
                 variant.getSeoDescription(),
                 variant.getSeoTitle(),
+                images.isEmpty() ? null : images.get(0),
+                images,
                 variant.getCreatedAt(),
                 variant.getUpdatedAt()
         );
+    }
+
+    private List<String> imageUrls(ProductVariant variant) {
+        if (variant == null || variant.getProductImages() == null) {
+            return List.of();
+        }
+        return variant.getProductImages().stream()
+                .map(ImageDataUris::productImage)
+                .filter(url -> url != null && !url.isBlank())
+                .toList();
     }
 
     private void validateRequest(ProductVariantRequest request) {

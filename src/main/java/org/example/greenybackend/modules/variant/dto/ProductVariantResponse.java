@@ -2,6 +2,7 @@ package org.example.greenybackend.modules.variant.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record ProductVariantResponse(
         String variantId,
@@ -18,6 +19,8 @@ public record ProductVariantResponse(
         Boolean isActive,
         String seoDescription,
         String seoTitle,
+        String imageUrl,
+        List<String> images,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

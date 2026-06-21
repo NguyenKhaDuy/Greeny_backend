@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import org.example.greenybackend.common.util.ImageDataUris;
 import org.example.greenybackend.domain.entity.UserEntity;
 import org.example.greenybackend.modules.user.AdminUserService;
 import org.example.greenybackend.modules.user.UserRepository;
@@ -49,7 +50,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     ) {
         return userRepository.findAll().stream()
                 .sorted(Comparator.comparing(UserEntity::getCreateat, Comparator.nullsLast(Comparator.reverseOrder())))
-                .filter(user -> contains(user.getTitle(), name))
+                .filter(user -> contains(user.getDisplayName(), name))
                 .filter(user -> contains(user.getEmail(), email))
                 .filter(user -> contains(user.getPhone(), phone))
                 .filter(user -> role == null || role.equals(user.getRole()))
@@ -89,7 +90,11 @@ public class AdminUserServiceImpl implements AdminUserService {
             }
         }
 
-        user.setTitle(trimToNull(request.title()));
+        if (request.fullName() != null || request.title() != null) {
+            String fullName = displayName(request.fullName(), request.title());
+            user.setFullName(fullName);
+            user.setTitle(fullName);
+        }
         user.setPhone(trimToNull(request.phone()));
         user.setUpdateat(LocalDateTime.now());
         return toResponse(user);
@@ -143,13 +148,19 @@ public class AdminUserServiceImpl implements AdminUserService {
         return value.trim();
     }
 
+    private String displayName(String fullName, String title) {
+        String normalizedFullName = trimToNull(fullName);
+        return normalizedFullName != null ? normalizedFullName : trimToNull(title);
+    }
+
     private AdminUserResponse toResponse(UserEntity user) {
         return new AdminUserResponse(
                 user.getUserId(),
-                user.getTitle(),
+                user.getDisplayName(),
+                user.getDisplayName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getAvatar(),
+                ImageDataUris.userAvatar(user),
                 user.getRole(),
                 roleLabel(user.getRole()),
                 user.getStatus(),

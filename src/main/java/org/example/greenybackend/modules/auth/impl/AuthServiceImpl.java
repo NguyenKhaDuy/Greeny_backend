@@ -66,13 +66,14 @@ public class AuthServiceImpl implements AuthService {
         }
 
         LocalDateTime now = LocalDateTime.now();
+        String fullName = displayName(request.fullName(), request.title());
         UserEntity user = new UserEntity();
         user.setUserId(UUID.randomUUID().toString());
         user.setEmail(email);
         user.setPass(passwordEncoder.encode(request.password()));
-        user.setTitle(trimToNull(request.title()));
+        user.setFullName(fullName);
+        user.setTitle(fullName);
         user.setPhone(trimToNull(request.phone()));
-        user.setAvatar(trimToNull(request.avatar()));
         user.setRole(DEFAULT_ROLE);
         user.setStatus(STATUS_PENDING_EMAIL);
         user.setCreateat(now);
@@ -215,7 +216,8 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(
                 user.getUserId(),
                 user.getEmail(),
-                user.getTitle(),
+                user.getDisplayName(),
+                user.getDisplayName(),
                 user.getRole(),
                 user.getStatus(),
                 user.getEmailVerat(),
@@ -244,5 +246,10 @@ public class AuthServiceImpl implements AuthService {
             return null;
         }
         return value.trim();
+    }
+
+    private String displayName(String fullName, String title) {
+        String normalizedFullName = trimToNull(fullName);
+        return normalizedFullName != null ? normalizedFullName : trimToNull(title);
     }
 }

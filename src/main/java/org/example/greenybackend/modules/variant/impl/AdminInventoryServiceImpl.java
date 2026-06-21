@@ -3,6 +3,7 @@ package org.example.greenybackend.modules.variant.impl;
 import static org.example.greenybackend.common.util.AdminFilters.contains;
 import static org.example.greenybackend.common.util.AdminFilters.isBlankOrAll;
 
+import org.example.greenybackend.common.util.ImageDataUris;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.example.greenybackend.domain.entity.Plant;
@@ -164,6 +165,7 @@ public class AdminInventoryServiceImpl implements AdminInventoryService {
 
     private ProductVariantResponse toVariantResponse(ProductVariant variant) {
         Plant plant = variant.getPlant();
+        List<String> images = imageUrls(variant);
         return new ProductVariantResponse(
                 variant.getVariantId(),
                 plant == null ? null : plant.getPlantId(),
@@ -179,9 +181,21 @@ public class AdminInventoryServiceImpl implements AdminInventoryService {
                 variant.getIsActive(),
                 variant.getSeoDescription(),
                 variant.getSeoTitle(),
+                images.isEmpty() ? null : images.get(0),
+                images,
                 variant.getCreatedAt(),
                 variant.getUpdatedAt()
         );
+    }
+
+    private List<String> imageUrls(ProductVariant variant) {
+        if (variant == null || variant.getProductImages() == null) {
+            return List.of();
+        }
+        return variant.getProductImages().stream()
+                .map(ImageDataUris::productImage)
+                .filter(url -> url != null && !url.isBlank())
+                .toList();
     }
 
 }

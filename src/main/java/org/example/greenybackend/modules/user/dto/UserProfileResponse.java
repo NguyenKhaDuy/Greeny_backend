@@ -6,6 +6,7 @@ public record UserProfileResponse(
         String userId,
         String email,
         String title,
+        String fullName,
         String phone,
         String avatar,
         Integer role,
