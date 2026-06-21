@@ -178,6 +178,15 @@
                     <p>Theo dõi tồn kho, số lượng bán, doanh thu và đánh giá trung bình của từng sản phẩm.</p>
                 </div>
 
+                <form class="performance-search-bar" data-performance-search-form th:if="${!#lists.isEmpty(plantRows)}">
+                    <label>
+                        <span>Tìm cây</span>
+                        <input name="plantSearch" type="search" placeholder="Nhập tên cây, loại hoặc kiểu cây" autocomplete="off" data-performance-search>
+                    </label>
+                    <span class="performance-search-count" data-performance-search-count th:text="${#lists.size(plantRows) + ' cây'}">0 cây</span>
+                    <button class="ghost-button" type="reset" data-performance-search-reset>Xóa</button>
+                </form>
+
                 <div class="table-scroll" th:if="${!#lists.isEmpty(plantRows)}">
                     <table class="data-table performance-table">
                         <thead>
@@ -194,7 +203,7 @@
                         </thead>
 
                         <tbody>
-                        <tr th:each="product : ${plantRows}">
+                        <tr th:each="product : ${plantRows}" data-performance-row>
                             <td>
                                 <strong th:text="${product.plantTitle() != null ? product.plantTitle() : 'Chưa có tên cây'}">
                                     Plant
@@ -245,6 +254,10 @@
                         </tbody>
                     </table>
                 </div>
+
+                <p class="empty-state performance-filter-empty" hidden data-performance-filter-empty>
+                    Không tìm thấy cây phù hợp.
+                </p>
 
                 <p th:if="${#lists.isEmpty(plantRows)}" class="empty-state">
                     Chưa có dữ liệu thống kê sản phẩm.

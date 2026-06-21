@@ -24,6 +24,9 @@ public class UserEntity {
     @Column(name = "TITLE", length = 50)
     private String title;
 
+    @Column(name = "FULLNAME", length = 100)
+    private String fullName;
+
     @Column(name = "EMAIL", length = 100, unique = true)
     private String email;
 
@@ -33,8 +36,19 @@ public class UserEntity {
     @Column(name = "PHONE", length = 11)
     private String phone;
 
-    @Column(name = "AVATAR", length = 255)
-    private String avatar;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "AVATAR_DATA", columnDefinition = "LONGBLOB")
+    private byte[] avatarData;
+
+    @Column(name = "AVATAR_CONTENT_TYPE", length = 100)
+    private String avatarContentType;
+
+    @Column(name = "AVATAR_FILE_NAME")
+    private String avatarFileName;
+
+    @Column(name = "AVATAR_SIZE")
+    private Long avatarSize;
 
     @Column(name = "ROLE")
     private Integer role;
@@ -134,4 +148,11 @@ public class UserEntity {
     @OneToMany(mappedBy = "userEntity")
     @Builder.Default
     private List<Messenger> messengers = new ArrayList<>();
+
+    public String getDisplayName() {
+        if (fullName != null && !fullName.isBlank()) {
+            return fullName;
+        }
+        return title;
+    }
 }

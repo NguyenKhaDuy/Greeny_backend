@@ -149,7 +149,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         return new AdminOrderResponse(
                 order.getOrderId(),
                 user == null ? null : user.getUserId(),
-                user == null ? null : user.getTitle(),
+                user == null ? null : user.getDisplayName(),
                 user == null ? null : user.getEmail(),
                 user == null ? null : user.getPhone(),
                 address == null ? null : address.getReceiverName(),

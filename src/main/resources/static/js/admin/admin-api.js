@@ -28,7 +28,9 @@
         };
 
         if (options.body !== undefined) {
-            if (options.body instanceof URLSearchParams) {
+            if (options.body instanceof FormData) {
+                init.body = options.body;
+            } else if (options.body instanceof URLSearchParams) {
                 init.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
                 init.body = options.body.toString();
             } else {
@@ -129,6 +131,20 @@
         return field.value === 'true';
     }
 
+    function hasFileInputs(form) {
+        return Array.from(form.elements).some((field) => field.type === 'file');
+    }
+
+    function multipartBody(form) {
+        const body = new FormData(form);
+        form.querySelectorAll('input[type="file"]').forEach((input) => {
+            if (!input.files || input.files.length === 0) {
+                body.delete(input.name);
+            }
+        });
+        return body;
+    }
+
     function formToParams(form, names) {
         const params = new URLSearchParams();
         names.forEach((name) => {
@@ -148,10 +164,12 @@
     }
 
     function categoryBody(form) {
+        if (hasFileInputs(form)) {
+            return multipartBody(form);
+        }
         return {
             title: readValue(form, 'title', ''),
             description: readValue(form, 'description'),
-            imageUrl: readValue(form, 'imageUrl'),
             isActive: readBoolean(form, 'isActive', false),
             sortOrder: readInteger(form, 'sortOrder')
         };
@@ -174,6 +192,9 @@
     }
 
     function variantBody(form) {
+        if (hasFileInputs(form)) {
+            return multipartBody(form);
+        }
         return {
             plantId: readValue(form, 'plantId', ''),
             name: readValue(form, 'name', ''),
@@ -206,12 +227,14 @@
     }
 
     function articleBody(form) {
+        if (hasFileInputs(form)) {
+            return multipartBody(form);
+        }
         return {
             title: readValue(form, 'title', ''),
             slug: readValue(form, 'slug'),
             excerpt: readValue(form, 'excerpt'),
-            content: readValue(form, 'content', ''),
-            thumbnail: readValue(form, 'thumbnail')
+            content: readValue(form, 'content', '')
         };
     }
 
@@ -257,6 +280,7 @@
 
     function userUpdateBody(form) {
         return {
+            fullName: readValue(form, 'fullName'),
             title: readValue(form, 'title'),
             phone: readValue(form, 'phone'),
             role: readInteger(form, 'role'),
@@ -284,7 +308,8 @@
 
         match = path.match(/^\/admin\/categories\/([^/]+)\/visibility$/);
         if (match) {
-            return {method: 'PUT', url: `/api/admin/categories/${match[1]}`, body: categoryBody(form)};
+            const isActive = readBoolean(form, 'isActive', false);
+            return {method: 'PATCH', url: `/api/admin/categories/${match[1]}/visibility?isActive=${isActive}`};
         }
 
         match = path.match(/^\/admin\/plants$/);

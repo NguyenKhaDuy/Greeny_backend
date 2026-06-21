@@ -4,6 +4,7 @@ import static org.example.greenybackend.common.util.AdminFilters.contains;
 import static org.example.greenybackend.common.util.AdminFilters.dateEquals;
 import static org.example.greenybackend.common.util.AdminFilters.isBlankOrAll;
 
+import org.example.greenybackend.common.util.ImageDataUris;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -100,7 +101,7 @@ public class AdminReviewServiceImpl implements AdminReviewService {
 
     private boolean matchesCustomer(ProductReviews review, String customer) {
         UserEntity user = review.getUserEntity();
-        String customerText = user == null ? "" : ((user.getTitle() == null ? "" : user.getTitle())
+        String customerText = user == null ? "" : ((user.getDisplayName() == null ? "" : user.getDisplayName())
                 + " "
                 + (user.getEmail() == null ? "" : user.getEmail()));
         return contains(customerText, customer);
@@ -139,14 +140,14 @@ public class AdminReviewServiceImpl implements AdminReviewService {
                 review.getRating(),
                 review.getTitle(),
                 review.getComment(),
-                review.getImages(),
+                ImageDataUris.reviewImage(review),
                 review.getIsApproved(),
                 review.getHelpfulCount(),
                 order == null ? null : order.getOrderId(),
                 plant == null ? null : plant.getPlantId(),
                 plant == null ? null : plant.getTitle(),
                 user == null ? null : user.getUserId(),
-                user == null ? null : user.getTitle(),
+                user == null ? null : user.getDisplayName(),
                 user == null ? null : user.getEmail(),
                 review.getCreatedAt(),
                 review.getUpdatedAt()

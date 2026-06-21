@@ -1,5 +1,8 @@
 package org.example.greenybackend.modules.category.impl;
 
+import org.example.greenybackend.common.util.ImageStorageService;
+import org.example.greenybackend.common.util.ImageStorageService.StoredImage;
+import org.example.greenybackend.common.util.ImageDataUris;
 import org.example.greenybackend.modules.category.AdminCatalogService;
 import org.example.greenybackend.modules.category.CategoryRepository;
 import java.time.LocalDateTime;
@@ -11,16 +14,23 @@ import org.example.greenybackend.modules.category.dto.CategoryResponse;
 import org.example.greenybackend.modules.plant.PlantRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class AdminCatalogServiceImpl implements AdminCatalogService {
 
     private final CategoryRepository categoryRepository;
     private final PlantRepository plantRepository;
+    private final ImageStorageService imageStorageService;
 
-    public AdminCatalogServiceImpl(CategoryRepository categoryRepository, PlantRepository plantRepository) {
+    public AdminCatalogServiceImpl(
+            CategoryRepository categoryRepository,
+            PlantRepository plantRepository,
+            ImageStorageService imageStorageService
+    ) {
         this.categoryRepository = categoryRepository;
         this.plantRepository = plantRepository;
+        this.imageStorageService = imageStorageService;
     }
 
     @Override
@@ -38,12 +48,19 @@ public class AdminCatalogServiceImpl implements AdminCatalogService {
     @Transactional
     @Override
     public CategoryResponse createCategory(CategoryRequest request) {
+        return createCategory(request, null);
+    }
+
+    @Transactional
+    @Override
+    public CategoryResponse createCategory(CategoryRequest request, MultipartFile imageFile) {
         validateTitle(request.title());
 
         LocalDateTime now = LocalDateTime.now();
         Category category = new Category();
         category.setCaId(UUID.randomUUID().toString());
         applyRequest(category, request);
+        applyImage(category, imageStorageService.read(imageFile));
         category.setIsActive(request.isActive() == null || request.isActive());
         category.setCreatedCa(now);
         category.setUpdatedCa(now);
@@ -53,10 +70,17 @@ public class AdminCatalogServiceImpl implements AdminCatalogService {
     @Transactional
     @Override
     public CategoryResponse updateCategory(String categoryId, CategoryRequest request) {
+        return updateCategory(categoryId, request, null);
+    }
+
+    @Transactional
+    @Override
+    public CategoryResponse updateCategory(String categoryId, CategoryRequest request, MultipartFile imageFile) {
         validateTitle(request.title());
 
         Category category = findCategory(categoryId);
         applyRequest(category, request);
+        applyImage(category, imageStorageService.read(imageFile));
         category.setUpdatedCa(LocalDateTime.now());
         return toResponse(category);
     }
@@ -93,11 +117,20 @@ public class AdminCatalogServiceImpl implements AdminCatalogService {
     private void applyRequest(Category category, CategoryRequest request) {
         category.setTitle(trimToNull(request.title()));
         category.setDescription(trimToNull(request.description()));
-        category.setImageUrl(trimToNull(request.imageUrl()));
         if (request.isActive() != null) {
             category.setIsActive(request.isActive());
         }
         category.setSortOrder(request.sortOrder());
+    }
+
+    private void applyImage(Category category, StoredImage image) {
+        if (image == null) {
+            return;
+        }
+        category.setImageData(image.data());
+        category.setImageContentType(image.contentType());
+        category.setImageFileName(image.fileName());
+        category.setImageSize(image.size());
     }
 
     private CategoryResponse toResponse(Category category) {
@@ -105,7 +138,7 @@ public class AdminCatalogServiceImpl implements AdminCatalogService {
                 category.getCaId(),
                 category.getTitle(),
                 category.getDescription(),
-                category.getImageUrl(),
+                ImageDataUris.categoryImage(category),
                 category.getIsActive(),
                 category.getSortOrder(),
                 category.getCreatedCa(),

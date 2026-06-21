@@ -1,5 +1,6 @@
 package org.example.greenybackend.modules.product.impl;
 
+import org.example.greenybackend.common.util.ImageDataUris;
 import org.example.greenybackend.modules.product.ShopCatalogService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class ShopCatalogServiceImpl implements ShopCatalogService {
                         category.getCaId(),
                         category.getTitle(),
                         category.getDescription(),
-                        category.getImageUrl(),
+                        ImageDataUris.categoryImage(category),
                         category.getSortOrder()
                 ))
                 .toList();
@@ -213,11 +214,11 @@ public class ShopCatalogServiceImpl implements ShopCatalogService {
                 plant == null ? null : plant.getPlantId(),
                 plant == null ? null : plant.getTitle(),
                 user == null ? null : user.getUserId(),
-                user == null ? null : user.getTitle(),
+                user == null ? null : user.getDisplayName(),
                 review.getRating(),
                 review.getTitle(),
                 review.getComment(),
-                review.getImages(),
+                ImageDataUris.reviewImage(review),
                 review.getIsApproved(),
                 review.getHelpfulCount(),
                 review.getCreatedAt(),
@@ -372,8 +373,9 @@ public class ShopCatalogServiceImpl implements ShopCatalogService {
         }
         List<String> images = new ArrayList<>();
         for (ProductImage image : variant.getProductImages()) {
-            if (image.getImageUrl() != null && !image.getImageUrl().isBlank()) {
-                images.add(image.getImageUrl());
+            String imageUrl = ImageDataUris.productImage(image);
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                images.add(imageUrl);
             }
         }
         return images;

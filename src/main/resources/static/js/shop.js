@@ -30,13 +30,24 @@ async function api(path, options = {}) {
         headers: options.headers ? {...options.headers} : {}
     };
     if (options.body !== undefined) {
-        init.headers['Content-Type'] = 'application/json';
-        init.body = JSON.stringify(options.body);
+        if (options.body instanceof FormData) {
+            init.body = options.body;
+        } else {
+            init.headers['Content-Type'] = 'application/json';
+            init.body = JSON.stringify(options.body);
+        }
     }
 
     const response = await fetch(path, init);
     const text = await response.text();
-    const data = text ? JSON.parse(text) : null;
+    let data = null;
+    if (text) {
+        try {
+            data = JSON.parse(text);
+        } catch (error) {
+            data = {message: text};
+        }
+    }
     if (!response.ok) {
         throw new Error(data && data.message ? data.message : 'Xu ly that bai');
     }
@@ -131,7 +142,7 @@ async function loadSession() {
     try {
         const user = await api('/api/auth/me');
         state.user = user;
-        $('sessionLabel').textContent = user.title || user.email || 'Da dang nhap';
+        $('sessionLabel').textContent = user.fullName || user.title || user.email || 'Da dang nhap';
         $('logoutButton').hidden = false;
         $('loginPanel').classList.add('is-hidden');
         await Promise.allSettled([loadCart(), loadUnreadCount(), loadAiHistory(), loadAiLimits()]);
@@ -282,6 +293,7 @@ function renderProductDetail() {
                     <div class="mini-list">
                         ${(plant.reviews || []).map((review) => `
                             <div class="mini-row">
+                                ${review.images ? imageBlock(review.images, review.plantTitle, 'item-image') : ''}
                                 <div>
                                     <strong>${escapeHtml(review.userName || 'Khach hang')} - ${review.rating}/5</strong>
                                     <p>${escapeHtml(review.comment)}</p>
@@ -482,10 +494,12 @@ async function loadProfile() {
     try {
         const profile = await api('/api/user/profile');
         const form = $('profileForm');
-        form.title.value = profile.title || '';
+        form.fullName.value = profile.fullName || profile.title || '';
         form.email.value = profile.email || '';
         form.phone.value = profile.phone || '';
-        form.avatar.value = profile.avatar || '';
+        if (form.avatarFile) {
+            form.avatarFile.value = '';
+        }
     } catch (error) {
         showToast(error.message, 'error');
     }
@@ -732,6 +746,7 @@ async function loadReviews() {
 function renderReviews() {
     $('reviewList').innerHTML = state.reviews.map((review) => `
         <article class="review-row">
+            ${review.images ? imageBlock(review.images, review.plantTitle, 'item-image') : ''}
             <div>
                 <h3>${escapeHtml(review.plantTitle || 'San pham')} - ${review.rating}/5</h3>
                 <p>${escapeHtml(review.comment)}</p>
@@ -1146,7 +1161,9 @@ function startReview(orderId, plantId) {
     form.rating.value = 5;
     form.title.value = '';
     form.comment.value = '';
-    form.images.value = '';
+    if (form.imageFile) {
+        form.imageFile.value = '';
+    }
     activateView('reviews');
 }
 
@@ -1162,7 +1179,9 @@ function editReview(reviewId) {
     form.rating.value = review.rating || 5;
     form.title.value = review.title || '';
     form.comment.value = review.comment || '';
-    form.images.value = review.images || '';
+    if (form.imageFile) {
+        form.imageFile.value = '';
+    }
 }
 
 async function deleteReview(reviewId) {
@@ -1310,18 +1329,29 @@ async function submitCheckout(event) {
 async function submitProfile(event) {
     event.preventDefault();
     const form = event.currentTarget;
+    const payload = {
+        fullName: form.fullName.value,
+        email: form.email.value,
+        phone: form.phone.value
+    };
+    let body = payload;
+    if (form.avatarFile && form.avatarFile.files.length) {
+        body = new FormData();
+        body.set('fullName', payload.fullName);
+        body.set('email', payload.email);
+        body.set('phone', payload.phone);
+        body.set('avatarFile', form.avatarFile.files[0]);
+    }
     try {
         const profile = await api('/api/user/profile', {
             method: 'PUT',
-            body: {
-                title: form.title.value,
-                email: form.email.value,
-                phone: form.phone.value,
-                avatar: form.avatar.value
-            }
+            body
         });
         state.user = profile;
-        $('sessionLabel').textContent = profile.title || profile.email;
+        $('sessionLabel').textContent = profile.fullName || profile.title || profile.email;
+        if (form.avatarFile) {
+            form.avatarFile.value = '';
+        }
         showToast('Da luu thong tin');
     } catch (error) {
         showToast(error.message, 'error');
@@ -1372,21 +1402,22 @@ async function submitAddress(event) {
 async function submitReview(event) {
     event.preventDefault();
     const form = event.currentTarget;
-    const body = {
-        orderId: form.orderId.value,
-        plantId: form.plantId.value,
-        rating: Number(form.rating.value),
-        title: form.title.value,
-        comment: form.comment.value,
-        images: form.images.value
-    };
+    const body = new FormData();
+    body.set('rating', form.rating.value);
+    body.set('title', form.title.value);
+    body.set('comment', form.comment.value);
+    if (form.imageFile && form.imageFile.files.length) {
+        body.set('imageFile', form.imageFile.files[0]);
+    }
     try {
         if (form.reviewId.value) {
             await api(`/api/user/reviews/${form.reviewId.value}`, {
                 method: 'PUT',
-                body: {rating: body.rating, title: body.title, comment: body.comment, images: body.images}
+                body
             });
         } else {
+            body.set('orderId', form.orderId.value);
+            body.set('plantId', form.plantId.value);
             await api('/api/user/reviews', {method: 'POST', body});
         }
         form.reset();

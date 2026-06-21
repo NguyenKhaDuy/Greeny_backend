@@ -8,6 +8,7 @@ import org.example.greenybackend.modules.user.dto.AddressResponse;
 import org.example.greenybackend.modules.user.dto.PasswordChangeRequest;
 import org.example.greenybackend.modules.user.dto.UserProfileResponse;
 import org.example.greenybackend.modules.user.dto.UserProfileUpdateRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/user")
@@ -36,12 +39,24 @@ public class UserAccountController {
         return accountService.getProfile(currentUser);
     }
 
-    @PutMapping("/profile")
+    @PutMapping(value = "/profile", consumes = MediaType.APPLICATION_JSON_VALUE)
     public UserProfileResponse updateProfile(
             @AuthenticationPrincipal(expression = "user") UserEntity currentUser,
             @RequestBody UserProfileUpdateRequest request
     ) {
         return accountService.updateProfile(currentUser, request);
+    }
+
+    @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public UserProfileResponse updateProfileMultipart(
+            @AuthenticationPrincipal(expression = "user") UserEntity currentUser,
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) MultipartFile avatarFile
+    ) {
+        return accountService.updateProfile(currentUser, new UserProfileUpdateRequest(fullName, title, phone, email), avatarFile);
     }
 
     @PutMapping("/password")

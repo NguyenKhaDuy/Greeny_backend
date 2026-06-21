@@ -132,12 +132,12 @@
 
         <section class="view" id="accountView">
             <div class="account-grid">
-                <form id="profileForm" class="panel-form">
+                <form id="profileForm" class="panel-form" enctype="multipart/form-data">
                     <h2>Thong tin ca nhan</h2>
-                    <label>Ho ten<input name="title" required></label>
+                    <label>Ho ten<input name="fullName" required></label>
                     <label>Email<input name="email" type="email"></label>
                     <label>So dien thoai<input name="phone"></label>
-                    <label>Avatar URL<input name="avatar"></label>
+                    <label>Avatar<input name="avatarFile" type="file" accept="image/*"></label>
                     <button class="primary-button" type="submit">Luu thong tin</button>
                 </form>
                 <form id="passwordForm" class="panel-form">
@@ -183,7 +183,7 @@
 
         <section class="view" id="reviewsView">
             <div class="review-grid">
-                <form id="reviewForm" class="panel-form">
+                <form id="reviewForm" class="panel-form" enctype="multipart/form-data">
                     <h2>Danh gia san pham</h2>
                     <input name="reviewId" type="hidden">
                     <label>Don hang<input name="orderId" required></label>
@@ -191,7 +191,7 @@
                     <label>So sao<input name="rating" type="number" min="1" max="5" value="5" required></label>
                     <label>Tieu de<input name="title" maxlength="50"></label>
                     <label>Nhan xet<textarea name="comment" rows="4" required></textarea></label>
-                    <label>Anh URL<input name="images"></label>
+                    <label>Anh<input name="imageFile" type="file" accept="image/*"></label>
                     <button class="primary-button" type="submit">Luu danh gia</button>
                     <button id="resetReviewForm" class="ghost-button" type="button">Tao moi</button>
                 </form>

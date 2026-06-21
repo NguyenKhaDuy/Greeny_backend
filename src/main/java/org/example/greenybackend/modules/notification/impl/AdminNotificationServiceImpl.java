@@ -141,7 +141,7 @@ public class AdminNotificationServiceImpl implements AdminNotificationService {
                     }
                     String recipientText = (user.getUserId() == null ? "" : user.getUserId())
                             + " "
-                            + (user.getTitle() == null ? "" : user.getTitle())
+                            + (user.getDisplayName() == null ? "" : user.getDisplayName())
                             + " "
                             + (user.getEmail() == null ? "" : user.getEmail());
                     return contains(recipientText, recipient);
@@ -221,7 +221,7 @@ public class AdminNotificationServiceImpl implements AdminNotificationService {
         return new AdminNotificationRecipientResponse(
                 notificationUser.getIdNotiUser(),
                 user == null ? null : user.getUserId(),
-                user == null ? null : user.getTitle(),
+                user == null ? null : user.getDisplayName(),
                 user == null ? null : user.getEmail(),
                 notificationUser.getIsRead(),
                 notificationUser.getSendingTime()

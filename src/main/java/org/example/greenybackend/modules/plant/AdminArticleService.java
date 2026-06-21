@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.example.greenybackend.domain.entity.UserEntity;
 import org.example.greenybackend.modules.plant.dto.PlantCareArticleRequest;
 import org.example.greenybackend.modules.plant.dto.PlantCareArticleResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface AdminArticleService {
 
@@ -16,7 +17,11 @@ public interface AdminArticleService {
 
     PlantCareArticleResponse createArticle(PlantCareArticleRequest request, UserEntity author);
 
+    PlantCareArticleResponse createArticle(PlantCareArticleRequest request, UserEntity author, MultipartFile thumbnailFile);
+
     PlantCareArticleResponse updateArticle(String articleId, PlantCareArticleRequest request);
+
+    PlantCareArticleResponse updateArticle(String articleId, PlantCareArticleRequest request, MultipartFile thumbnailFile);
 
     void deleteArticle(String articleId);
 

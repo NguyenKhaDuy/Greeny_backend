@@ -1,5 +1,8 @@
 package org.example.greenybackend.modules.user.impl;
 
+import org.example.greenybackend.common.util.ImageStorageService;
+import org.example.greenybackend.common.util.ImageStorageService.StoredImage;
+import org.example.greenybackend.common.util.ImageDataUris;
 import org.example.greenybackend.modules.user.UserAccountService;
 import org.example.greenybackend.modules.user.AddressRepository;
 import org.example.greenybackend.modules.user.UserRepository;
@@ -19,6 +22,7 @@ import org.example.greenybackend.modules.user.dto.UserProfileUpdateRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class UserAccountServiceImpl implements UserAccountService {
@@ -26,34 +30,44 @@ public class UserAccountServiceImpl implements UserAccountService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ImageStorageService imageStorageService;
 
     public UserAccountServiceImpl(
             UserRepository userRepository,
             AddressRepository addressRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            ImageStorageService imageStorageService
     ) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
+        this.imageStorageService = imageStorageService;
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserProfileResponse getProfile(UserEntity user) {
-        return toProfile(user);
+        return toProfile(requirePersistentUser(user));
     }
 
     @Transactional
     @Override
     public UserProfileResponse updateProfile(UserEntity user, UserProfileUpdateRequest request) {
+        return updateProfile(user, request, null);
+    }
+
+    @Transactional
+    @Override
+    public UserProfileResponse updateProfile(UserEntity user, UserProfileUpdateRequest request, MultipartFile avatarFile) {
+        UserEntity managedUser = requirePersistentUser(user);
         if (request == null) {
             throw new IllegalArgumentException("Du lieu cap nhat khong hop le");
         }
-        String title = trimToNull(request.title());
-        if (title == null) {
+        String fullName = displayName(request.fullName(), request.title());
+        if (fullName == null) {
             throw new IllegalArgumentException("Ho ten khong duoc de trong");
         }
-        if (title.length() > 100) {
+        if (fullName.length() > 100) {
             throw new IllegalArgumentException("Ho ten khong duoc vuot qua 100 ky tu");
         }
 
@@ -61,46 +75,50 @@ public class UserAccountServiceImpl implements UserAccountService {
         validatePhone(phone, false);
 
         String email = normalizeEmail(request.email());
-        if (email != null && !email.equalsIgnoreCase(user.getEmail())) {
+        if (email != null && !email.equalsIgnoreCase(managedUser.getEmail())) {
             validateEmail(email);
             userRepository.findByEmail(email)
-                    .filter(existing -> !existing.getUserId().equals(user.getUserId()))
+                    .filter(existing -> !existing.getUserId().equals(managedUser.getUserId()))
                     .ifPresent(existing -> {
                         throw new IllegalArgumentException("Email da duoc su dung");
                     });
-            user.setEmail(email);
+            managedUser.setEmail(email);
         }
 
-        user.setTitle(title);
-        user.setPhone(phone);
-        user.setAvatar(trimToNull(request.avatar()));
-        user.setUpdateat(LocalDateTime.now());
-        return toProfile(user);
+        managedUser.setFullName(fullName);
+        managedUser.setTitle(fullName);
+        managedUser.setPhone(phone);
+        applyAvatar(managedUser, imageStorageService.read(avatarFile));
+        managedUser.setUpdateat(LocalDateTime.now());
+        return toProfile(userRepository.save(managedUser));
     }
 
     @Transactional
     @Override
     public void changePassword(UserEntity user, PasswordChangeRequest request) {
+        UserEntity managedUser = requirePersistentUser(user);
         if (request == null) {
             throw new IllegalArgumentException("Du lieu doi mat khau khong hop le");
         }
-        if (request.currentPassword() == null || !passwordEncoder.matches(request.currentPassword(), user.getPass())) {
+        if (request.currentPassword() == null || !passwordEncoder.matches(request.currentPassword(), managedUser.getPass())) {
             throw new IllegalArgumentException("Mat khau hien tai khong dung");
         }
         if (request.newPassword() == null || request.newPassword().length() < 8) {
             throw new IllegalArgumentException("Mat khau moi phai co it nhat 8 ky tu");
         }
-        if (passwordEncoder.matches(request.newPassword(), user.getPass())) {
+        if (passwordEncoder.matches(request.newPassword(), managedUser.getPass())) {
             throw new IllegalArgumentException("Mat khau moi khong duoc trung mat khau hien tai");
         }
-        user.setPass(passwordEncoder.encode(request.newPassword()));
-        user.setUpdateat(LocalDateTime.now());
+        managedUser.setPass(passwordEncoder.encode(request.newPassword()));
+        managedUser.setUpdateat(LocalDateTime.now());
+        userRepository.save(managedUser);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<AddressResponse> getAddresses(UserEntity user) {
-        return addressRepository.findByUserEntityUserIdOrderByIsDefaultDescCreatedAtDesc(user.getUserId()).stream()
+        UserEntity managedUser = requirePersistentUser(user);
+        return addressRepository.findByUserEntityUserIdOrderByIsDefaultDescCreatedAtDesc(managedUser.getUserId()).stream()
                 .map(this::toAddressResponse)
                 .toList();
     }
@@ -108,21 +126,22 @@ public class UserAccountServiceImpl implements UserAccountService {
     @Transactional
     @Override
     public AddressResponse createAddress(UserEntity user, AddressRequest request) {
+        UserEntity managedUser = requirePersistentUser(user);
         validateAddress(request);
         LocalDateTime now = LocalDateTime.now();
 
         Address address = new Address();
         address.setAddressId(UUID.randomUUID().toString());
-        address.setUserEntity(user);
+        address.setUserEntity(managedUser);
         applyAddressRequest(address, request);
         address.setCreatedAt(now);
         address.setUpdatedAt(now);
 
         boolean shouldBeDefault = Boolean.TRUE.equals(request.isDefault())
-                || addressRepository.countByUserEntityUserId(user.getUserId()) == 0;
+                || addressRepository.countByUserEntityUserId(managedUser.getUserId()) == 0;
         address.setIsDefault(shouldBeDefault);
         if (shouldBeDefault) {
-            clearDefaultAddress(user, null);
+            clearDefaultAddress(managedUser, null);
         }
         return toAddressResponse(addressRepository.save(address));
     }
@@ -130,25 +149,27 @@ public class UserAccountServiceImpl implements UserAccountService {
     @Transactional
     @Override
     public AddressResponse updateAddress(UserEntity user, String addressId, AddressRequest request) {
+        UserEntity managedUser = requirePersistentUser(user);
         validateAddress(request);
-        Address address = findUserAddress(user, addressId);
+        Address address = findUserAddress(managedUser, addressId);
         applyAddressRequest(address, request);
         if (Boolean.TRUE.equals(request.isDefault())) {
-            clearDefaultAddress(user, address.getAddressId());
+            clearDefaultAddress(managedUser, address.getAddressId());
             address.setIsDefault(true);
         } else if (request.isDefault() != null) {
             address.setIsDefault(request.isDefault());
         }
         address.setUpdatedAt(LocalDateTime.now());
-        ensureOneDefault(user);
+        ensureOneDefault(managedUser);
         return toAddressResponse(address);
     }
 
     @Transactional
     @Override
     public AddressResponse setDefaultAddress(UserEntity user, String addressId) {
-        Address address = findUserAddress(user, addressId);
-        clearDefaultAddress(user, addressId);
+        UserEntity managedUser = requirePersistentUser(user);
+        Address address = findUserAddress(managedUser, addressId);
+        clearDefaultAddress(managedUser, addressId);
         address.setIsDefault(true);
         address.setUpdatedAt(LocalDateTime.now());
         return toAddressResponse(address);
@@ -157,11 +178,12 @@ public class UserAccountServiceImpl implements UserAccountService {
     @Transactional
     @Override
     public void deleteAddress(UserEntity user, String addressId) {
-        Address address = findUserAddress(user, addressId);
+        UserEntity managedUser = requirePersistentUser(user);
+        Address address = findUserAddress(managedUser, addressId);
         boolean wasDefault = Boolean.TRUE.equals(address.getIsDefault());
         addressRepository.delete(address);
         if (wasDefault) {
-            ensureOneDefault(user);
+            ensureOneDefault(managedUser);
         }
     }
 
@@ -169,6 +191,9 @@ public class UserAccountServiceImpl implements UserAccountService {
     public Address findUserAddress(UserEntity user, String addressId) {
         if (addressId == null || addressId.isBlank()) {
             throw new IllegalArgumentException("Can chon dia chi giao hang");
+        }
+        if (user == null || user.getUserId() == null) {
+            throw new IllegalArgumentException("Can dang nhap de thuc hien thao tac");
         }
         return addressRepository.findByAddressIdAndUserEntityUserId(addressId, user.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Khong tim thay dia chi giao hang"));
@@ -248,14 +273,23 @@ public class UserAccountServiceImpl implements UserAccountService {
         return new UserProfileResponse(
                 user.getUserId(),
                 user.getEmail(),
-                user.getTitle(),
+                user.getDisplayName(),
+                user.getDisplayName(),
                 user.getPhone(),
-                user.getAvatar(),
+                ImageDataUris.userAvatar(user),
                 user.getRole(),
                 user.getStatus(),
                 user.getCreateat(),
                 user.getUpdateat()
         );
+    }
+
+    private UserEntity requirePersistentUser(UserEntity currentUser) {
+        if (currentUser == null || currentUser.getUserId() == null) {
+            throw new IllegalArgumentException("Can dang nhap de thuc hien thao tac");
+        }
+        return userRepository.findById(currentUser.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Token dang nhap khong hop le"));
     }
 
     private String formatAddress(Address address) {
@@ -304,5 +338,20 @@ public class UserAccountServiceImpl implements UserAccountService {
             return null;
         }
         return value.trim();
+    }
+
+    private void applyAvatar(UserEntity user, StoredImage image) {
+        if (image == null) {
+            return;
+        }
+        user.setAvatarData(image.data());
+        user.setAvatarContentType(image.contentType());
+        user.setAvatarFileName(image.fileName());
+        user.setAvatarSize(image.size());
+    }
+
+    private String displayName(String fullName, String title) {
+        String normalizedFullName = trimToNull(fullName);
+        return normalizedFullName != null ? normalizedFullName : trimToNull(title);
     }
 }

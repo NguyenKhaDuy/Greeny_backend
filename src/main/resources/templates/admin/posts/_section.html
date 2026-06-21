@@ -624,7 +624,7 @@
                 </p>
             </div>
 
-            <form method="post" action="/admin/articles" class="form-grid article-create-form js-loading-form">
+            <form method="post" action="/admin/articles" enctype="multipart/form-data" class="form-grid article-create-form js-loading-form">
                 <label>
                     Tiêu đề
                     <input name="title" maxlength="50" required placeholder="Cách tưới Monstera đúng cách">
@@ -637,7 +637,7 @@
 
                 <label class="wide">
                     Ảnh đại diện
-                    <input name="thumbnail" type="url" placeholder="https://...">
+                    <input name="thumbnailFile" type="file" accept="image/*">
                 </label>
 
                 <label class="wide">
@@ -675,7 +675,7 @@
                 <article th:each="article : ${articles}"
                          class="admin-card article-row"
                          th:with="thumbnail=${article.thumbnail() != null ? article.thumbnail().trim() : ''},
-                                  safeThumbnail=${thumbnail.startsWith('/') || thumbnail.startsWith('data:image/') || thumbnail.startsWith('http://localhost') || thumbnail.startsWith('https://localhost') || thumbnail.startsWith('http://127.0.0.1') || thumbnail.startsWith('https://127.0.0.1')}"
+                                  safeThumbnail=${thumbnail.startsWith('data:image/')}"
                          th:attr="data-title=${article.title() != null ? article.title() : ''},
                                   data-slug=${article.slug() != null ? article.slug() : ''},
                                   data-status=${'stored'},
@@ -686,7 +686,7 @@
 
                         <span th:if="${!safeThumbnail}"
                               class="article-thumb"
-                              th:text="${thumbnail.isBlank() ? 'Chưa có ảnh' : 'Ảnh ngoài hệ thống'}">
+                              th:text="${thumbnail.isBlank() ? 'Chưa có ảnh' : 'Ảnh chưa đúng định dạng base64'}">
                             Chưa có ảnh
                         </span>
 
@@ -778,6 +778,7 @@
                     <div class="collapse-panel" hidden th:id="${'article-edit-' + article.plantCareArticlesId()}">
                         <form th:action="@{/admin/articles/{id}(id=${article.plantCareArticlesId()})}"
                               method="post"
+                              enctype="multipart/form-data"
                               class="form-grid article-edit-form js-loading-form">
                             <p class="form-title">
                                 <span class="mini-icon icon-edit" aria-hidden="true"></span>
@@ -796,7 +797,7 @@
 
                             <label class="wide">
                                 Ảnh đại diện
-                                <input name="thumbnail" type="url" th:value="${article.thumbnail()}">
+                                <input name="thumbnailFile" type="file" accept="image/*">
                             </label>
 
                             <label class="wide">

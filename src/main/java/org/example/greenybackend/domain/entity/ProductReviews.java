@@ -28,8 +28,19 @@ public class ProductReviews {
     @Column(name = "COMMENT")
     private String comment;
 
-    @Column(name = "IMAGES")
-    private String images;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "IMAGES_DATA", columnDefinition = "LONGBLOB")
+    private byte[] imagesData;
+
+    @Column(name = "IMAGES_CONTENT_TYPE", length = 100)
+    private String imagesContentType;
+
+    @Column(name = "IMAGES_FILE_NAME")
+    private String imagesFileName;
+
+    @Column(name = "IMAGES_SIZE")
+    private Long imagesSize;
 
     @Column(name = "IS_APPROVED")
     private Boolean isApproved;

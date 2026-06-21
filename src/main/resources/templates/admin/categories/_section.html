@@ -96,7 +96,7 @@
                 </p>
             </div>
 
-            <form method="post" action="/admin/categories" class="form-grid category-create-form js-loading-form">
+            <form method="post" action="/admin/categories" enctype="multipart/form-data" class="form-grid category-create-form js-loading-form">
                 <label>
                     Tên danh mục
                     <input name="title" required placeholder="Ví dụ: Cây trong nhà">
@@ -109,7 +109,7 @@
 
                 <label class="wide">
                     Ảnh đại diện
-                    <input name="imageUrl" type="url" placeholder="https://...">
+                    <input name="imageFile" type="file" accept="image/*">
                 </label>
 
                 <label class="wide">
@@ -220,7 +220,7 @@
                                     <strong th:text="${category.imageUrl() != null && !#strings.isEmpty(category.imageUrl()) ? 'Đã có ảnh' : 'Chưa có ảnh'}">
                                         Đã có ảnh
                                     </strong>
-                                    <small th:text="${category.imageUrl() != null && !#strings.isEmpty(category.imageUrl()) ? category.imageUrl() : 'Nên bổ sung ảnh để storefront chuyên nghiệp hơn.'}">
+                                    <small th:text="${category.imageUrl() != null && !#strings.isEmpty(category.imageUrl()) ? 'Ảnh được lưu trong database.' : 'Nên bổ sung ảnh để storefront chuyên nghiệp hơn.'}">
                                         Ảnh đại diện
                                     </small>
                                 </dd>
@@ -251,7 +251,6 @@
                                       class="js-loading-form">
                                     <input name="title" type="hidden" th:value="${category.title()}">
                                     <input name="description" type="hidden" th:value="${category.description()}">
-                                    <input name="imageUrl" type="hidden" th:value="${category.imageUrl()}">
                                     <input name="sortOrder" type="hidden" th:value="${category.sortOrder()}">
                                     <input name="isActive" type="hidden" th:value="${category.isActive() != true}">
 
@@ -293,6 +292,7 @@
 
                             <form th:action="@{/admin/categories/{id}(id=${category.caId()})}"
                                   method="post"
+                                  enctype="multipart/form-data"
                                   class="form-grid catalog-edit-form category-edit-form js-loading-form">
 
                                 <label>
@@ -307,7 +307,7 @@
 
                                 <label class="wide">
                                     Ảnh đại diện
-                                    <input name="imageUrl" th:value="${category.imageUrl()}" type="url">
+                                    <input name="imageFile" type="file" accept="image/*">
                                 </label>
 
                                 <label class="wide">

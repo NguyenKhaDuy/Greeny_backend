@@ -27,8 +27,19 @@ public class Category {
     @Column(name = "DESCRIPTION")
     private String description;
 
-    @Column(name = "IMAGE_URL")
-    private String imageUrl;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "IMAGE_DATA", columnDefinition = "LONGBLOB")
+    private byte[] imageData;
+
+    @Column(name = "IMAGE_CONTENT_TYPE", length = 100)
+    private String imageContentType;
+
+    @Column(name = "IMAGE_FILE_NAME")
+    private String imageFileName;
+
+    @Column(name = "IMAGE_SIZE")
+    private Long imageSize;
 
     @Column(name = "IS_ACTIVE")
     private Boolean isActive;

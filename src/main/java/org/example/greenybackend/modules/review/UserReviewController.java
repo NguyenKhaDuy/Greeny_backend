@@ -6,6 +6,7 @@ import org.example.greenybackend.domain.entity.UserEntity;
 import org.example.greenybackend.modules.review.dto.ReviewCreateRequest;
 import org.example.greenybackend.modules.review.dto.ReviewResponse;
 import org.example.greenybackend.modules.review.dto.ReviewUpdateRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/user/reviews")
@@ -33,7 +36,7 @@ public class UserReviewController {
         return reviewService.getMyReviews(currentUser);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReviewResponse> createReview(
             @AuthenticationPrincipal(expression = "user") UserEntity currentUser,
             @RequestBody ReviewCreateRequest request
@@ -41,13 +44,39 @@ public class UserReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewService.createReview(currentUser, request));
     }
 
-    @PutMapping("/{reviewId}")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ReviewResponse> createReviewMultipart(
+            @AuthenticationPrincipal(expression = "user") UserEntity currentUser,
+            @RequestParam String orderId,
+            @RequestParam String plantId,
+            @RequestParam Integer rating,
+            @RequestParam(required = false) String title,
+            @RequestParam String comment,
+            @RequestParam(required = false) MultipartFile imageFile
+    ) {
+        ReviewCreateRequest request = new ReviewCreateRequest(orderId, plantId, rating, title, comment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(reviewService.createReview(currentUser, request, imageFile));
+    }
+
+    @PutMapping(value = "/{reviewId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ReviewResponse updateReview(
             @AuthenticationPrincipal(expression = "user") UserEntity currentUser,
             @PathVariable String reviewId,
             @RequestBody ReviewUpdateRequest request
     ) {
         return reviewService.updateReview(currentUser, reviewId, request);
+    }
+
+    @PutMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ReviewResponse updateReviewMultipart(
+            @AuthenticationPrincipal(expression = "user") UserEntity currentUser,
+            @PathVariable String reviewId,
+            @RequestParam Integer rating,
+            @RequestParam(required = false) String title,
+            @RequestParam String comment,
+            @RequestParam(required = false) MultipartFile imageFile
+    ) {
+        return reviewService.updateReview(currentUser, reviewId, new ReviewUpdateRequest(rating, title, comment), imageFile);
     }
 
     @DeleteMapping("/{reviewId}")

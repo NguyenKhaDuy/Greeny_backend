@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record AdminUserResponse(
         String userId,
         String title,
+        String fullName,
         String email,
         String phone,
         String avatar,

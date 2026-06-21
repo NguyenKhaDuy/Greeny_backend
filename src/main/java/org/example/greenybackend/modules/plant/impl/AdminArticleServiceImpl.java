@@ -4,6 +4,9 @@ import static org.example.greenybackend.common.util.AdminFilters.contains;
 import static org.example.greenybackend.common.util.AdminFilters.dateEquals;
 import static org.example.greenybackend.common.util.AdminFilters.isBlankOrAll;
 
+import org.example.greenybackend.common.util.ImageStorageService;
+import org.example.greenybackend.common.util.ImageStorageService.StoredImage;
+import org.example.greenybackend.common.util.ImageDataUris;
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,14 +23,20 @@ import org.example.greenybackend.modules.plant.dto.PlantCareArticleRequest;
 import org.example.greenybackend.modules.plant.dto.PlantCareArticleResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class AdminArticleServiceImpl implements AdminArticleService {
 
     private final PlantCareArticleRepository articleRepository;
+    private final ImageStorageService imageStorageService;
 
-    public AdminArticleServiceImpl(PlantCareArticleRepository articleRepository) {
+    public AdminArticleServiceImpl(
+            PlantCareArticleRepository articleRepository,
+            ImageStorageService imageStorageService
+    ) {
         this.articleRepository = articleRepository;
+        this.imageStorageService = imageStorageService;
     }
 
     @Override
@@ -55,6 +64,16 @@ public class AdminArticleServiceImpl implements AdminArticleService {
     @Transactional
     @Override
     public PlantCareArticleResponse createArticle(PlantCareArticleRequest request, UserEntity author) {
+        return createArticle(request, author, null);
+    }
+
+    @Transactional
+    @Override
+    public PlantCareArticleResponse createArticle(
+            PlantCareArticleRequest request,
+            UserEntity author,
+            MultipartFile thumbnailFile
+    ) {
         validateRequest(request, null);
 
         LocalDateTime now = LocalDateTime.now();
@@ -62,6 +81,7 @@ public class AdminArticleServiceImpl implements AdminArticleService {
         article.setPlantCareArticlesId(UUID.randomUUID().toString());
         article.setUserEntity(author);
         applyRequest(article, request);
+        applyThumbnail(article, imageStorageService.read(thumbnailFile));
         article.setCreatedAt(now);
         article.setUpdatedAt(now);
         return toResponse(articleRepository.save(article));
@@ -70,10 +90,17 @@ public class AdminArticleServiceImpl implements AdminArticleService {
     @Transactional
     @Override
     public PlantCareArticleResponse updateArticle(String articleId, PlantCareArticleRequest request) {
+        return updateArticle(articleId, request, null);
+    }
+
+    @Transactional
+    @Override
+    public PlantCareArticleResponse updateArticle(String articleId, PlantCareArticleRequest request, MultipartFile thumbnailFile) {
         validateRequest(request, articleId);
 
         PlantCareArticles article = findArticle(articleId);
         applyRequest(article, request);
+        applyThumbnail(article, imageStorageService.read(thumbnailFile));
         article.setUpdatedAt(LocalDateTime.now());
         return toResponse(article);
     }
@@ -98,7 +125,16 @@ public class AdminArticleServiceImpl implements AdminArticleService {
         article.setSlug(normalizeSlug(request.slug(), request.title()));
         article.setExcerpt(trimToNull(request.excerpt()));
         article.setContent(trimToNull(request.content()));
-        article.setThumbnail(trimToNull(request.thumbnail()));
+    }
+
+    private void applyThumbnail(PlantCareArticles article, StoredImage image) {
+        if (image == null) {
+            return;
+        }
+        article.setThumbnailData(image.data());
+        article.setThumbnailContentType(image.contentType());
+        article.setThumbnailFileName(image.fileName());
+        article.setThumbnailSize(image.size());
     }
 
     private PlantCareArticleResponse toResponse(PlantCareArticles article) {
@@ -109,7 +145,7 @@ public class AdminArticleServiceImpl implements AdminArticleService {
             UserEntity author = article.getUserEntity();
             if (author != null) {
                 authorId = author.getUserId();
-                authorName = author.getTitle();
+                authorName = author.getDisplayName();
                 authorEmail = author.getEmail();
             }
         } catch (EntityNotFoundException exception) {
@@ -123,7 +159,7 @@ public class AdminArticleServiceImpl implements AdminArticleService {
                 article.getSlug(),
                 article.getExcerpt(),
                 article.getContent(),
-                article.getThumbnail(),
+                ImageDataUris.articleThumbnail(article),
                 authorId,
                 authorName,
                 authorEmail,
